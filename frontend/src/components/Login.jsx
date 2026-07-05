@@ -10,8 +10,8 @@ const dashboardForRole = (role) => (["admin", "hr"].includes(role) ? "/admin" : 
 
 const Login = () => {
   const navigate = useNavigate();
-  const { setUser } = useUser();
-  const { formatFirebaseError, getProfile, login, signupWithGoogle } = useFirebase();
+  const { refreshUser } = useUser();
+  const { formatFirebaseError, login, signupWithGoogle } = useFirebase();
   const [form, setForm] = useState({ email: "", password: "" });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [notice, setNotice] = useState({ message: "", type: "info" });
@@ -20,9 +20,8 @@ const Login = () => {
     setForm((current) => ({ ...current, [event.target.name]: event.target.value }));
   };
 
-  const finishLogin = async (firebaseUser) => {
-    const profile = await getProfile(firebaseUser.uid);
-    setUser(profile);
+  const finishLogin = async () => {
+    const profile = await refreshUser();
     navigate(dashboardForRole(profile.role), { replace: true });
   };
 
@@ -32,8 +31,8 @@ const Login = () => {
     setNotice({ message: "", type: "info" });
 
     try {
-      const firebaseUser = await login(form.email, form.password);
-      await finishLogin(firebaseUser);
+      await login(form.email, form.password);
+      await finishLogin();
     } catch (error) {
       setNotice({ type: "error", message: formatFirebaseError(error) });
     } finally {
@@ -46,8 +45,8 @@ const Login = () => {
     setNotice({ message: "", type: "info" });
 
     try {
-      const firebaseUser = await signupWithGoogle();
-      await finishLogin(firebaseUser);
+      await signupWithGoogle();
+      await finishLogin();
     } catch (error) {
       setNotice({ type: "error", message: formatFirebaseError(error) });
     } finally {

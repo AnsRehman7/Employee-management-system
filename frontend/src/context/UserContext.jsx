@@ -1,22 +1,28 @@
 /* eslint-disable react-refresh/only-export-components */
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { onAuthStateChanged } from "firebase/auth";
-import { auth, ensureUserProfile, formatFirebaseError } from "./firebase";
+import { api, formatApiError, setAuthTokenProvider } from "./api";
+import { auth } from "./firebase";
 
 const UserContext = createContext(null);
+
+setAuthTokenProvider(async () => {
+  if (!auth.currentUser) return null;
+  return auth.currentUser.getIdToken();
+});
 
 export const UserProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  const refreshUser = useCallback(async () => {
+  const refreshUser = useCallback(async (profileData = {}) => {
     if (!auth.currentUser) {
       setUser(null);
       return null;
     }
 
-    const profile = await ensureUserProfile(auth.currentUser);
+    const { user: profile } = await api.syncProfile(profileData);
     setUser(profile);
     return profile;
   }, []);
@@ -32,11 +38,11 @@ export const UserProvider = ({ children }) => {
           return;
         }
 
-        const profile = await ensureUserProfile(firebaseUser);
+        const { user: profile } = await api.syncProfile();
         setUser(profile);
       } catch (sessionError) {
         console.error("Session error:", sessionError);
-        setError(formatFirebaseError(sessionError));
+        setError(formatApiError(sessionError));
         setUser(null);
       } finally {
         setLoading(false);

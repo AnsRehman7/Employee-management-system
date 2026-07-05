@@ -1,28 +1,8 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { FiCheckCircle, FiClock, FiList, FiZap } from "react-icons/fi";
 import Alert from "../../Alert";
-import { useFirebase } from "../../../context/firebase";
-import { useUser } from "../../../context/UserContext";
 
-const TaskNumber = () => {
-  const firebase = useFirebase();
-  const { user } = useUser();
-  const [tasks, setTasks] = useState([]);
-  const [error, setError] = useState("");
-
-  useEffect(() => {
-    if (!user) return undefined;
-
-    return firebase.subscribeEmployeeTasks(
-      user,
-      (assignedTasks) => {
-        setTasks(assignedTasks);
-        setError("");
-      },
-      (snapshotError) => setError(firebase.formatFirebaseError(snapshotError))
-    );
-  }, [firebase, user]);
-
+const TaskNumber = ({ error = "", tasks = [] }) => {
   const taskStats = useMemo(() => {
     const completed = tasks.filter((task) => task.status === "completed").length;
     const active = tasks.length - completed;

@@ -1,7 +1,7 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { FiCalendar, FiCheckCircle, FiRefreshCw, FiTrash2, FiUsers } from "react-icons/fi";
 import Alert from "../../Alert";
-import { useFirebase } from "../../../context/firebase";
+import { api, formatApiError } from "../../../context/api";
 
 const formatDate = (date) => {
   if (!date) return "No deadline";
@@ -19,27 +19,30 @@ const statusStyles = {
   pending: "bg-amber-100 text-amber-700",
 };
 
-const AllTask = () => {
-  const firebase = useFirebase();
+const AllTask = ({ refreshKey = 0 }) => {
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [activeFilter, setActiveFilter] = useState("all");
   const [busyId, setBusyId] = useState("");
 
+  const loadTasks = useCallback(async ({ showLoading = false } = {}) => {
+    if (showLoading) setLoading(true);
+
+    try {
+      const { tasks: taskList } = await api.getTasks();
+      setTasks(taskList);
+      setError("");
+    } catch (error) {
+      setError(formatApiError(error));
+    } finally {
+      if (showLoading) setLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
-    return firebase.subscribeAllTasks(
-      (allTasks) => {
-        setTasks(allTasks);
-        setError("");
-        setLoading(false);
-      },
-      (snapshotError) => {
-        setError(firebase.formatFirebaseError(snapshotError));
-        setLoading(false);
-      }
-    );
-  }, [firebase]);
+    loadTasks({ showLoading: true });
+  }, [loadTasks, refreshKey]);
 
   const filteredTasks = useMemo(() => {
     if (activeFilter === "completed") return tasks.filter((task) => task.status === "completed");
@@ -63,9 +66,10 @@ const AllTask = () => {
     setBusyId(taskId);
     setError("");
     try {
-      await firebase.deleteTask(taskId);
+      await api.deleteTask(taskId);
+      await loadTasks();
     } catch (error) {
-      setError(firebase.formatFirebaseError(error));
+      setError(formatApiError(error));
     } finally {
       setBusyId("");
     }
@@ -76,9 +80,10 @@ const AllTask = () => {
     setError("");
 
     try {
-      await firebase.updateTaskStatus(taskId, status);
+      await api.updateTaskStatus(taskId, status);
+      await loadTasks();
     } catch (error) {
-      setError(firebase.formatFirebaseError(error));
+      setError(formatApiError(error));
     } finally {
       setBusyId("");
     }

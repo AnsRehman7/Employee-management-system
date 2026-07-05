@@ -1,8 +1,7 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { FiCalendar, FiCheckCircle, FiClock, FiRotateCcw } from "react-icons/fi";
 import Alert from "../Alert";
-import { useFirebase } from "../../context/firebase";
-import { useUser } from "../../context/UserContext";
+import { api, formatApiError } from "../../context/api";
 
 const formatDate = (date) => {
   if (!date) return "No deadline";
@@ -20,32 +19,10 @@ const statusStyles = {
   pending: "bg-amber-100 text-amber-700",
 };
 
-const TaskList = () => {
-  const firebase = useFirebase();
-  const { user } = useUser();
-  const [tasks, setTasks] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+const TaskList = ({ error = "", loading = false, onTasksChanged = async () => {}, tasks = [] }) => {
+  const [localError, setLocalError] = useState("");
   const [activeFilter, setActiveFilter] = useState("active");
   const [updatingId, setUpdatingId] = useState("");
-
-  useEffect(() => {
-    if (!user) return undefined;
-
-    setLoading(true);
-    return firebase.subscribeEmployeeTasks(
-      user,
-      (assignedTasks) => {
-        setTasks(assignedTasks);
-        setError("");
-        setLoading(false);
-      },
-      (snapshotError) => {
-        setError(firebase.formatFirebaseError(snapshotError));
-        setLoading(false);
-      }
-    );
-  }, [firebase, user]);
 
   const filteredTasks = useMemo(() => {
     if (activeFilter === "completed") return tasks.filter((task) => task.status === "completed");
@@ -55,11 +32,12 @@ const TaskList = () => {
 
   const handleStatusChange = async (taskId, status) => {
     setUpdatingId(taskId);
-    setError("");
+    setLocalError("");
     try {
-      await firebase.updateTaskStatus(taskId, status);
+      await api.updateTaskStatus(taskId, status);
+      await onTasksChanged();
     } catch (error) {
-      setError(firebase.formatFirebaseError(error));
+      setLocalError(formatApiError(error));
     } finally {
       setUpdatingId("");
     }
@@ -102,7 +80,7 @@ const TaskList = () => {
         </div>
       </div>
 
-      <Alert message={error} type="error" />
+      <Alert message={localError || error} type="error" />
 
       {filteredTasks.length === 0 ? (
         <div className="py-14 text-center">

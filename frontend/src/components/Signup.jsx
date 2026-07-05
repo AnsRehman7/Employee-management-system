@@ -9,9 +9,9 @@ import { useUser } from "../context/UserContext";
 const dashboardForRole = (role) => (["admin", "hr"].includes(role) ? "/admin" : "/employee");
 
 const Signup = () => {
-  const { setUser } = useUser();
+  const { refreshUser } = useUser();
   const navigate = useNavigate();
-  const { formatFirebaseError, getProfile, signup, signupWithGoogle } = useFirebase();
+  const { formatFirebaseError, signup, signupWithGoogle } = useFirebase();
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -26,9 +26,12 @@ const Signup = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const completeSignup = async (firebaseUser) => {
-    const profile = await getProfile(firebaseUser.uid);
-    setUser(profile);
+  const completeSignup = async () => {
+    const profile = await refreshUser({
+      contact: formData.contact,
+      fullName: formData.fullName,
+      role: formData.role,
+    });
     navigate(dashboardForRole(profile.role), { replace: true });
   };
 
@@ -44,8 +47,8 @@ const Signup = () => {
     }
 
     try {
-      const firebaseUser = await signup(formData);
-      await completeSignup(firebaseUser);
+      await signup(formData);
+      await completeSignup();
     } catch (error) {
       setNotice({ type: "error", message: formatFirebaseError(error) });
     } finally {
@@ -58,8 +61,8 @@ const Signup = () => {
     setNotice({ message: "", type: "info" });
 
     try {
-      const firebaseUser = await signupWithGoogle(formData.role);
-      await completeSignup(firebaseUser);
+      await signupWithGoogle();
+      await completeSignup();
     } catch (error) {
       setNotice({ type: "error", message: formatFirebaseError(error) });
     } finally {
@@ -77,9 +80,9 @@ const Signup = () => {
           <h1 className="mt-4 text-5xl font-black tracking-tight text-white">
             Build a workspace that knows who should see what.
           </h1>
-          <p className="mt-5 max-w-xl text-lg leading-8 text-slate-300">
-            Create a profile, choose the correct role, and start routing assignments to the right
-            employees without cluttering everyone else's dashboard.
+            <p className="mt-5 max-w-xl text-lg leading-8 text-slate-300">
+            Create a profile and start routing assignments to the right employees without
+            cluttering everyone else's dashboard.
           </p>
         </section>
 
@@ -89,7 +92,7 @@ const Signup = () => {
               Create account
             </p>
             <h2 className="mt-3 text-3xl font-black text-slate-950">Join StaffFlow</h2>
-            <p className="mt-2 text-sm text-slate-500">Set up your profile and workspace role.</p>
+            <p className="mt-2 text-sm text-slate-500">Set up your profile. The backend controls final role access.</p>
           </div>
 
           <form onSubmit={handleSignup} className="space-y-5">
@@ -160,7 +163,7 @@ const Signup = () => {
               </label>
 
               <label className="block sm:col-span-2">
-                <span className="text-sm font-semibold text-slate-700">Workspace role</span>
+                <span className="text-sm font-semibold text-slate-700">Requested workspace role</span>
                 <div className="mt-2 flex items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 transition focus-within:border-emerald-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-emerald-500/10">
                   <FiBriefcase className="h-5 w-5 text-slate-400" />
                   <select

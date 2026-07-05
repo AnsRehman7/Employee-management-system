@@ -1,12 +1,11 @@
 import { useEffect, useState } from "react";
 import { FiCalendar, FiFileText, FiPlusCircle, FiTag, FiUserCheck } from "react-icons/fi";
 import Alert from "../../Alert";
-import { useFirebase } from "../../../context/firebase";
+import { api, formatApiError } from "../../../context/api";
 import { useUser } from "../../../context/UserContext";
 
-const CreateTask = () => {
+const CreateTask = ({ onTaskCreated = () => {} }) => {
   const { user } = useUser();
-  const firebase = useFirebase();
   const [employees, setEmployees] = useState([]);
   const [loadingEmployees, setLoadingEmployees] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -15,7 +14,7 @@ const CreateTask = () => {
     title: "",
     description: "",
     deadline: "",
-    assignedToUid: "",
+    assignedToId: "",
     category: "",
     priority: "normal",
   });
@@ -25,10 +24,10 @@ const CreateTask = () => {
 
     const loadEmployees = async () => {
       try {
-        const employeeProfiles = await firebase.getEmployees();
+        const { employees: employeeProfiles } = await api.getEmployees();
         if (active) setEmployees(employeeProfiles);
       } catch (error) {
-        if (active) setNotice({ type: "error", message: firebase.formatFirebaseError(error) });
+        if (active) setNotice({ type: "error", message: formatApiError(error) });
       } finally {
         if (active) setLoadingEmployees(false);
       }
@@ -39,7 +38,7 @@ const CreateTask = () => {
     return () => {
       active = false;
     };
-  }, [firebase]);
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -54,13 +53,9 @@ const CreateTask = () => {
     setSaving(true);
     setNotice({ message: "", type: "info" });
 
-    const assignee = employees.find((employee) => employee.uid === formData.assignedToUid);
-
     try {
-      await firebase.createTask({
+      await api.createTask({
         ...formData,
-        assignedToEmail: assignee?.email,
-        assignedToName: assignee?.name,
         createdByName: user?.name,
       });
 
@@ -68,13 +63,14 @@ const CreateTask = () => {
         title: "",
         description: "",
         deadline: "",
-        assignedToUid: "",
+        assignedToId: "",
         category: "",
         priority: "normal",
       });
       setNotice({ type: "success", message: "Task assigned successfully." });
+      onTaskCreated();
     } catch (error) {
-      setNotice({ type: "error", message: firebase.formatFirebaseError(error) });
+      setNotice({ type: "error", message: formatApiError(error) });
     } finally {
       setSaving(false);
     }
@@ -116,8 +112,8 @@ const CreateTask = () => {
           <div className="mt-2 flex items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 transition focus-within:border-emerald-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-emerald-500/10">
             <FiUserCheck className="h-5 w-5 text-slate-400" />
             <select
-              name="assignedToUid"
-              value={formData.assignedToUid}
+              name="assignedToId"
+              value={formData.assignedToId}
               onChange={handleChange}
               disabled={loadingEmployees}
               className="w-full bg-transparent text-sm font-semibold text-slate-950 outline-none disabled:text-slate-400"
@@ -125,7 +121,7 @@ const CreateTask = () => {
             >
               <option value="">{loadingEmployees ? "Loading employees..." : "Choose employee"}</option>
               {employees.map((employee) => (
-                <option key={employee.uid} value={employee.uid}>
+                <option key={employee.id} value={employee.id}>
                   {employee.name} ({employee.email})
                 </option>
               ))}
