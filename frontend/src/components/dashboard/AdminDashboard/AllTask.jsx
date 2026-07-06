@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { FiCalendar, FiCheckCircle, FiRefreshCw, FiTrash2, FiUsers } from "react-icons/fi";
+import { FiBriefcase, FiCalendar, FiCheckCircle, FiClock, FiRefreshCw, FiTrash2, FiUsers } from "react-icons/fi";
 import Alert from "../../Alert";
 import { api, formatApiError } from "../../../context/api";
 
@@ -167,6 +167,10 @@ const AllTask = ({ refreshKey = 0 }) => {
                     <span className="rounded-full bg-white px-3 py-1 text-xs font-bold text-slate-500 ring-1 ring-slate-200">
                       {task.category}
                     </span>
+                    <span className="inline-flex items-center gap-2 rounded-full bg-white px-3 py-1 text-xs font-bold text-slate-500 ring-1 ring-slate-200">
+                      <FiBriefcase className="h-4 w-4" />
+                      {task.projectName}
+                    </span>
                   </div>
 
                   <h3 className="mt-3 text-lg font-black text-slate-950">{task.title}</h3>
@@ -177,6 +181,21 @@ const AllTask = ({ refreshKey = 0 }) => {
                   <p className="mt-3 text-sm leading-6 text-slate-600">
                     {task.description || "No description provided."}
                   </p>
+                  {task.successCriteria && (
+                    <p className="mt-3 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm leading-6 text-slate-600">
+                      <span className="font-bold text-slate-800">Success: </span>
+                      {task.successCriteria}
+                    </p>
+                  )}
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <span className="inline-flex items-center gap-2 rounded-full bg-white px-3 py-1 text-xs font-bold text-slate-500 ring-1 ring-slate-200">
+                      <FiClock className="h-4 w-4" />
+                      {(task.totalLoggedHours || 0).toFixed(1)}h logged
+                    </span>
+                    <span className="rounded-full bg-white px-3 py-1 text-xs font-bold text-slate-500 ring-1 ring-slate-200">
+                      {task.estimatedHours ? `${task.estimatedHours}h estimate` : "No estimate"}
+                    </span>
+                  </div>
                 </div>
 
                 <div className="flex shrink-0 flex-wrap gap-2 lg:justify-end">

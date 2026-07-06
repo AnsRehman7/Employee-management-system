@@ -52,14 +52,20 @@ export const formatApiError = (error) => {
 };
 
 export const api = {
+  createProject: (payload) => request("/projects", { body: payload, method: "POST" }),
   createTask: (payload) => request("/tasks", { body: payload, method: "POST" }),
+  createTimeLog: (taskId, payload) => request(`/tasks/${taskId}/time-logs`, { body: payload, method: "POST" }),
+  deleteProject: (projectId) => request(`/projects/${projectId}`, { method: "DELETE" }),
   deleteTask: (taskId) => request(`/tasks/${taskId}`, { method: "DELETE" }),
   getCurrentUser: () => request("/auth/me"),
   getEmployees: () => request("/users/employees"),
+  getProject: (projectId) => request(`/projects/${projectId}`),
+  getProjects: () => request("/projects"),
   getTaskStats: () => request("/tasks/stats"),
   getTasks: () => request("/tasks"),
   getUsers: () => request("/users"),
   syncProfile: (payload = {}) => request("/auth/sync", { body: payload, method: "POST" }),
+  updateProject: (projectId, payload) => request(`/projects/${projectId}`, { body: payload, method: "PATCH" }),
   updateTaskStatus: (taskId, status) =>
     request(`/tasks/${taskId}/status`, { body: { status }, method: "PATCH" }),
   updateUserRole: (userId, role) => request(`/users/${userId}/role`, { body: { role }, method: "PATCH" }),

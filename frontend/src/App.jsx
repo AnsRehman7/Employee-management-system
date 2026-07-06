@@ -4,6 +4,7 @@ import Login from "./components/Login";
 import LandingPage from "./components/LandingPage";
 import Employe from "./components/dashboard/employe/Employe";
 import AdminDashboard from "./components/dashboard/AdminDashboard/AdminDashboard";
+import ProjectsPage from "./components/dashboard/AdminDashboard/ProjectsPage";
 import ForgotPassword from "./components/ForgotPassword";
 import LoadingScreen from "./components/LoadingScreen";
 import { useUser } from "./context/UserContext";
@@ -84,6 +85,14 @@ function App() {
           element={
             <RequireAuth allowedRoles={["admin", "hr"]}>
               <AdminDashboard />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/projects"
+          element={
+            <RequireAuth allowedRoles={["admin", "hr"]}>
+              <ProjectsPage />
             </RequireAuth>
           }
         />

@@ -1,6 +1,6 @@
 const taskService = require("../services/task.service");
 const asyncHandler = require("../utils/asyncHandler");
-const { createTaskSchema, parseBody, updateTaskStatusSchema } = require("../utils/validators");
+const { createTaskSchema, createTimeLogSchema, parseBody, updateTaskStatusSchema } = require("../utils/validators");
 
 const listTasks = asyncHandler(async (req, res) => {
   const tasks = await taskService.listTasks(req.user);
@@ -26,12 +26,20 @@ const updateTaskStatus = asyncHandler(async (req, res) => {
   res.status(200).json({ data: { task } });
 });
 
+const createTimeLog = asyncHandler(async (req, res) => {
+  const payload = parseBody(createTimeLogSchema, req.body);
+  const timeLog = await taskService.createTimeLog(req.params.taskId, req.user, payload);
+
+  res.status(201).json({ data: { timeLog } });
+});
+
 const deleteTask = asyncHandler(async (req, res) => {
   await taskService.deleteTask(req.params.taskId, req.user);
   res.status(204).send();
 });
 
 module.exports = {
+  createTimeLog,
   createTask,
   deleteTask,
   getTaskStats,

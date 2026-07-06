@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { FiLogOut, FiUser } from "react-icons/fi";
-import { useNavigate } from "react-router-dom";
+import { FiBriefcase, FiGrid, FiLogOut, FiUser } from "react-icons/fi";
+import { NavLink, useNavigate } from "react-router-dom";
 import Alert from "./Alert";
 import { useFirebase } from "../context/firebase";
 import { useUser } from "../context/UserContext";
@@ -26,6 +26,8 @@ const Header = ({ subtitle = "", title = "Workspace" }) => {
     }
   };
 
+  const showManagerNav = ["admin", "hr"].includes(user?.role);
+
   return (
     <header className="border-b border-slate-200 bg-white/90 backdrop-blur">
       <nav className="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-5 sm:flex-row sm:items-center sm:justify-between lg:px-6">
@@ -37,7 +39,29 @@ const Header = ({ subtitle = "", title = "Workspace" }) => {
           {subtitle && <p className="mt-1 text-sm text-slate-500">{subtitle}</p>}
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
+          {showManagerNav && (
+            <div className="inline-flex rounded-lg border border-slate-200 bg-slate-50 p-1">
+              {[
+                ["/admin", "Dashboard", <FiGrid className="h-4 w-4" />],
+                ["/projects", "Projects", <FiBriefcase className="h-4 w-4" />],
+              ].map(([to, label, icon]) => (
+                <NavLink
+                  className={({ isActive }) =>
+                    `inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm font-bold transition ${
+                      isActive ? "bg-slate-950 text-white shadow-sm" : "text-slate-500 hover:text-slate-950"
+                    }`
+                  }
+                  key={to}
+                  to={to}
+                >
+                  {icon}
+                  {label}
+                </NavLink>
+              ))}
+            </div>
+          )}
+
           <div className="hidden items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 sm:flex">
             <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-950 text-white">
               <FiUser className="h-4 w-4" />

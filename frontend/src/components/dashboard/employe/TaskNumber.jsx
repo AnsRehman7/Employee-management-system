@@ -1,18 +1,19 @@
 import { useMemo } from "react";
-import { FiCheckCircle, FiClock, FiList, FiZap } from "react-icons/fi";
+import { FiBriefcase, FiCheckCircle, FiClock, FiList, FiZap } from "react-icons/fi";
 import Alert from "../../Alert";
 
 const TaskNumber = ({ error = "", tasks = [] }) => {
   const taskStats = useMemo(() => {
     const completed = tasks.filter((task) => task.status === "completed").length;
     const active = tasks.length - completed;
-    const newTasks = tasks.filter((task) => task.status === "new").length;
+    const loggedHours = tasks.reduce((total, task) => total + (task.totalLoggedHours || 0), 0);
+    const projectCount = new Set(tasks.map((task) => task.projectId).filter(Boolean)).size;
     const overdue = tasks.filter((task) => {
       if (!task.deadline || task.status === "completed") return false;
       return new Date(task.deadline).setHours(23, 59, 59, 999) < Date.now();
     }).length;
 
-    return { active, completed, newTasks, overdue, total: tasks.length };
+    return { active, completed, loggedHours, overdue, projectCount, total: tasks.length };
   }, [tasks]);
 
   const stats = [
@@ -31,11 +32,18 @@ const TaskNumber = ({ error = "", tasks = [] }) => {
       tone: "bg-white text-slate-950",
     },
     {
-      label: "New",
-      value: taskStats.newTasks,
-      helper: "Recently assigned",
-      icon: <FiZap className="h-5 w-5" />,
+      label: "Projects",
+      value: taskStats.projectCount,
+      helper: "Work streams",
+      icon: <FiBriefcase className="h-5 w-5" />,
       tone: "bg-emerald-500 text-slate-950",
+    },
+    {
+      label: "Logged",
+      value: taskStats.loggedHours.toFixed(1),
+      helper: "Hours recorded",
+      icon: <FiZap className="h-5 w-5" />,
+      tone: "bg-white text-slate-950",
     },
     {
       label: "Completed",
@@ -49,7 +57,7 @@ const TaskNumber = ({ error = "", tasks = [] }) => {
   return (
     <div className="space-y-4">
       <Alert message={error} type="error" />
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-5">
         {stats.map(({ helper, icon, label, tone, value }) => (
           <article
             key={label}

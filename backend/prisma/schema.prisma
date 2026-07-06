@@ -23,6 +23,13 @@ enum TaskPriority {
   HIGH
 }
 
+enum ProjectStatus {
+  PLANNED
+  ACTIVE
+  COMPLETED
+  ARCHIVED
+}
+
 model User {
   id          String   @id @default(cuid())
   firebaseUid String  @unique
@@ -35,30 +42,76 @@ model User {
 
   assignedTasks Task[] @relation("AssignedTasks")
   createdTasks  Task[] @relation("CreatedTasks")
+  createdProjects Project[] @relation("CreatedProjects")
+  timeLogs     TimeLog[]
 
   @@index([role])
   @@map("users")
+}
+
+model Project {
+  id          String        @id @default(cuid())
+  name        String
+  description String?
+  status      ProjectStatus @default(ACTIVE)
+  startDate   DateTime?
+  dueDate     DateTime?
+  createdById String
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  createdBy User   @relation("CreatedProjects", fields: [createdById], references: [id], onDelete: Cascade)
+  tasks     Task[]
+
+  @@index([createdById])
+  @@index([status])
+  @@index([name])
+  @@map("projects")
 }
 
 model Task {
   id           String       @id @default(cuid())
   title        String
   description  String
+  successCriteria String?
   deadline     DateTime?
   category     String
   priority     TaskPriority @default(NORMAL)
   status       TaskStatus   @default(NEW)
   completedAt  DateTime?
+  estimatedHours Decimal?   @db.Decimal(6, 2)
+  projectId    String?
   assignedToId String
   createdById  String
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
 
+  project    Project? @relation(fields: [projectId], references: [id], onDelete: SetNull)
   assignedTo User @relation("AssignedTasks", fields: [assignedToId], references: [id], onDelete: Cascade)
   createdBy  User @relation("CreatedTasks", fields: [createdById], references: [id], onDelete: Cascade)
+  timeLogs   TimeLog[]
 
+  @@index([projectId, status])
   @@index([assignedToId, status])
   @@index([createdById])
   @@index([status])
   @@map("tasks")
+}
+
+model TimeLog {
+  id        String   @id @default(cuid())
+  taskId    String
+  userId    String
+  hours     Decimal  @db.Decimal(6, 2)
+  note      String?
+  loggedAt  DateTime @default(now())
+  createdAt DateTime @default(now())
+
+  task Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([taskId])
+  @@index([userId])
+  @@index([loggedAt])
+  @@map("time_logs")
 }

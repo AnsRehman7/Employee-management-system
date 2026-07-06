@@ -29,3 +29,11 @@ Node/Express API for StaffFlow. Firebase is used only to authenticate users; app
    ```
 
 The first synced user becomes `ADMIN` by default. Later users become `EMPLOYEE` unless `BOOTSTRAP_ADMIN_EMAILS` or `ALLOW_CLIENT_ROLE_SELECTION` is configured.
+
+## Core Data Flow
+
+- Firebase verifies identity; PostgreSQL stores users, projects, tasks, and time logs.
+- Admin/HR users create projects before assigning tasks.
+- Tasks belong to a project and a single employee assignee.
+- Project progress is derived from completed tasks, so `1` completed task out of `10` returns `10%`.
+- Employees only receive tasks and project details connected to their own assignments.
