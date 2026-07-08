@@ -55,8 +55,10 @@ export const api = {
   createProject: (payload) => request("/projects", { body: payload, method: "POST" }),
   createTask: (payload) => request("/tasks", { body: payload, method: "POST" }),
   createTimeLog: (taskId, payload) => request(`/tasks/${taskId}/time-logs`, { body: payload, method: "POST" }),
+  createUser: (payload) => request("/users", { body: payload, method: "POST" }),
   deleteProject: (projectId) => request(`/projects/${projectId}`, { method: "DELETE" }),
   deleteTask: (taskId) => request(`/tasks/${taskId}`, { method: "DELETE" }),
+  deleteUser: (userId) => request(`/users/${userId}`, { method: "DELETE" }),
   getCurrentUser: () => request("/auth/me"),
   getEmployees: () => request("/users/employees"),
   getProject: (projectId) => request(`/projects/${projectId}`),
@@ -68,5 +70,6 @@ export const api = {
   updateProject: (projectId, payload) => request(`/projects/${projectId}`, { body: payload, method: "PATCH" }),
   updateTaskStatus: (taskId, status) =>
     request(`/tasks/${taskId}/status`, { body: { status }, method: "PATCH" }),
+  updateUser: (userId, payload) => request(`/users/${userId}`, { body: payload, method: "PATCH" }),
   updateUserRole: (userId, role) => request(`/users/${userId}/role`, { body: { role }, method: "PATCH" }),
 };

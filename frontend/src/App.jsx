@@ -2,14 +2,23 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import Signup from "./components/Signup";
 import Login from "./components/Login";
 import LandingPage from "./components/LandingPage";
+import PricingPage from "./components/PricingPage";
 import Employe from "./components/dashboard/employe/Employe";
 import AdminDashboard from "./components/dashboard/AdminDashboard/AdminDashboard";
 import ProjectsPage from "./components/dashboard/AdminDashboard/ProjectsPage";
+import UsersPage from "./components/dashboard/AdminDashboard/UsersPage";
 import ForgotPassword from "./components/ForgotPassword";
 import LoadingScreen from "./components/LoadingScreen";
 import { useUser } from "./context/UserContext";
 
-const dashboardForRole = (role) => (["admin", "hr"].includes(role) ? "/admin" : "/employee");
+const workRoles = ["super_admin", "admin", "manager", "hr"];
+const projectRoles = [...workRoles, "accounts"];
+const userManagerRoles = ["super_admin", "admin", "hr"];
+const dashboardForRole = (role) => {
+  if (workRoles.includes(role)) return "/admin";
+  if (role === "accounts") return "/projects";
+  return "/employee";
+};
 
 const RequireAuth = ({ allowedRoles, children }) => {
   const { loading, user } = useUser();
@@ -46,6 +55,7 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<LandingPage />} />
+        <Route path="/pricing" element={<PricingPage />} />
         <Route
           path="/login"
           element={
@@ -83,7 +93,7 @@ function App() {
         <Route
           path="/admin"
           element={
-            <RequireAuth allowedRoles={["admin", "hr"]}>
+            <RequireAuth allowedRoles={workRoles}>
               <AdminDashboard />
             </RequireAuth>
           }
@@ -91,8 +101,16 @@ function App() {
         <Route
           path="/projects"
           element={
-            <RequireAuth allowedRoles={["admin", "hr"]}>
+            <RequireAuth allowedRoles={projectRoles}>
               <ProjectsPage />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/users"
+          element={
+            <RequireAuth allowedRoles={userManagerRoles}>
+              <UsersPage />
             </RequireAuth>
           }
         />

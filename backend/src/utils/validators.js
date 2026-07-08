@@ -20,10 +20,49 @@ const optionalNumber = (max = 9999) =>
 const requiredNumber = (max = 9999) =>
   z.preprocess((value) => Number(value), z.number().finite().positive().max(max));
 
+const roleValues = [
+  "super_admin",
+  "admin",
+  "manager",
+  "hr",
+  "accounts",
+  "employee",
+  "SUPER_ADMIN",
+  "ADMIN",
+  "MANAGER",
+  "HR",
+  "ACCOUNTS",
+  "EMPLOYEE",
+];
+
 const syncProfileSchema = z.object({
   contact: optionalTrimmedString(40),
+  department: optionalTrimmedString(120),
+  designation: optionalTrimmedString(120),
   fullName: optionalTrimmedString(120),
+  organizationName: optionalTrimmedString(160),
   role: optionalTrimmedString(30),
+});
+
+const createOrganizationUserSchema = z.object({
+  contact: optionalTrimmedString(40),
+  department: optionalTrimmedString(120),
+  designation: optionalTrimmedString(120),
+  email: z.string().trim().email("Enter a valid email address.").max(255),
+  fullName: z.string().trim().min(1, "Full name is required.").max(120),
+  password: z.string().min(6, "Password must be at least 6 characters.").max(128),
+  role: z.enum(roleValues).default("employee"),
+});
+
+const updateOrganizationUserSchema = z.object({
+  contact: optionalTrimmedString(40),
+  department: optionalTrimmedString(120),
+  designation: optionalTrimmedString(120),
+  email: z.string().trim().email("Enter a valid email address.").max(255).optional(),
+  fullName: optionalTrimmedString(120),
+  password: z.string().min(6, "Password must be at least 6 characters.").max(128).optional(),
+  role: z.enum(roleValues).optional(),
+  status: z.enum(["active", "suspended", "ACTIVE", "SUSPENDED"]).optional(),
 });
 
 const createProjectSchema = z.object({
@@ -64,17 +103,19 @@ const updateTaskStatusSchema = z.object({
 });
 
 const updateUserRoleSchema = z.object({
-  role: z.enum(["admin", "hr", "employee", "ADMIN", "HR", "EMPLOYEE"]),
+  role: z.enum(roleValues),
 });
 
 const parseBody = (schema, body) => schema.parse(body || {});
 
 module.exports = {
+  createOrganizationUserSchema,
   createProjectSchema,
   createTaskSchema,
   createTimeLogSchema,
   parseBody,
   syncProfileSchema,
+  updateOrganizationUserSchema,
   updateProjectSchema,
   updateTaskStatusSchema,
   updateUserRoleSchema,

@@ -1,13 +1,15 @@
 # StaffFlow
 
-StaffFlow is a role-based project and task workspace for small companies. The frontend uses **React**, **Firebase Authentication**, and **Tailwind CSS**. Business data is served by the StaffFlow API and stored in PostgreSQL.
+StaffFlow is a company workspace for small teams that need projects, tasks, hours, and role-based access. The frontend uses **React**, **Firebase Authentication**, and **Tailwind CSS**. Business data is served by the StaffFlow API and stored in PostgreSQL.
 
 ## Features
 
-- **Authentication:** Firebase email/password and Google sign-in.
+- **Free trial:** Public signup creates a trial organization and super-admin owner.
+- **Authentication:** Firebase email/password sign-in for organization users.
 - **Password reset:** Firebase reset email fallback from the login flow.
-- **Role-aware routing:** Admin/HR and employee dashboards are protected.
-- **Project delivery:** Admin/HR users create projects, then assign tasks under those projects.
+- **Role-aware routing:** Super admin, admin, manager, HR, accounts, and employee access are separated.
+- **User management:** Authorized workspace admins create logins, roles, designations, departments, and account status.
+- **Project delivery:** Work managers create projects, then assign tasks under those projects.
 - **Employee-specific tasks:** Employees only see tasks assigned to their own backend user profile.
 - **Project progress:** Progress is calculated from completed tasks.
 - **Hours logging:** Employees can log hours against their own tasks.

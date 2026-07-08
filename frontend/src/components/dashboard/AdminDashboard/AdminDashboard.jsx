@@ -7,7 +7,13 @@ import { useUser } from "../../../context/UserContext";
 const AdminDashboard = () => {
   const { user } = useUser();
   const [taskRefreshKey, setTaskRefreshKey] = useState(0);
-  const roleLabel = user?.role === "hr" ? "HR dashboard" : "Admin dashboard";
+  const roleLabel =
+    {
+      admin: "Admin dashboard",
+      hr: "HR dashboard",
+      manager: "Manager dashboard",
+      super_admin: "Super admin dashboard",
+    }[user?.role] || "Operations dashboard";
 
   return (
     <div className="min-h-screen bg-slate-100">

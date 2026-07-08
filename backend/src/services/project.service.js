@@ -1,6 +1,6 @@
 const prisma = require("../db/prisma");
 const ApiError = require("../utils/apiError");
-const { isPrivileged } = require("../utils/roles");
+const { canManageWork, canViewOrganizationWork } = require("../utils/roles");
 const { serializeTask, taskInclude } = require("./task.service");
 
 const normalizeProjectStatus = (status = "active") => String(status).trim().toUpperCase();
@@ -18,18 +18,19 @@ const parseDate = (value, label) => {
 };
 
 const assertPrivileged = (currentUser) => {
-  if (!isPrivileged(currentUser)) {
-    throw new ApiError(403, "Only admins and HR can manage projects.");
+  if (!canManageWork(currentUser)) {
+    throw new ApiError(403, "You do not have permission to manage projects.");
   }
 };
 
 const getProjectAccessWhere = (currentUser) => {
-  if (isPrivileged(currentUser)) return {};
-  return { tasks: { some: { assignedToId: currentUser.id } } };
+  const organizationWhere = { organizationId: currentUser.organizationId };
+  if (canViewOrganizationWork(currentUser)) return organizationWhere;
+  return { ...organizationWhere, tasks: { some: { assignedToId: currentUser.id } } };
 };
 
 const getTaskScopeWhere = (currentUser) => {
-  if (isPrivileged(currentUser)) return undefined;
+  if (canViewOrganizationWork(currentUser)) return undefined;
   return { assignedToId: currentUser.id };
 };
 
@@ -146,6 +147,7 @@ const createProject = async (currentUser, payload) => {
       description: payload.description || null,
       dueDate,
       name: payload.name,
+      organizationId: currentUser.organizationId,
       startDate,
       status: startDate && startDate.getTime() > Date.now() ? "PLANNED" : "ACTIVE",
     },
@@ -170,8 +172,11 @@ const createProject = async (currentUser, payload) => {
 const updateProject = async (projectId, currentUser, payload) => {
   assertPrivileged(currentUser);
 
-  const existingProject = await prisma.project.findUnique({
-    where: { id: projectId },
+  const existingProject = await prisma.project.findFirst({
+    where: {
+      id: projectId,
+      organizationId: currentUser.organizationId,
+    },
   });
 
   if (!existingProject) {
@@ -211,15 +216,18 @@ const updateProject = async (projectId, currentUser, payload) => {
 const deleteProject = async (projectId, currentUser) => {
   assertPrivileged(currentUser);
 
-  const existingProject = await prisma.project.findUnique({
-    where: { id: projectId },
+  const existingProject = await prisma.project.findFirst({
+    where: {
+      id: projectId,
+      organizationId: currentUser.organizationId,
+    },
   });
 
   if (!existingProject) {
     throw new ApiError(404, "Project not found.");
   }
 
-  const taskCount = await prisma.task.count({ where: { projectId } });
+  const taskCount = await prisma.task.count({ where: { organizationId: currentUser.organizationId, projectId } });
   if (taskCount > 0) {
     const project = await prisma.project.update({
       data: { status: "ARCHIVED" },

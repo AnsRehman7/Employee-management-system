@@ -26,11 +26,18 @@ const authenticateFirebase = async (req, _res, next) => {
 const attachCurrentUser = async (req, _res, next) => {
   try {
     const currentUser = await prisma.user.findUnique({
+      include: {
+        organization: true,
+      },
       where: { firebaseUid: req.firebaseUser.uid },
     });
 
     if (!currentUser) {
       throw new ApiError(404, "User profile is not synced yet.");
+    }
+
+    if (currentUser.status === "SUSPENDED") {
+      throw new ApiError(403, "This account is suspended. Contact your workspace administrator.");
     }
 
     req.user = currentUser;

@@ -1,6 +1,6 @@
 const prisma = require("../db/prisma");
 const ApiError = require("../utils/apiError");
-const { isPrivileged, USER_ROLES } = require("../utils/roles");
+const { canManageWork, canViewOrganizationWork } = require("../utils/roles");
 
 const normalizePriority = (priority = "normal") => String(priority).trim().toUpperCase();
 const normalizeStatus = (status = "new") => String(status).trim().toUpperCase();
@@ -68,30 +68,40 @@ const taskInclude = {
 };
 
 const listTasks = async (currentUser) => {
+  const organizationWhere = { organizationId: currentUser.organizationId };
   const tasks = await prisma.task.findMany({
     include: taskInclude,
     orderBy: [{ status: "asc" }, { createdAt: "desc" }],
-    where: isPrivileged(currentUser) ? undefined : { assignedToId: currentUser.id },
+    where: canViewOrganizationWork(currentUser)
+      ? organizationWhere
+      : { ...organizationWhere, assignedToId: currentUser.id },
   });
 
   return tasks.map(serializeTask);
 };
 
 const createTask = async (currentUser, payload) => {
-  if (!isPrivileged(currentUser)) {
-    throw new ApiError(403, "Only admins and HR can assign tasks.");
+  if (!canManageWork(currentUser)) {
+    throw new ApiError(403, "You do not have permission to assign tasks.");
   }
 
-  const assignee = await prisma.user.findUnique({
-    where: { id: payload.assignedToId },
+  const assignee = await prisma.user.findFirst({
+    where: {
+      id: payload.assignedToId,
+      organizationId: currentUser.organizationId,
+      status: "ACTIVE",
+    },
   });
 
-  if (!assignee || assignee.role !== USER_ROLES.EMPLOYEE) {
-    throw new ApiError(400, "Choose a valid employee assignee.");
+  if (!assignee) {
+    throw new ApiError(400, "Choose a valid active team member.");
   }
 
-  const project = await prisma.project.findUnique({
-    where: { id: payload.projectId },
+  const project = await prisma.project.findFirst({
+    where: {
+      id: payload.projectId,
+      organizationId: currentUser.organizationId,
+    },
   });
 
   if (!project) {
@@ -110,6 +120,7 @@ const createTask = async (currentUser, payload) => {
       deadline: parseDate(payload.deadline, "Deadline"),
       description: payload.description,
       estimatedHours: payload.estimatedHours ?? null,
+      organizationId: currentUser.organizationId,
       priority: normalizePriority(payload.priority),
       projectId: payload.projectId,
       successCriteria: payload.successCriteria || null,
@@ -122,16 +133,19 @@ const createTask = async (currentUser, payload) => {
 };
 
 const getTaskForAction = async (taskId, currentUser) => {
-  const task = await prisma.task.findUnique({
+  const task = await prisma.task.findFirst({
     include: taskInclude,
-    where: { id: taskId },
+    where: {
+      id: taskId,
+      organizationId: currentUser.organizationId,
+    },
   });
 
   if (!task) {
     throw new ApiError(404, "Task not found.");
   }
 
-  if (!isPrivileged(currentUser) && task.assignedToId !== currentUser.id) {
+  if (!canManageWork(currentUser) && task.assignedToId !== currentUser.id) {
     throw new ApiError(403, "You can only update tasks assigned to you.");
   }
 
@@ -174,8 +188,8 @@ const createTimeLog = async (taskId, currentUser, payload) => {
 };
 
 const deleteTask = async (taskId, currentUser) => {
-  if (!isPrivileged(currentUser)) {
-    throw new ApiError(403, "Only admins and HR can delete tasks.");
+  if (!canManageWork(currentUser)) {
+    throw new ApiError(403, "You do not have permission to delete tasks.");
   }
 
   await getTaskForAction(taskId, currentUser);
@@ -183,7 +197,10 @@ const deleteTask = async (taskId, currentUser) => {
 };
 
 const getTaskStats = async (currentUser) => {
-  const where = isPrivileged(currentUser) ? undefined : { assignedToId: currentUser.id };
+  const organizationWhere = { organizationId: currentUser.organizationId };
+  const where = canViewOrganizationWork(currentUser)
+    ? organizationWhere
+    : { ...organizationWhere, assignedToId: currentUser.id };
   const [total, completed, active] = await Promise.all([
     prisma.task.count({ where }),
     prisma.task.count({ where: { ...where, status: "COMPLETED" } }),

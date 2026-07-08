@@ -6,7 +6,11 @@ import Alert from "./Alert";
 import { useFirebase } from "../context/firebase";
 import { useUser } from "../context/UserContext";
 
-const dashboardForRole = (role) => (["admin", "hr"].includes(role) ? "/admin" : "/employee");
+const dashboardForRole = (role) => {
+  if (["super_admin", "admin", "manager", "hr"].includes(role)) return "/admin";
+  if (role === "accounts") return "/projects";
+  return "/employee";
+};
 
 const Login = () => {
   const navigate = useNavigate();
@@ -65,8 +69,8 @@ const Login = () => {
             Welcome back to your team workspace.
           </h1>
           <p className="mt-5 max-w-xl text-lg leading-8 text-slate-300">
-            Keep assignments moving with role-aware dashboards, private employee task lists, and
-            Firebase-backed updates.
+            Keep assignments moving with organization-scoped dashboards, managed user access, and
+            private employee task lists.
           </p>
         </section>
 
@@ -143,9 +147,9 @@ const Login = () => {
             </button>
 
             <p className="text-center text-sm text-slate-500">
-              Do not have an account?{" "}
+              Starting a company workspace?{" "}
               <NavLink to="/signup" className="font-bold text-emerald-700 hover:text-emerald-800">
-                Create one
+                Start a trial
               </NavLink>
             </p>
           </form>

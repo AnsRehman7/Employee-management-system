@@ -10,9 +10,17 @@ router.use(authenticate);
 
 router.get("/", taskController.listTasks);
 router.get("/stats", taskController.getTaskStats);
-router.post("/", requireRoles(USER_ROLES.ADMIN, USER_ROLES.HR), taskController.createTask);
+router.post(
+  "/",
+  requireRoles(USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN, USER_ROLES.MANAGER, USER_ROLES.HR),
+  taskController.createTask
+);
 router.post("/:taskId/time-logs", taskController.createTimeLog);
 router.patch("/:taskId/status", taskController.updateTaskStatus);
-router.delete("/:taskId", requireRoles(USER_ROLES.ADMIN, USER_ROLES.HR), taskController.deleteTask);
+router.delete(
+  "/:taskId",
+  requireRoles(USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN, USER_ROLES.MANAGER, USER_ROLES.HR),
+  taskController.deleteTask
+);
 
 module.exports = router;

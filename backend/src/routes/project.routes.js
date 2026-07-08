@@ -10,8 +10,20 @@ router.use(authenticate);
 
 router.get("/", projectController.listProjects);
 router.get("/:projectId", projectController.getProjectById);
-router.post("/", requireRoles(USER_ROLES.ADMIN, USER_ROLES.HR), projectController.createProject);
-router.patch("/:projectId", requireRoles(USER_ROLES.ADMIN, USER_ROLES.HR), projectController.updateProject);
-router.delete("/:projectId", requireRoles(USER_ROLES.ADMIN, USER_ROLES.HR), projectController.deleteProject);
+router.post(
+  "/",
+  requireRoles(USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN, USER_ROLES.MANAGER, USER_ROLES.HR),
+  projectController.createProject
+);
+router.patch(
+  "/:projectId",
+  requireRoles(USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN, USER_ROLES.MANAGER, USER_ROLES.HR),
+  projectController.updateProject
+);
+router.delete(
+  "/:projectId",
+  requireRoles(USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN, USER_ROLES.MANAGER, USER_ROLES.HR),
+  projectController.deleteProject
+);
 
 module.exports = router;

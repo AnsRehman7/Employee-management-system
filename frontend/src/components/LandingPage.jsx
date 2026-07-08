@@ -23,6 +23,12 @@ const LandingPage = () => {
         </button>
         <div className="flex items-center gap-3">
           <button
+            onClick={() => navigate("/pricing")}
+            className="rounded-lg px-4 py-2 text-sm font-semibold text-slate-300 transition hover:bg-white/10 hover:text-white"
+          >
+            Pricing
+          </button>
+          <button
             onClick={() => navigate("/login")}
             className="rounded-lg px-4 py-2 text-sm font-semibold text-slate-300 transition hover:bg-white/10 hover:text-white"
           >
@@ -32,7 +38,7 @@ const LandingPage = () => {
             onClick={() => navigate("/signup")}
             className="rounded-lg bg-emerald-400 px-4 py-2 text-sm font-bold text-slate-950 shadow-lg shadow-emerald-950/30 transition hover:bg-emerald-300"
           >
-            Sign Up
+            Free Trial
           </button>
         </div>
       </nav>
@@ -46,16 +52,16 @@ const LandingPage = () => {
             Assign work with clarity. Track it without noise.
           </h1>
           <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-300">
-            A focused task workspace for admins, HR teams, and employees. Assign tasks to the
-            right person, keep employee views private, and manage work from one clean dashboard.
+            A focused operations workspace for small companies. Create a company account, add
+            managers, HR, accounts, and employees, then keep every view scoped to the right person.
           </p>
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
             <button
-              onClick={() => navigate("/signup")}
+              onClick={() => navigate("/pricing")}
               className="inline-flex items-center justify-center gap-2 rounded-lg bg-emerald-400 px-6 py-3 text-sm font-black text-slate-950 shadow-xl shadow-emerald-950/30 transition hover:bg-emerald-300"
             >
-              Create workspace
+              View pricing
               <FiArrowRight className="h-4 w-4" />
             </button>
             <button
@@ -67,7 +73,7 @@ const LandingPage = () => {
           </div>
 
           <div className="mt-10 grid gap-4 text-sm text-slate-300 sm:grid-cols-3">
-            {["Role-based access", "Employee-only task views", "Firebase-backed workflow"].map((item) => (
+            {["Company workspace", "Role-based access", "Employee-only task views"].map((item) => (
               <div key={item} className="flex items-center gap-2">
                 <FiCheckCircle className="h-4 w-4 text-emerald-300" />
                 <span>{item}</span>

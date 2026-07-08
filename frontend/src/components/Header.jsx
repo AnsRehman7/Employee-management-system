@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { FiBriefcase, FiGrid, FiLogOut, FiUser } from "react-icons/fi";
+import { FiBriefcase, FiGrid, FiLogOut, FiUser, FiUsers } from "react-icons/fi";
 import { NavLink, useNavigate } from "react-router-dom";
 import Alert from "./Alert";
 import { useFirebase } from "../context/firebase";
@@ -26,7 +26,11 @@ const Header = ({ subtitle = "", title = "Workspace" }) => {
     }
   };
 
-  const showManagerNav = ["admin", "hr"].includes(user?.role);
+  const navItems = [
+    user?.permissions?.canManageWork && ["/admin", "Dashboard", <FiGrid className="h-4 w-4" />],
+    user?.permissions?.canViewOrganizationWork && ["/projects", "Projects", <FiBriefcase className="h-4 w-4" />],
+    user?.permissions?.canManageUsers && ["/users", "Users", <FiUsers className="h-4 w-4" />],
+  ].filter(Boolean);
 
   return (
     <header className="border-b border-slate-200 bg-white/90 backdrop-blur">
@@ -40,12 +44,9 @@ const Header = ({ subtitle = "", title = "Workspace" }) => {
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
-          {showManagerNav && (
+          {navItems.length > 0 && (
             <div className="inline-flex rounded-lg border border-slate-200 bg-slate-50 p-1">
-              {[
-                ["/admin", "Dashboard", <FiGrid className="h-4 w-4" />],
-                ["/projects", "Projects", <FiBriefcase className="h-4 w-4" />],
-              ].map(([to, label, icon]) => (
+              {navItems.map(([to, label, icon]) => (
                 <NavLink
                   className={({ isActive }) =>
                     `inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm font-bold transition ${

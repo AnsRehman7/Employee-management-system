@@ -102,7 +102,7 @@ const CreateTask = ({ onTaskCreated = () => {} }) => {
         </span>
         <div>
           <h2 className="text-2xl font-black text-slate-950">Assign a task</h2>
-          <p className="mt-1 text-sm text-slate-500">Tasks created here are visible only to the selected employee.</p>
+          <p className="mt-1 text-sm text-slate-500">Tasks created here are visible only to the selected assignee.</p>
         </div>
       </div>
 
@@ -150,7 +150,7 @@ const CreateTask = ({ onTaskCreated = () => {} }) => {
         </label>
 
         <label className="block">
-          <span className="text-sm font-semibold text-slate-700">Assign to employee</span>
+          <span className="text-sm font-semibold text-slate-700">Assign to team member</span>
           <div className="mt-2 flex items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 transition focus-within:border-emerald-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-emerald-500/10">
             <FiUserCheck className="h-5 w-5 text-slate-400" />
             <select
@@ -161,7 +161,7 @@ const CreateTask = ({ onTaskCreated = () => {} }) => {
               className="w-full bg-transparent text-sm font-semibold text-slate-950 outline-none disabled:text-slate-400"
               required
             >
-              <option value="">{loadingEmployees ? "Loading employees..." : "Choose employee"}</option>
+              <option value="">{loadingEmployees ? "Loading team..." : "Choose team member"}</option>
               {employees.map((employee) => (
                 <option key={employee.id} value={employee.id}>
                   {employee.name} ({employee.email})

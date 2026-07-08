@@ -13,6 +13,7 @@ import {
 import Header from "../../Header";
 import Alert from "../../Alert";
 import { api, formatApiError } from "../../../context/api";
+import { useUser } from "../../../context/UserContext";
 
 const initialForm = {
   description: "",
@@ -59,6 +60,8 @@ const statusOptions = [
 ];
 
 const ProjectsPage = () => {
+  const { user } = useUser();
+  const canManageWork = Boolean(user?.permissions?.canManageWork);
   const [busyId, setBusyId] = useState("");
   const [creating, setCreating] = useState(false);
   const [detailLoading, setDetailLoading] = useState(false);
@@ -172,19 +175,20 @@ const ProjectsPage = () => {
 
       <main className="mx-auto grid max-w-7xl gap-6 px-4 py-8 xl:grid-cols-[0.85fr_1.15fr] lg:px-6">
         <section className="space-y-6">
-          <form className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm" onSubmit={handleCreateProject}>
-            <div className="mb-5 flex items-start gap-3 border-b border-slate-200 pb-5">
-              <span className="rounded-lg bg-emerald-100 p-3 text-emerald-700">
-                <FiPlusCircle className="h-5 w-5" />
-              </span>
-              <div>
-                <h2 className="text-2xl font-black text-slate-950">Create project</h2>
-                <p className="mt-1 text-sm text-slate-500">Projects group tasks, due dates, and hours.</p>
+          {canManageWork && (
+            <form className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm" onSubmit={handleCreateProject}>
+              <div className="mb-5 flex items-start gap-3 border-b border-slate-200 pb-5">
+                <span className="rounded-lg bg-emerald-100 p-3 text-emerald-700">
+                  <FiPlusCircle className="h-5 w-5" />
+                </span>
+                <div>
+                  <h2 className="text-2xl font-black text-slate-950">Create project</h2>
+                  <p className="mt-1 text-sm text-slate-500">Projects group tasks, due dates, and hours.</p>
+                </div>
               </div>
-            </div>
 
-            <div className="space-y-5">
-              <Alert message={notice.message} type={notice.type} />
+              <div className="space-y-5">
+                <Alert message={notice.message} type={notice.type} />
 
               <label className="block">
                 <span className="text-sm font-semibold text-slate-700">Project name</span>
@@ -252,8 +256,9 @@ const ProjectsPage = () => {
                 <FiPlusCircle className="h-4 w-4" />
                 {creating ? "Creating project..." : "Create project"}
               </button>
-            </div>
-          </form>
+              </div>
+            </form>
+          )}
 
           <section className="grid grid-cols-2 gap-3">
             {[
@@ -367,23 +372,25 @@ const ProjectsPage = () => {
                       </div>
                     </button>
 
-                    <div className="mt-4 flex flex-wrap gap-2 border-t border-slate-200 pt-4">
-                      {statusOptions.map(([value, label]) => (
-                        <button
-                          className={`rounded-lg px-3 py-2 text-xs font-bold transition ${
-                            project.status === value
-                              ? "bg-slate-950 text-white"
-                              : "bg-white text-slate-600 ring-1 ring-slate-200 hover:text-slate-950"
-                          }`}
-                          disabled={busyId === project.id}
-                          key={value}
-                          onClick={() => handleStatusChange(project.id, value)}
-                          type="button"
-                        >
-                          {label}
-                        </button>
-                      ))}
-                    </div>
+                    {canManageWork && (
+                      <div className="mt-4 flex flex-wrap gap-2 border-t border-slate-200 pt-4">
+                        {statusOptions.map(([value, label]) => (
+                          <button
+                            className={`rounded-lg px-3 py-2 text-xs font-bold transition ${
+                              project.status === value
+                                ? "bg-slate-950 text-white"
+                                : "bg-white text-slate-600 ring-1 ring-slate-200 hover:text-slate-950"
+                            }`}
+                            disabled={busyId === project.id}
+                            key={value}
+                            onClick={() => handleStatusChange(project.id, value)}
+                            type="button"
+                          >
+                            {label}
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   </article>
                 ))}
               </div>
@@ -465,7 +472,7 @@ const ProjectsPage = () => {
                             <h3 className="mt-3 text-base font-black text-slate-950">{task.title}</h3>
                             <p className="mt-1 text-sm text-slate-500">
                               Assigned to {task.assignedToName}
-                              {task.deadline ? ` · Due ${formatDate(task.deadline)}` : ""}
+                              {task.deadline ? ` - Due ${formatDate(task.deadline)}` : ""}
                             </p>
                             {task.successCriteria && (
                               <p className="mt-3 text-sm leading-6 text-slate-600">

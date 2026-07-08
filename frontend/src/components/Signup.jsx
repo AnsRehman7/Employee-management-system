@@ -6,7 +6,11 @@ import Alert from "./Alert";
 import { useFirebase } from "../context/firebase";
 import { useUser } from "../context/UserContext";
 
-const dashboardForRole = (role) => (["admin", "hr"].includes(role) ? "/admin" : "/employee");
+const dashboardForRole = (role) => {
+  if (["super_admin", "admin", "manager", "hr"].includes(role)) return "/admin";
+  if (role === "accounts") return "/projects";
+  return "/employee";
+};
 
 const Signup = () => {
   const { refreshUser } = useUser();
@@ -16,8 +20,9 @@ const Signup = () => {
     fullName: "",
     email: "",
     password: "",
-    role: "employee",
     contact: "",
+    designation: "",
+    organizationName: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [notice, setNotice] = useState({ message: "", type: "info" });
@@ -29,8 +34,9 @@ const Signup = () => {
   const completeSignup = async () => {
     const profile = await refreshUser({
       contact: formData.contact,
+      designation: formData.designation,
       fullName: formData.fullName,
-      role: formData.role,
+      organizationName: formData.organizationName,
     });
     navigate(dashboardForRole(profile.role), { replace: true });
   };
@@ -78,27 +84,43 @@ const Signup = () => {
             StaffFlow
           </p>
           <h1 className="mt-4 text-5xl font-black tracking-tight text-white">
-            Build a workspace that knows who should see what.
+            Start a company workspace with access control built in.
           </h1>
             <p className="mt-5 max-w-xl text-lg leading-8 text-slate-300">
-            Create a profile and start routing assignments to the right employees without
-            cluttering everyone else's dashboard.
+            Your trial creates the organization and makes you the super admin. After that, you
+            create logins for managers, HR, accounts, and employees.
           </p>
         </section>
 
         <section className="mx-auto w-full max-w-xl rounded-lg border border-white/10 bg-white p-8 text-slate-950 shadow-2xl shadow-slate-950/30">
           <div className="mb-8">
             <p className="text-sm font-semibold uppercase tracking-[0.2em] text-emerald-600">
-              Create account
+              Free trial
             </p>
-            <h2 className="mt-3 text-3xl font-black text-slate-950">Join StaffFlow</h2>
-            <p className="mt-2 text-sm text-slate-500">Set up your profile. The backend controls final role access.</p>
+            <h2 className="mt-3 text-3xl font-black text-slate-950">Create workspace</h2>
+            <p className="mt-2 text-sm text-slate-500">Start a 14-day trial and become the workspace super admin.</p>
           </div>
 
           <form onSubmit={handleSignup} className="space-y-5">
             <Alert message={notice.message} type={notice.type} />
 
             <div className="grid gap-4 sm:grid-cols-2">
+              <label className="block sm:col-span-2">
+                <span className="text-sm font-semibold text-slate-700">Company name</span>
+                <div className="mt-2 flex items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 transition focus-within:border-emerald-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-emerald-500/10">
+                  <FiBriefcase className="h-5 w-5 text-slate-400" />
+                  <input
+                    type="text"
+                    name="organizationName"
+                    required
+                    value={formData.organizationName}
+                    onChange={handleChange}
+                    placeholder="Prime Dumpster LLC"
+                    className="w-full bg-transparent text-sm text-slate-950 outline-none placeholder:text-slate-400"
+                  />
+                </div>
+              </label>
+
               <label className="block sm:col-span-2">
                 <span className="text-sm font-semibold text-slate-700">Full name</span>
                 <div className="mt-2 flex items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 transition focus-within:border-emerald-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-emerald-500/10">
@@ -162,20 +184,18 @@ const Signup = () => {
                 </div>
               </label>
 
-              <label className="block sm:col-span-2">
-                <span className="text-sm font-semibold text-slate-700">Requested workspace role</span>
+              <label className="block">
+                <span className="text-sm font-semibold text-slate-700">Designation</span>
                 <div className="mt-2 flex items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 transition focus-within:border-emerald-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-emerald-500/10">
                   <FiBriefcase className="h-5 w-5 text-slate-400" />
-                  <select
-                    name="role"
-                    value={formData.role}
+                  <input
+                    type="text"
+                    name="designation"
+                    value={formData.designation}
                     onChange={handleChange}
-                    className="w-full bg-transparent text-sm font-semibold text-slate-950 outline-none"
-                  >
-                    <option value="employee">Employee</option>
-                    <option value="hr">HR</option>
-                    <option value="admin">Admin</option>
-                  </select>
+                    placeholder="Founder / Operations Lead"
+                    className="w-full bg-transparent text-sm text-slate-950 outline-none placeholder:text-slate-400"
+                  />
                 </div>
               </label>
             </div>
@@ -185,7 +205,7 @@ const Signup = () => {
               disabled={isSubmitting}
               className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-emerald-600 px-4 py-3 text-sm font-black text-white shadow-lg shadow-emerald-900/20 transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-slate-300"
             >
-              {isSubmitting ? "Creating account..." : "Create account"}
+              {isSubmitting ? "Creating workspace..." : "Start free trial"}
               {!isSubmitting && <FiArrowRight className="h-4 w-4" />}
             </button>
 
