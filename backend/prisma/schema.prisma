@@ -109,6 +109,9 @@ model Project {
   status      ProjectStatus @default(ACTIVE)
   startDate   DateTime?
   dueDate     DateTime?
+  aiProgress   Int           @default(0)
+  aiSummary    String?
+  aiAnalyzedAt DateTime?
   organizationId String
   createdById String
   createdAt   DateTime      @default(now())
@@ -136,6 +139,10 @@ model Task {
   status       TaskStatus   @default(NEW)
   completedAt  DateTime?
   estimatedHours Decimal?   @db.Decimal(6, 2)
+  projectWeight Decimal      @default(0) @db.Decimal(5, 2)
+  aiProgress    Int          @default(0)
+  aiSummary     String?
+  aiAnalyzedAt  DateTime?
   projectId    String?
   organizationId String
   assignedToId String
@@ -163,6 +170,8 @@ model TimeLog {
   userId    String
   hours     Decimal  @db.Decimal(6, 2)
   note      String?
+  aiProgressAfter Int?
+  analysisSummary String?
   loggedAt  DateTime @default(now())
   createdAt DateTime @default(now())
 

@@ -11,7 +11,9 @@ StaffFlow is a company workspace for small teams that need projects, tasks, hour
 - **User management:** Authorized workspace admins create logins, roles, designations, departments, and account status.
 - **Project delivery:** Work managers create projects, then assign tasks under those projects.
 - **Employee-specific tasks:** Employees only see tasks assigned to their own backend user profile.
-- **Project progress:** Progress is calculated from completed tasks.
+- **AI weightage:** Gemini can analyze project scope and task descriptions to auto-fill each task's project weight.
+- **AI progress:** Time-log comments are analyzed against task requirements to update task progress.
+- **Project progress:** Progress is calculated from weighted task progress.
 - **Hours logging:** Employees can log hours against their own tasks.
 - **Responsive UI:** StaffFlow uses a consistent slate/emerald palette, alerts, loading states, and compact action controls.
 

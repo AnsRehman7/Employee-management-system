@@ -195,6 +195,22 @@ const AllTask = ({ refreshKey = 0 }) => {
                     <span className="rounded-full bg-white px-3 py-1 text-xs font-bold text-slate-500 ring-1 ring-slate-200">
                       {task.estimatedHours ? `${task.estimatedHours}h estimate` : "No estimate"}
                     </span>
+                    <span className="rounded-full bg-white px-3 py-1 text-xs font-bold text-slate-500 ring-1 ring-slate-200">
+                      {Number(task.projectWeight || 0).toFixed(1)}% project weight
+                    </span>
+                  </div>
+                  <div className="mt-4">
+                    <div className="flex items-center justify-between gap-3 text-xs font-bold text-slate-500">
+                      <span>Task progress</span>
+                      <span>{task.aiProgress || 0}%</span>
+                    </div>
+                    <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-200">
+                      <div
+                        className="h-full rounded-full bg-emerald-500 transition-all duration-500"
+                        style={{ width: `${task.aiProgress || 0}%` }}
+                      />
+                    </div>
+                    {task.aiSummary && <p className="mt-2 text-xs leading-5 text-slate-500">{task.aiSummary}</p>}
                   </div>
                 </div>
 

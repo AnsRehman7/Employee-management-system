@@ -468,6 +468,9 @@ const ProjectsPage = () => {
                               <span className="rounded-full bg-white px-3 py-1 text-xs font-bold text-slate-500 ring-1 ring-slate-200">
                                 {task.totalLoggedHours.toFixed(1)}h logged
                               </span>
+                              <span className="rounded-full bg-white px-3 py-1 text-xs font-bold text-slate-500 ring-1 ring-slate-200">
+                                {Number(task.projectWeight || 0).toFixed(1)}% weight
+                              </span>
                             </div>
                             <h3 className="mt-3 text-base font-black text-slate-950">{task.title}</h3>
                             <p className="mt-1 text-sm text-slate-500">
@@ -480,6 +483,19 @@ const ProjectsPage = () => {
                                 {task.successCriteria}
                               </p>
                             )}
+                            <div className="mt-4">
+                              <div className="flex items-center justify-between gap-3 text-xs font-bold text-slate-500">
+                                <span>Task progress</span>
+                                <span>{task.aiProgress || 0}%</span>
+                              </div>
+                              <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-200">
+                                <div
+                                  className="h-full rounded-full bg-emerald-500 transition-all duration-500"
+                                  style={{ width: `${task.aiProgress || 0}%` }}
+                                />
+                              </div>
+                              {task.aiSummary && <p className="mt-2 text-xs leading-5 text-slate-500">{task.aiSummary}</p>}
+                            </div>
                           </div>
                           <span className="rounded-lg bg-white px-3 py-2 text-xs font-bold text-slate-600 ring-1 ring-slate-200">
                             {task.estimatedHours ? `${task.estimatedHours}h estimate` : "No estimate"}

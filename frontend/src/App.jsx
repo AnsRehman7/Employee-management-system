@@ -5,6 +5,7 @@ import LandingPage from "./components/LandingPage";
 import PricingPage from "./components/PricingPage";
 import Employe from "./components/dashboard/employe/Employe";
 import AdminDashboard from "./components/dashboard/AdminDashboard/AdminDashboard";
+import AttendancePortal from "./components/dashboard/AttendancePortal";
 import ProjectsPage from "./components/dashboard/AdminDashboard/ProjectsPage";
 import UsersPage from "./components/dashboard/AdminDashboard/UsersPage";
 import ForgotPassword from "./components/ForgotPassword";
@@ -13,6 +14,7 @@ import { useUser } from "./context/UserContext";
 
 const workRoles = ["super_admin", "admin", "manager", "hr"];
 const projectRoles = [...workRoles, "accounts"];
+const attendanceRoles = [...workRoles, "accounts"];
 const userManagerRoles = ["super_admin", "admin", "hr"];
 const dashboardForRole = (role) => {
   if (workRoles.includes(role)) return "/admin";
@@ -103,6 +105,14 @@ function App() {
           element={
             <RequireAuth allowedRoles={projectRoles}>
               <ProjectsPage />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/attendance"
+          element={
+            <RequireAuth allowedRoles={attendanceRoles}>
+              <AttendancePortal />
             </RequireAuth>
           }
         />

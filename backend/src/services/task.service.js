@@ -1,6 +1,7 @@
 const prisma = require("../db/prisma");
 const ApiError = require("../utils/apiError");
 const { canManageWork, canViewOrganizationWork } = require("../utils/roles");
+const { analyzeTaskProgress, refreshProjectWeights, updateProjectProgress } = require("./analysis.service");
 
 const normalizePriority = (priority = "normal") => String(priority).trim().toUpperCase();
 const normalizeStatus = (status = "new") => String(status).trim().toUpperCase();
@@ -18,6 +19,8 @@ const parseDate = (value, label) => {
 };
 
 const serializeTimeLog = (timeLog) => ({
+  aiProgressAfter: timeLog.aiProgressAfter,
+  analysisSummary: timeLog.analysisSummary || "",
   createdAt: timeLog.createdAt,
   hours: toNumber(timeLog.hours) || 0,
   id: timeLog.id,
@@ -42,9 +45,13 @@ const serializeTask = (task) => ({
   description: task.description,
   estimatedHours: toNumber(task.estimatedHours),
   id: task.id,
+  aiAnalyzedAt: task.aiAnalyzedAt,
+  aiProgress: String(task.status) === "COMPLETED" ? 100 : task.aiProgress || 0,
+  aiSummary: task.aiSummary || "",
   priority: String(task.priority).toLowerCase(),
   projectId: task.projectId || "",
   projectName: task.project?.name || "Unassigned project",
+  projectWeight: toNumber(task.projectWeight) || 0,
   status: String(task.status).toLowerCase(),
   successCriteria: task.successCriteria || "",
   timeLogs: (task.timeLogs || []).map(serializeTimeLog),
@@ -129,7 +136,14 @@ const createTask = async (currentUser, payload) => {
     include: taskInclude,
   });
 
-  return serializeTask(task);
+  await refreshProjectWeights(project.id, currentUser.organizationId);
+
+  const analyzedTask = await prisma.task.findUnique({
+    include: taskInclude,
+    where: { id: task.id },
+  });
+
+  return serializeTask(analyzedTask);
 };
 
 const getTaskForAction = async (taskId, currentUser) => {
@@ -153,17 +167,21 @@ const getTaskForAction = async (taskId, currentUser) => {
 };
 
 const updateTaskStatus = async (taskId, status, currentUser) => {
-  await getTaskForAction(taskId, currentUser);
+  const existingTask = await getTaskForAction(taskId, currentUser);
 
   const normalizedStatus = normalizeStatus(status);
   const task = await prisma.task.update({
     data: {
+      aiAnalyzedAt: new Date(),
+      aiProgress: normalizedStatus === "COMPLETED" ? 100 : Math.min(existingTask.aiProgress || 0, 95),
       completedAt: normalizedStatus === "COMPLETED" ? new Date() : null,
       status: normalizedStatus,
     },
     include: taskInclude,
     where: { id: taskId },
   });
+
+  await updateProjectProgress(task.projectId, currentUser.organizationId);
 
   return serializeTask(task);
 };
@@ -184,7 +202,21 @@ const createTimeLog = async (taskId, currentUser, payload) => {
     },
   });
 
-  return serializeTimeLog(timeLog);
+  await analyzeTaskProgress({
+    latestComment: payload.note || "",
+    organizationId: currentUser.organizationId,
+    taskId,
+    timeLogId: timeLog.id,
+  });
+
+  const analyzedTimeLog = await prisma.timeLog.findUnique({
+    include: {
+      user: true,
+    },
+    where: { id: timeLog.id },
+  });
+
+  return serializeTimeLog(analyzedTimeLog);
 };
 
 const deleteTask = async (taskId, currentUser) => {
@@ -192,8 +224,9 @@ const deleteTask = async (taskId, currentUser) => {
     throw new ApiError(403, "You do not have permission to delete tasks.");
   }
 
-  await getTaskForAction(taskId, currentUser);
+  const task = await getTaskForAction(taskId, currentUser);
   await prisma.task.delete({ where: { id: taskId } });
+  await refreshProjectWeights(task.projectId, currentUser.organizationId);
 };
 
 const getTaskStats = async (currentUser) => {

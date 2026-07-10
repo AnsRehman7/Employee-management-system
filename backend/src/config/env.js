@@ -23,6 +23,8 @@ const env = {
   firebasePrivateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n"),
   firebaseProjectId: process.env.FIREBASE_PROJECT_ID,
   firebaseServiceAccountJson: process.env.FIREBASE_SERVICE_ACCOUNT_JSON,
+  geminiApiKey: process.env.GEMINI_API_KEY,
+  geminiModel: process.env.GEMINI_MODEL || "gemini-3.5-flash",
   nodeEnv: process.env.NODE_ENV || "development",
   port: Number(process.env.PORT || 4000),
 };

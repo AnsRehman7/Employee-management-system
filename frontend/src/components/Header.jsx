@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { FiBriefcase, FiGrid, FiLogOut, FiUser, FiUsers } from "react-icons/fi";
+import { FiBriefcase, FiClock, FiGrid, FiLogOut, FiUser, FiUsers } from "react-icons/fi";
 import { NavLink, useNavigate } from "react-router-dom";
 import Alert from "./Alert";
 import { useFirebase } from "../context/firebase";
@@ -29,6 +29,7 @@ const Header = ({ subtitle = "", title = "Workspace" }) => {
   const navItems = [
     user?.permissions?.canManageWork && ["/admin", "Dashboard", <FiGrid className="h-4 w-4" />],
     user?.permissions?.canViewOrganizationWork && ["/projects", "Projects", <FiBriefcase className="h-4 w-4" />],
+    user?.permissions?.canViewOrganizationWork && ["/attendance", "Attendance", <FiClock className="h-4 w-4" />],
     user?.permissions?.canManageUsers && ["/users", "Users", <FiUsers className="h-4 w-4" />],
   ].filter(Boolean);
 

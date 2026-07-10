@@ -1,6 +1,7 @@
 const prisma = require("../db/prisma");
 const ApiError = require("../utils/apiError");
 const { canManageWork, canViewOrganizationWork } = require("../utils/roles");
+const { calculateWeightedProjectProgress } = require("./analysis.service");
 const { serializeTask, taskInclude } = require("./task.service");
 
 const normalizeProjectStatus = (status = "active") => String(status).trim().toUpperCase();
@@ -58,7 +59,7 @@ const serializeProject = (project, { includeTasks = false } = {}) => {
   const tasks = project.tasks || [];
   const taskCount = tasks.length;
   const completedTaskCount = tasks.filter((task) => task.status === "COMPLETED").length;
-  const progress = taskCount === 0 ? 0 : Math.round((completedTaskCount / taskCount) * 100);
+  const progress = taskCount === 0 ? project.aiProgress || 0 : calculateWeightedProjectProgress(tasks);
   const totalLoggedHours = tasks.reduce(
     (total, task) => total + (task.timeLogs || []).reduce((taskTotal, log) => taskTotal + toNumber(log.hours), 0),
     0
@@ -74,6 +75,8 @@ const serializeProject = (project, { includeTasks = false } = {}) => {
     dueDate: project.dueDate ? project.dueDate.toISOString().slice(0, 10) : "",
     health: getProjectHealth({ dueDate: project.dueDate, progress, status }),
     id: project.id,
+    aiAnalyzedAt: project.aiAnalyzedAt,
+    aiSummary: project.aiSummary || "",
     name: project.name,
     progress,
     startDate: project.startDate ? project.startDate.toISOString().slice(0, 10) : "",
@@ -95,6 +98,8 @@ const listProjects = async (currentUser) => {
         orderBy: { createdAt: "desc" },
         select: {
           status: true,
+          aiProgress: true,
+          projectWeight: true,
           timeLogs: {
             select: {
               hours: true,
@@ -156,6 +161,8 @@ const createProject = async (currentUser, payload) => {
       tasks: {
         select: {
           status: true,
+          aiProgress: true,
+          projectWeight: true,
           timeLogs: {
             select: {
               hours: true,
@@ -199,6 +206,8 @@ const updateProject = async (projectId, currentUser, payload) => {
       tasks: {
         select: {
           status: true,
+          aiProgress: true,
+          projectWeight: true,
           timeLogs: {
             select: {
               hours: true,
@@ -236,6 +245,8 @@ const deleteProject = async (projectId, currentUser) => {
         tasks: {
           select: {
             status: true,
+            aiProgress: true,
+            projectWeight: true,
             timeLogs: {
               select: {
                 hours: true,
