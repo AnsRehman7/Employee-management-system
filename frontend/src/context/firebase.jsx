@@ -14,13 +14,13 @@ import {
 const FirebaseContext = createContext(null);
 
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyDiaRd6tXL-sbEUOkZHKcc7fbE_WylEvDY",
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "employee-94f1d.firebaseapp.com",
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "employee-94f1d",
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "employee-94f1d.firebasestorage.app",
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "237423846118",
-  appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:237423846118:web:7be9797024e6b64689d127",
-  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || "G-DK4GTRQYH1",
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
 };
 
 export const firebaseapp = initializeApp(firebaseConfig);

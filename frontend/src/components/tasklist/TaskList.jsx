@@ -14,7 +14,7 @@ const formatDate = (date) => {
 };
 
 const statusStyles = {
-  completed: "bg-emerald-100 text-emerald-700",
+  completed: "bg-violet-100 text-violet-700",
   new: "bg-sky-100 text-sky-700",
   pending: "bg-amber-100 text-amber-700",
 };
@@ -88,7 +88,7 @@ const TaskList = ({ error = "", loading = false, onTasksChanged = async () => {}
   if (loading) {
     return (
       <div className="rounded-lg border border-slate-200 bg-white p-8 text-center shadow-sm">
-        <div className="mx-auto h-10 w-10 animate-spin rounded-full border-2 border-slate-200 border-t-emerald-500" />
+        <div className="mx-auto h-10 w-10 animate-spin rounded-full border-2 border-slate-200 border-t-violet-500" />
         <p className="mt-4 text-sm font-semibold text-slate-500">Loading your assignments...</p>
       </div>
     );
@@ -98,7 +98,7 @@ const TaskList = ({ error = "", loading = false, onTasksChanged = async () => {}
     <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
       <div className="mb-5 flex flex-col gap-4 border-b border-slate-200 pb-5 lg:flex-row lg:items-center lg:justify-between">
         <div>
-          <h2 className="text-2xl font-black text-slate-950">Assigned tasks</h2>
+          <h2 className="text-2xl font-bold text-slate-950">Assigned tasks</h2>
           <p className="mt-1 text-sm text-slate-500">Only tasks assigned to your account appear here.</p>
         </div>
 
@@ -113,7 +113,7 @@ const TaskList = ({ error = "", loading = false, onTasksChanged = async () => {}
               type="button"
               onClick={() => setActiveFilter(value)}
               className={`rounded-md px-3 py-2 text-sm font-bold transition ${
-                activeFilter === value ? "bg-slate-950 text-white shadow-sm" : "text-slate-500 hover:text-slate-950"
+                activeFilter === value ? "bg-violet-600 text-white shadow-sm shadow-violet-200" : "text-slate-500 hover:text-slate-950"
               }`}
             >
               {label}
@@ -129,10 +129,10 @@ const TaskList = ({ error = "", loading = false, onTasksChanged = async () => {}
 
       {filteredTasks.length === 0 ? (
         <div className="py-14 text-center">
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-lg bg-violet-50 text-violet-600">
             <FiCheckCircle className="h-7 w-7" />
           </div>
-          <h3 className="mt-5 text-lg font-black text-slate-950">No tasks in this view</h3>
+          <h3 className="mt-5 text-lg font-bold text-slate-950">No tasks in this view</h3>
           <p className="mt-2 text-sm text-slate-500">When work is assigned to you, it will appear here.</p>
         </div>
       ) : (
@@ -156,7 +156,7 @@ const TaskList = ({ error = "", loading = false, onTasksChanged = async () => {}
                 </span>
               </div>
 
-              <h3 className="mt-4 text-lg font-black text-slate-950">{task.title}</h3>
+              <h3 className="mt-4 text-lg font-bold text-slate-950">{task.title}</h3>
               <p className="mt-2 min-h-12 text-sm leading-6 text-slate-600">
                 {task.description || "No description provided."}
               </p>
@@ -196,7 +196,7 @@ const TaskList = ({ error = "", loading = false, onTasksChanged = async () => {}
                 </div>
                 <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-200">
                   <div
-                    className="h-full rounded-full bg-emerald-500 transition-all duration-500"
+                    className="h-full rounded-full bg-violet-500 transition-all duration-500"
                     style={{ width: `${task.aiProgress || 0}%` }}
                   />
                 </div>
@@ -208,7 +208,7 @@ const TaskList = ({ error = "", loading = false, onTasksChanged = async () => {}
                   <label className="block">
                     <span className="text-xs font-bold uppercase text-slate-500">Hours</span>
                     <input
-                      className="mt-2 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-950 outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
+                      className="mt-2 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-950 outline-none transition focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10"
                       min="0.25"
                       onChange={(event) => handleTimeLogChange(task.id, "hours", event.target.value)}
                       placeholder="1.5"
@@ -221,7 +221,7 @@ const TaskList = ({ error = "", loading = false, onTasksChanged = async () => {}
                   <label className="block">
                     <span className="text-xs font-bold uppercase text-slate-500">Work note</span>
                     <input
-                      className="mt-2 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
+                      className="mt-2 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10"
                       onChange={(event) => handleTimeLogChange(task.id, "note", event.target.value)}
                       placeholder="What moved forward?"
                       type="text"
@@ -253,7 +253,7 @@ const TaskList = ({ error = "", loading = false, onTasksChanged = async () => {}
                   <button
                     onClick={() => handleStatusChange(task.id, "completed")}
                     disabled={updatingId === task.id}
-                    className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-emerald-600 px-4 py-3 text-sm font-black text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-slate-300"
+                    className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-violet-600 px-4 py-3 text-sm font-bold text-white transition hover:bg-violet-700 disabled:cursor-not-allowed disabled:bg-slate-300"
                   >
                     <FiClock className="h-4 w-4" />
                     {updatingId === task.id ? "Updating..." : "Mark complete"}

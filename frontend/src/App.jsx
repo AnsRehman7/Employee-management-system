@@ -14,7 +14,7 @@ import { useUser } from "./context/UserContext";
 
 const workRoles = ["super_admin", "admin", "manager", "hr"];
 const projectRoles = [...workRoles, "accounts"];
-const attendanceRoles = [...workRoles, "accounts"];
+const attendanceRoles = [...workRoles, "accounts", "employee"];
 const userManagerRoles = ["super_admin", "admin", "hr"];
 const dashboardForRole = (role) => {
   if (workRoles.includes(role)) return "/admin";

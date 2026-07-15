@@ -35,6 +35,11 @@ enum BillingPlan {
   ENTERPRISE
 }
 
+enum AttendanceDirection {
+  IN
+  OUT
+}
+
 enum TaskStatus {
   NEW
   COMPLETED
@@ -74,6 +79,7 @@ model User {
   invitedBy   User?   @relation("UserInvitations", fields: [invitedById], references: [id], onDelete: SetNull)
   invitedUsers User[] @relation("UserInvitations")
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  attendanceScans AttendanceScan[]
   timeLogs     TimeLog[]
 
   @@index([organizationId, role])
@@ -96,6 +102,7 @@ model Organization {
   projects Project[]
   tasks    Task[]
   users    User[]
+  attendanceScans AttendanceScan[]
 
   @@index([status])
   @@index([plan])
@@ -182,4 +189,27 @@ model TimeLog {
   @@index([userId])
   @@index([loggedAt])
   @@map("time_logs")
+}
+
+model AttendanceScan {
+  id              String              @id @default(cuid())
+  organizationId  String
+  userId          String
+  direction       AttendanceDirection
+  source          String
+  scannedAt       DateTime            @default(now())
+  latitude        Decimal?            @db.Decimal(10, 7)
+  longitude       Decimal?            @db.Decimal(10, 7)
+  accuracyMeters  Decimal?            @db.Decimal(8, 2)
+  distanceMeters  Decimal?            @db.Decimal(8, 2)
+  accepted        Boolean             @default(true)
+  rejectionReason String?
+  createdAt       DateTime            @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId, scannedAt])
+  @@index([userId, scannedAt])
+  @@map("attendance_scans")
 }

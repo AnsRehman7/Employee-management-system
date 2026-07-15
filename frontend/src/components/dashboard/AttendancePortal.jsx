@@ -10,9 +10,10 @@ import {
   FiTrash2,
   FiUserCheck,
 } from "react-icons/fi";
-import Header from "../Header";
+import AppShell from "../AppShell";
 import Alert from "../Alert";
 import { api, formatApiError } from "../../context/api";
+import { useUser } from "../../context/UserContext";
 
 const toLocalDateInput = (date = new Date()) => {
   const localDate = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
@@ -103,16 +104,47 @@ const createSampleScans = (date) => [
   { direction: "in", id: "scan-12", source: "Door fingerprint", timestamp: combineDateTime(date, "13:05"), userId: "sample-sara" },
 ];
 
+const toSourceLabel = (source = "") =>
+  source
+    .split(/[_\s]+/)
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+    .join(" ") || "Fingerprint";
+
+const mapApiScan = (scan) => ({
+  accepted: scan.accepted !== false,
+  accuracyMeters: scan.accuracyMeters,
+  direction: scan.direction,
+  distanceMeters: scan.distanceMeters,
+  id: scan.id,
+  rejectionReason: scan.rejectionReason || "",
+  source: toSourceLabel(scan.source),
+  timestamp: scan.scannedAt,
+  user: scan.user || null,
+  userId: scan.userId,
+});
+
+const formatDistance = (meters) => {
+  if (!Number.isFinite(Number(meters))) return "";
+  if (Number(meters) >= 1000) return `${(Number(meters) / 1000).toFixed(2)} km`;
+  return `${Math.round(Number(meters))} m`;
+};
+
 const statusStyles = {
   absent: "bg-slate-200 text-slate-700",
-  checked_out: "bg-emerald-100 text-emerald-700",
+  checked_out: "bg-violet-100 text-violet-700",
   in_office: "bg-sky-100 text-sky-700",
   late: "bg-amber-100 text-amber-800",
 };
 
 const directionStyles = {
-  in: "bg-emerald-100 text-emerald-700",
+  in: "bg-violet-100 text-violet-700",
   out: "bg-slate-200 text-slate-700",
+};
+
+const acceptanceStyles = {
+  accepted: "bg-violet-100 text-violet-700",
+  rejected: "bg-rose-100 text-rose-700",
 };
 
 const buildIntervals = (scans) => {
@@ -191,11 +223,14 @@ const buildAttendanceRow = (member, scans, schedule) => {
 };
 
 const AttendancePortal = () => {
+  const { user } = useUser();
   const today = useMemo(() => toLocalDateInput(), []);
   const [date, setDate] = useState(today);
   const [loadingRoster, setLoadingRoster] = useState(true);
+  const [loadingScans, setLoadingScans] = useState(false);
   const [notice, setNotice] = useState({ message: "", type: "info" });
   const [roster, setRoster] = useState(sampleRoster);
+  const [savingScan, setSavingScan] = useState(false);
   const [scans, setScans] = useState(() => createSampleScans(today));
   const [schedule, setSchedule] = useState({
     checkInGraceMinutes: 60,
@@ -210,9 +245,34 @@ const AttendancePortal = () => {
     source: "Door fingerprint",
     userId: sampleRoster[0].id,
   });
+  const canViewAllAttendance = ["super_admin", "admin", "hr", "accounts"].includes(user?.role);
+  const canManageAttendance = ["super_admin", "admin", "hr"].includes(user?.role);
+  const canRecordAttendance = canManageAttendance || !canViewAllAttendance;
+
+  const currentUserRoster = useMemo(
+    () => [
+      {
+        department: user?.department || "Team",
+        designation: user?.designation || user?.role || "Team member",
+        fingerprintId: "MY-ATTENDANCE",
+        id: user?.id || "",
+        name: user?.name || "My attendance",
+        role: user?.role || "employee",
+      },
+    ],
+    [user]
+  );
 
   const loadRoster = useCallback(async () => {
     setLoadingRoster(true);
+
+    if (!canViewAllAttendance) {
+      setRoster(currentUserRoster);
+      setScanForm((current) => ({ ...current, userId: currentUserRoster[0].id }));
+      setNotice({ message: "", type: "info" });
+      setLoadingRoster(false);
+      return;
+    }
 
     try {
       const { employees = [] } = await api.getEmployees();
@@ -228,7 +288,6 @@ const AttendancePortal = () => {
         }));
         setRoster(mappedRoster);
         setScanForm((current) => ({ ...current, userId: mappedRoster[0].id }));
-        setScans([]);
       }
       setNotice({ message: "", type: "info" });
     } catch (error) {
@@ -239,20 +298,42 @@ const AttendancePortal = () => {
     } finally {
       setLoadingRoster(false);
     }
-  }, []);
+  }, [canViewAllAttendance, currentUserRoster]);
 
   useEffect(() => {
     loadRoster();
   }, [loadRoster]);
+
+  const loadScans = useCallback(async () => {
+    setLoadingScans(true);
+
+    try {
+      const { scans: apiScans = [] } = await api.getAttendanceScans(date);
+      setScans(apiScans.map(mapApiScan));
+    } catch (error) {
+      setNotice({
+        message: `Attendance scan API is unavailable, so the dashboard is showing local sample data. ${formatApiError(error)}`,
+        type: "info",
+      });
+    } finally {
+      setLoadingScans(false);
+    }
+  }, [date]);
+
+  useEffect(() => {
+    loadScans();
+  }, [loadScans]);
 
   const dayScans = useMemo(
     () => scans.filter((scan) => getScanDay(scan) === date).sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp)),
     [date, scans]
   );
 
+  const acceptedDayScans = useMemo(() => dayScans.filter((scan) => scan.accepted !== false), [dayScans]);
+
   const attendanceRows = useMemo(
-    () => roster.map((member) => buildAttendanceRow(member, dayScans, schedule)),
-    [dayScans, roster, schedule]
+    () => roster.map((member) => buildAttendanceRow(member, acceptedDayScans, schedule)),
+    [acceptedDayScans, roster, schedule]
   );
 
   const summary = useMemo(() => {
@@ -275,26 +356,39 @@ const AttendancePortal = () => {
     setScanForm((current) => ({ ...current, [name]: value }));
   };
 
-  const handleAddScan = (event) => {
+  const handleAddScan = async (event) => {
     event.preventDefault();
     const member = roster.find((item) => item.id === scanForm.userId);
     if (!member) return;
 
     const timestamp = combineDateTime(date, scanForm.scanTime);
-    setScans((current) => [
-      ...current,
-      {
+    setSavingScan(true);
+
+    try {
+      const { scan } = await api.createAttendanceScan({
         direction: scanForm.direction,
-        id: `scan-${Date.now()}`,
+        scannedAt: timestamp,
         source: scanForm.source,
-        timestamp,
         userId: scanForm.userId,
-      },
-    ]);
-    setNotice({
-      message: `${member.name} ${scanForm.direction === "in" ? "entry" : "exit"} scan recorded at ${scanForm.scanTime}.`,
-      type: "success",
-    });
+      });
+      const mappedScan = mapApiScan(scan);
+
+      setScans((current) => [...current.filter((item) => item.id !== mappedScan.id), mappedScan]);
+      setNotice({
+        message:
+          mappedScan.accepted === false
+            ? `${member.name}'s scan was recorded for audit but rejected. ${mappedScan.rejectionReason}`
+            : `${member.name} ${scanForm.direction === "in" ? "entry" : "exit"} scan recorded at ${scanForm.scanTime}.`,
+        type: mappedScan.accepted === false ? "error" : "success",
+      });
+    } catch (error) {
+      setNotice({
+        message: `Scan was not saved. ${formatApiError(error)}`,
+        type: "error",
+      });
+    } finally {
+      setSavingScan(false);
+    }
   };
 
   const loadSampleDay = () => {
@@ -306,25 +400,23 @@ const AttendancePortal = () => {
 
   const clearDayScans = () => {
     setScans((current) => current.filter((scan) => getScanDay(scan) !== date));
-    setNotice({ message: "Selected day scans cleared.", type: "success" });
+    setNotice({ message: "Selected day scans cleared locally. Stored backend scans are preserved for audit.", type: "info" });
   };
 
   return (
-    <div className="min-h-screen bg-slate-100">
-      <Header
+    <AppShell
         title="Attendance portal"
         subtitle="Track first check-in, late coming, latest checkout, and total office time from fingerprint scan events."
-      />
-
-      <main className="mx-auto grid max-w-7xl gap-6 px-4 py-8 xl:grid-cols-[0.82fr_1.18fr] lg:px-6">
+      >
+      <div className="grid gap-6 xl:grid-cols-[0.78fr_1.22fr]">
         <section className="space-y-6">
           <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
             <div className="mb-5 flex items-start gap-3 border-b border-slate-200 pb-5">
-              <span className="rounded-lg bg-emerald-100 p-3 text-emerald-700">
+              <span className="rounded-lg bg-violet-100 p-3 text-violet-700">
                 <FiSliders className="h-5 w-5" />
               </span>
               <div>
-                <h2 className="text-2xl font-black text-slate-950">Attendance rules</h2>
+                <h2 className="text-2xl font-bold text-slate-950">Attendance rules</h2>
                 <p className="mt-1 text-sm text-slate-500">
                   First scan is check-in. Latest exit scan inside checkout window is checkout.
                 </p>
@@ -333,11 +425,12 @@ const AttendancePortal = () => {
 
             <div className="space-y-4">
               <Alert message={notice.message} type={notice.type} />
+              {loadingScans && <p className="text-sm font-semibold text-slate-500">Refreshing attendance scans...</p>}
 
               <label className="block">
                 <span className="text-sm font-semibold text-slate-700">Attendance date</span>
                 <input
-                  className="mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-950 outline-none transition focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10"
+                  className="mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-950 outline-none transition focus:border-violet-500 focus:bg-white focus:ring-4 focus:ring-violet-500/10"
                   onChange={(event) => setDate(event.target.value)}
                   type="date"
                   value={date}
@@ -348,7 +441,7 @@ const AttendancePortal = () => {
                 <label className="block">
                   <span className="text-sm font-semibold text-slate-700">Office start</span>
                   <input
-                    className="mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-950 outline-none transition focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10"
+                    className="mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-950 outline-none transition focus:border-violet-500 focus:bg-white focus:ring-4 focus:ring-violet-500/10"
                     name="officeStart"
                     onChange={handleScheduleChange}
                     type="time"
@@ -359,7 +452,7 @@ const AttendancePortal = () => {
                 <label className="block">
                   <span className="text-sm font-semibold text-slate-700">Grace minutes</span>
                   <input
-                    className="mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-950 outline-none transition focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10"
+                    className="mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-950 outline-none transition focus:border-violet-500 focus:bg-white focus:ring-4 focus:ring-violet-500/10"
                     min="0"
                     name="checkInGraceMinutes"
                     onChange={handleScheduleChange}
@@ -373,7 +466,7 @@ const AttendancePortal = () => {
                 <label className="block">
                   <span className="text-sm font-semibold text-slate-700">Office end</span>
                   <input
-                    className="mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-950 outline-none transition focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10"
+                    className="mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-950 outline-none transition focus:border-violet-500 focus:bg-white focus:ring-4 focus:ring-violet-500/10"
                     name="officeEnd"
                     onChange={handleScheduleChange}
                     type="time"
@@ -384,7 +477,7 @@ const AttendancePortal = () => {
                 <label className="block">
                   <span className="text-sm font-semibold text-slate-700">Checkout from</span>
                   <input
-                    className="mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-950 outline-none transition focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10"
+                    className="mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-950 outline-none transition focus:border-violet-500 focus:bg-white focus:ring-4 focus:ring-violet-500/10"
                     name="checkoutStart"
                     onChange={handleScheduleChange}
                     type="time"
@@ -395,7 +488,7 @@ const AttendancePortal = () => {
                 <label className="block">
                   <span className="text-sm font-semibold text-slate-700">Checkout until</span>
                   <input
-                    className="mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-950 outline-none transition focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10"
+                    className="mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-950 outline-none transition focus:border-violet-500 focus:bg-white focus:ring-4 focus:ring-violet-500/10"
                     name="checkoutEnd"
                     onChange={handleScheduleChange}
                     type="time"
@@ -406,22 +499,23 @@ const AttendancePortal = () => {
             </div>
           </section>
 
-          <form className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm" onSubmit={handleAddScan}>
-            <div className="mb-5 flex items-start gap-3 border-b border-slate-200 pb-5">
-              <span className="rounded-lg bg-slate-950 p-3 text-white">
-                <FiShield className="h-5 w-5" />
-              </span>
-              <div>
-                <h2 className="text-2xl font-black text-slate-950">Fingerprint scan</h2>
-                <p className="mt-1 text-sm text-slate-500">Simulates the door device or future mobile fingerprint event.</p>
+          {canRecordAttendance ? (
+            <form className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm" onSubmit={handleAddScan}>
+              <div className="mb-5 flex items-start gap-3 border-b border-slate-200 pb-5">
+                <span className="rounded-lg bg-violet-600 p-3 text-white">
+                  <FiShield className="h-5 w-5" />
+                </span>
+                <div>
+                  <h2 className="text-2xl font-bold text-slate-950">Fingerprint scan</h2>
+                  <p className="mt-1 text-sm text-slate-500">Record a door, mobile, or manual attendance event.</p>
+                </div>
               </div>
-            </div>
 
             <div className="space-y-4">
               <label className="block">
                 <span className="text-sm font-semibold text-slate-700">Team member</span>
                 <select
-                  className="mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-950 outline-none transition focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10"
+                  className="mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-950 outline-none transition focus:border-violet-500 focus:bg-white focus:ring-4 focus:ring-violet-500/10"
                   disabled={loadingRoster}
                   name="userId"
                   onChange={handleScanFormChange}
@@ -439,7 +533,7 @@ const AttendancePortal = () => {
                 <label className="block">
                   <span className="text-sm font-semibold text-slate-700">Scan time</span>
                   <input
-                    className="mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-950 outline-none transition focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10"
+                    className="mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-950 outline-none transition focus:border-violet-500 focus:bg-white focus:ring-4 focus:ring-violet-500/10"
                     name="scanTime"
                     onChange={handleScanFormChange}
                     required
@@ -451,7 +545,7 @@ const AttendancePortal = () => {
                 <label className="block">
                   <span className="text-sm font-semibold text-slate-700">Scan direction</span>
                   <select
-                    className="mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-950 outline-none transition focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10"
+                    className="mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-950 outline-none transition focus:border-violet-500 focus:bg-white focus:ring-4 focus:ring-violet-500/10"
                     name="direction"
                     onChange={handleScanFormChange}
                     value={scanForm.direction}
@@ -465,7 +559,7 @@ const AttendancePortal = () => {
               <label className="block">
                 <span className="text-sm font-semibold text-slate-700">Source</span>
                 <select
-                  className="mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-950 outline-none transition focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10"
+                  className="mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-950 outline-none transition focus:border-violet-500 focus:bg-white focus:ring-4 focus:ring-violet-500/10"
                   name="source"
                   onChange={handleScanFormChange}
                   value={scanForm.source}
@@ -477,15 +571,24 @@ const AttendancePortal = () => {
               </label>
 
               <button
-                className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-emerald-600 px-4 py-3 text-sm font-black text-white shadow-lg shadow-emerald-900/20 transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-slate-300"
-                disabled={loadingRoster}
+                className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-violet-600 px-4 py-3 text-sm font-bold text-white shadow-lg shadow-violet-900/20 transition hover:bg-violet-700 disabled:cursor-not-allowed disabled:bg-slate-300"
+                disabled={loadingRoster || savingScan}
                 type="submit"
               >
                 {scanForm.direction === "in" ? <FiLogIn className="h-4 w-4" /> : <FiLogOut className="h-4 w-4" />}
-                Record scan
+                {savingScan ? "Saving scan..." : "Record scan"}
               </button>
 
-              <div className="grid gap-3 sm:grid-cols-2">
+              <div className="grid gap-3 sm:grid-cols-3">
+                <button
+                  className="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-bold text-slate-700 transition hover:bg-slate-100"
+                  disabled={loadingScans}
+                  onClick={loadScans}
+                  type="button"
+                >
+                  <FiRefreshCw className="h-4 w-4" />
+                  Refresh
+                </button>
                 <button
                   className="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-bold text-slate-700 transition hover:bg-slate-100"
                   onClick={loadSampleDay}
@@ -504,7 +607,22 @@ const AttendancePortal = () => {
                 </button>
               </div>
             </div>
-          </form>
+            </form>
+          ) : (
+            <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+              <div className="flex items-start gap-3">
+                <span className="rounded-lg bg-violet-50 p-3 text-violet-700">
+                  <FiShield className="h-5 w-5" />
+                </span>
+                <div>
+                  <h2 className="text-2xl font-bold text-slate-950">Attendance review</h2>
+                  <p className="mt-1 text-sm leading-6 text-slate-500">
+                    Accounts can review organization attendance. Recording scans is available to admins and HR.
+                  </p>
+                </div>
+              </div>
+            </section>
+          )}
         </section>
 
         <section className="space-y-6">
@@ -520,7 +638,7 @@ const AttendancePortal = () => {
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <p className="text-xs font-bold uppercase text-slate-500">{label}</p>
-                    <p className="mt-2 text-2xl font-black text-slate-950">{value}</p>
+                    <p className="mt-2 text-2xl font-bold text-slate-950">{value}</p>
                   </div>
                   <span className="rounded-lg bg-slate-100 p-3 text-slate-700">{icon}</span>
                 </div>
@@ -530,7 +648,7 @@ const AttendancePortal = () => {
 
           <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
             <div className="mb-5 border-b border-slate-200 pb-5">
-              <h2 className="text-2xl font-black text-slate-950">Daily attendance</h2>
+              <h2 className="text-2xl font-bold text-slate-950">Daily attendance</h2>
               <p className="mt-1 text-sm text-slate-500">
                 Check-in window: {schedule.officeStart} to{" "}
                 {formatTime(combineDateTime(date, `${String(Math.floor((minutesFromTime(schedule.officeStart) + Number(schedule.checkInGraceMinutes)) / 60)).padStart(2, "0")}:${String((minutesFromTime(schedule.officeStart) + Number(schedule.checkInGraceMinutes)) % 60).padStart(2, "0")}`))}.
@@ -554,7 +672,7 @@ const AttendancePortal = () => {
                   {attendanceRows.map((row) => (
                     <tr className="align-top" key={row.member.id}>
                       <td className="px-3 py-4">
-                        <p className="font-black text-slate-950">{row.member.name}</p>
+                        <p className="font-bold text-slate-950">{row.member.name}</p>
                         <p className="mt-1 text-xs text-slate-500">
                           {row.member.designation} - {row.member.fingerprintId}
                         </p>
@@ -567,7 +685,7 @@ const AttendancePortal = () => {
                       </td>
                       <td className="px-3 py-4 font-semibold text-slate-700">{formatTime(row.checkOut?.timestamp)}</td>
                       <td className="px-3 py-4">
-                        <p className="font-black text-slate-950">{formatDuration(row.netMinutes)}</p>
+                        <p className="font-bold text-slate-950">{formatDuration(row.netMinutes)}</p>
                         {row.grossMinutes > 0 && (
                           <p className="mt-1 text-xs text-slate-500">Gross {formatDuration(row.grossMinutes)}</p>
                         )}
@@ -582,7 +700,7 @@ const AttendancePortal = () => {
 
           <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
             <div className="mb-5 border-b border-slate-200 pb-5">
-              <h2 className="text-2xl font-black text-slate-950">Scan timeline</h2>
+              <h2 className="text-2xl font-bold text-slate-950">Scan timeline</h2>
               <p className="mt-1 text-sm text-slate-500">Every fingerprint event is preserved for audit and later device integration.</p>
             </div>
 
@@ -595,23 +713,36 @@ const AttendancePortal = () => {
               <div className="space-y-3">
                 {dayScans.map((scan) => {
                   const member = roster.find((item) => item.id === scan.userId);
+                  const scanUser = member || scan.user || {};
+                  const acceptedKey = scan.accepted === false ? "rejected" : "accepted";
 
                   return (
                     <article className="rounded-lg border border-slate-200 bg-slate-50 p-4" key={scan.id}>
                       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                         <div>
                           <div className="flex flex-wrap items-center gap-2">
-                            <span className={`rounded-full px-3 py-1 text-xs font-bold ${directionStyles[scan.direction]}`}>
+                            <span className={`rounded-full px-3 py-1 text-xs font-bold ${directionStyles[scan.direction] || directionStyles.in}`}>
                               {scan.direction === "in" ? "Entry" : "Exit"}
+                            </span>
+                            <span className={`rounded-full px-3 py-1 text-xs font-bold ${acceptanceStyles[acceptedKey]}`}>
+                              {scan.accepted === false ? "Rejected" : "Accepted"}
                             </span>
                             <span className="rounded-full bg-white px-3 py-1 text-xs font-bold text-slate-500 ring-1 ring-slate-200">
                               {scan.source}
                             </span>
+                            {formatDistance(scan.distanceMeters) && (
+                              <span className="rounded-full bg-white px-3 py-1 text-xs font-bold text-slate-500 ring-1 ring-slate-200">
+                                {formatDistance(scan.distanceMeters)} from office
+                              </span>
+                            )}
                           </div>
-                          <p className="mt-3 text-base font-black text-slate-950">{member?.name || "Unknown staff"}</p>
-                          <p className="mt-1 text-sm text-slate-500">{member?.fingerprintId || scan.userId}</p>
+                          <p className="mt-3 text-base font-bold text-slate-950">{scanUser.name || "Unknown staff"}</p>
+                          <p className="mt-1 text-sm text-slate-500">
+                            {member?.fingerprintId || scanUser.designation || scan.userId}
+                          </p>
+                          {scan.rejectionReason && <p className="mt-2 text-sm font-semibold text-rose-700">{scan.rejectionReason}</p>}
                         </div>
-                        <p className="text-lg font-black text-slate-950">{formatTime(scan.timestamp)}</p>
+                        <p className="text-lg font-bold text-slate-950">{formatTime(scan.timestamp)}</p>
                       </div>
                     </article>
                   );
@@ -620,8 +751,8 @@ const AttendancePortal = () => {
             )}
           </section>
         </section>
-      </main>
-    </div>
+      </div>
+    </AppShell>
   );
 };
 

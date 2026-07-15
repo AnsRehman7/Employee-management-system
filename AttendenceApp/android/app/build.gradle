@@ -2,6 +2,13 @@ apply plugin: "com.android.application"
 apply plugin: "org.jetbrains.kotlin.android"
 apply plugin: "com.facebook.react"
 
+project.ext.envConfigFiles = [
+    debug: ".env",
+    release: ".env"
+]
+
+apply from: project(":react-native-config").projectDir.getPath() + "/dotenv.gradle"
+
 /**
  * This is the configuration block to customize your React Native Android app.
  * By default you don't need to apply any configuration, just uncomment the lines you need.
@@ -77,11 +84,13 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace "com.rideapp"
+    namespace "com.staffflow.attendance"
     defaultConfig {
-        applicationId "com.rideapp"
+        applicationId "com.staffflow.attendance"
+        manifestPlaceholders = [usesCleartextTraffic: "true"]
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
+        resValue "string", "build_config_package", "com.staffflow.attendance"
         versionCode 1
         versionName "1.0"
     }

@@ -7,13 +7,13 @@ const styles = {
     Icon: FiAlertCircle,
   },
   info: {
-    container: "border-sky-200 bg-sky-50 text-sky-800",
-    icon: "text-sky-500",
+    container: "border-violet-200 bg-violet-50 text-violet-800",
+    icon: "text-violet-500",
     Icon: FiInfo,
   },
   success: {
-    container: "border-emerald-200 bg-emerald-50 text-emerald-800",
-    icon: "text-emerald-500",
+    container: "border-cyan-200 bg-cyan-50 text-cyan-800",
+    icon: "text-cyan-500",
     Icon: FiCheckCircle,
   },
 };

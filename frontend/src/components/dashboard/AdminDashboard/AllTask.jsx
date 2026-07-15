@@ -14,7 +14,7 @@ const formatDate = (date) => {
 };
 
 const statusStyles = {
-  completed: "bg-emerald-100 text-emerald-700",
+  completed: "bg-violet-100 text-violet-700",
   new: "bg-sky-100 text-sky-700",
   pending: "bg-amber-100 text-amber-700",
 };
@@ -92,7 +92,7 @@ const AllTask = ({ refreshKey = 0 }) => {
   if (loading) {
     return (
       <section className="rounded-lg border border-slate-200 bg-white p-8 text-center shadow-sm">
-        <div className="mx-auto h-10 w-10 animate-spin rounded-full border-2 border-slate-200 border-t-emerald-500" />
+        <div className="mx-auto h-10 w-10 animate-spin rounded-full border-2 border-slate-200 border-t-violet-500" />
         <p className="mt-4 text-sm font-semibold text-slate-500">Loading task board...</p>
       </section>
     );
@@ -102,11 +102,11 @@ const AllTask = ({ refreshKey = 0 }) => {
     <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
       <div className="mb-5 flex flex-col gap-4 border-b border-slate-200 pb-5 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex items-start gap-3">
-          <span className="rounded-lg bg-slate-950 p-3 text-white">
+          <span className="rounded-lg bg-violet-600 p-3 text-white shadow-lg shadow-violet-200">
             <FiUsers className="h-5 w-5" />
           </span>
           <div>
-            <h2 className="text-2xl font-black text-slate-950">Task board</h2>
+            <h2 className="text-2xl font-bold text-slate-950">Task board</h2>
             <p className="mt-1 text-sm text-slate-500">
               {totals.all} total, {totals.active} active, {totals.completed} completed.
             </p>
@@ -124,7 +124,7 @@ const AllTask = ({ refreshKey = 0 }) => {
               type="button"
               onClick={() => setActiveFilter(value)}
               className={`rounded-md px-3 py-2 text-sm font-bold transition ${
-                activeFilter === value ? "bg-slate-950 text-white shadow-sm" : "text-slate-500 hover:text-slate-950"
+                activeFilter === value ? "bg-violet-600 text-white shadow-sm shadow-violet-200" : "text-slate-500 hover:text-slate-950"
               }`}
             >
               {label}
@@ -140,7 +140,7 @@ const AllTask = ({ refreshKey = 0 }) => {
           <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-lg bg-slate-100 text-slate-600">
             <FiCheckCircle className="h-7 w-7" />
           </div>
-          <h3 className="mt-5 text-lg font-black text-slate-950">No tasks found</h3>
+          <h3 className="mt-5 text-lg font-bold text-slate-950">No tasks found</h3>
           <p className="mt-2 text-sm text-slate-500">Created tasks will appear in this board.</p>
         </div>
       ) : (
@@ -173,7 +173,7 @@ const AllTask = ({ refreshKey = 0 }) => {
                     </span>
                   </div>
 
-                  <h3 className="mt-3 text-lg font-black text-slate-950">{task.title}</h3>
+                  <h3 className="mt-3 text-lg font-bold text-slate-950">{task.title}</h3>
                   <p className="mt-1 text-sm text-slate-500">
                     Assigned to {task.assignedToName}
                     {task.assignedToEmail ? ` (${task.assignedToEmail})` : ""}
@@ -206,7 +206,7 @@ const AllTask = ({ refreshKey = 0 }) => {
                     </div>
                     <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-200">
                       <div
-                        className="h-full rounded-full bg-emerald-500 transition-all duration-500"
+                        className="h-full rounded-full bg-violet-500 transition-all duration-500"
                         style={{ width: `${task.aiProgress || 0}%` }}
                       />
                     </div>
@@ -230,7 +230,7 @@ const AllTask = ({ refreshKey = 0 }) => {
                       type="button"
                       onClick={() => handleStatusChange(task.id, "completed")}
                       disabled={busyId === task.id}
-                      className="inline-flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm font-bold text-emerald-700 transition hover:bg-emerald-100 disabled:cursor-not-allowed disabled:opacity-60"
+                      className="inline-flex items-center gap-2 rounded-lg border border-violet-200 bg-violet-50 px-3 py-2 text-sm font-bold text-violet-700 transition hover:bg-violet-100 disabled:cursor-not-allowed disabled:opacity-60"
                     >
                       <FiCheckCircle className="h-4 w-4" />
                       Complete

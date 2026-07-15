@@ -20,6 +20,15 @@ const optionalNumber = (max = 9999) =>
 const requiredNumber = (max = 9999) =>
   z.preprocess((value) => Number(value), z.number().finite().positive().max(max));
 
+const optionalBoundedNumber = (min, max) =>
+  z.preprocess(
+    (value) => {
+      if (value === "" || value === null || value === undefined) return undefined;
+      return Number(value);
+    },
+    z.number().finite().min(min).max(max).optional()
+  );
+
 const roleValues = [
   "super_admin",
   "admin",
@@ -98,6 +107,16 @@ const createTimeLogSchema = z.object({
   note: optionalTrimmedString(1000),
 });
 
+const createAttendanceScanSchema = z.object({
+  accuracyMeters: optionalNumber(9999),
+  direction: z.enum(["in", "out", "IN", "OUT"]),
+  latitude: optionalBoundedNumber(-90, 90),
+  longitude: optionalBoundedNumber(-180, 180),
+  scannedAt: optionalTrimmedString(40),
+  source: optionalTrimmedString(80),
+  userId: optionalTrimmedString(80),
+});
+
 const updateTaskStatusSchema = z.object({
   status: z.enum(["new", "completed", "NEW", "COMPLETED"]),
 });
@@ -109,6 +128,7 @@ const updateUserRoleSchema = z.object({
 const parseBody = (schema, body) => schema.parse(body || {});
 
 module.exports = {
+  createAttendanceScanSchema,
   createOrganizationUserSchema,
   createProjectSchema,
   createTaskSchema,

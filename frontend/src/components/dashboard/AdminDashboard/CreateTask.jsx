@@ -97,11 +97,11 @@ const CreateTask = ({ onTaskCreated = () => {} }) => {
   return (
     <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
       <div className="mb-5 flex items-start gap-3 border-b border-slate-200 pb-5">
-        <span className="rounded-lg bg-emerald-100 p-3 text-emerald-700">
+        <span className="rounded-lg bg-violet-100 p-3 text-violet-700">
           <FiPlusCircle className="h-5 w-5" />
         </span>
         <div>
-          <h2 className="text-2xl font-black text-slate-950">Assign a task</h2>
+          <h2 className="text-2xl font-bold text-slate-950">Assign a task</h2>
           <p className="mt-1 text-sm text-slate-500">Tasks created here are visible only to the selected assignee.</p>
         </div>
       </div>
@@ -111,7 +111,7 @@ const CreateTask = ({ onTaskCreated = () => {} }) => {
 
         <label className="block">
           <span className="text-sm font-semibold text-slate-700">Project</span>
-          <div className="mt-2 flex items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 transition focus-within:border-emerald-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-emerald-500/10">
+          <div className="mt-2 flex items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 transition focus-within:border-violet-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-violet-500/10">
             <FiBriefcase className="h-5 w-5 text-slate-400" />
             <select
               name="projectId"
@@ -135,7 +135,7 @@ const CreateTask = ({ onTaskCreated = () => {} }) => {
 
         <label className="block">
           <span className="text-sm font-semibold text-slate-700">Task title</span>
-          <div className="mt-2 flex items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 transition focus-within:border-emerald-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-emerald-500/10">
+          <div className="mt-2 flex items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 transition focus-within:border-violet-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-violet-500/10">
             <FiFileText className="h-5 w-5 text-slate-400" />
             <input
               type="text"
@@ -151,7 +151,7 @@ const CreateTask = ({ onTaskCreated = () => {} }) => {
 
         <label className="block">
           <span className="text-sm font-semibold text-slate-700">Assign to team member</span>
-          <div className="mt-2 flex items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 transition focus-within:border-emerald-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-emerald-500/10">
+          <div className="mt-2 flex items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 transition focus-within:border-violet-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-violet-500/10">
             <FiUserCheck className="h-5 w-5 text-slate-400" />
             <select
               name="assignedToId"
@@ -174,7 +174,7 @@ const CreateTask = ({ onTaskCreated = () => {} }) => {
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           <label className="block sm:col-span-1">
             <span className="text-sm font-semibold text-slate-700">Category</span>
-            <div className="mt-2 flex items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 transition focus-within:border-emerald-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-emerald-500/10">
+            <div className="mt-2 flex items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 transition focus-within:border-violet-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-violet-500/10">
               <FiTag className="h-5 w-5 text-slate-400" />
               <input
                 type="text"
@@ -194,7 +194,7 @@ const CreateTask = ({ onTaskCreated = () => {} }) => {
               name="priority"
               value={formData.priority}
               onChange={handleChange}
-              className="mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-950 outline-none transition focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10"
+              className="mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-950 outline-none transition focus:border-violet-500 focus:bg-white focus:ring-4 focus:ring-violet-500/10"
             >
               <option value="low">Low</option>
               <option value="normal">Normal</option>
@@ -204,7 +204,7 @@ const CreateTask = ({ onTaskCreated = () => {} }) => {
 
           <label className="block sm:col-span-1">
             <span className="text-sm font-semibold text-slate-700">Deadline</span>
-            <div className="mt-2 flex items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 transition focus-within:border-emerald-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-emerald-500/10">
+            <div className="mt-2 flex items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 transition focus-within:border-violet-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-violet-500/10">
               <FiCalendar className="h-5 w-5 text-slate-400" />
               <input
                 type="date"
@@ -218,7 +218,7 @@ const CreateTask = ({ onTaskCreated = () => {} }) => {
 
           <label className="block sm:col-span-1">
             <span className="text-sm font-semibold text-slate-700">Estimate</span>
-            <div className="mt-2 flex items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 transition focus-within:border-emerald-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-emerald-500/10">
+            <div className="mt-2 flex items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 transition focus-within:border-violet-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-violet-500/10">
               <FiClock className="h-5 w-5 text-slate-400" />
               <input
                 type="number"
@@ -242,14 +242,14 @@ const CreateTask = ({ onTaskCreated = () => {} }) => {
             value={formData.description}
             onChange={handleChange}
             placeholder="Add details, acceptance criteria, or context for the employee."
-            className="mt-2 w-full resize-none rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm leading-6 text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10"
+            className="mt-2 w-full resize-none rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm leading-6 text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-violet-500 focus:bg-white focus:ring-4 focus:ring-violet-500/10"
             required
           />
         </label>
 
         <label className="block">
           <span className="text-sm font-semibold text-slate-700">Success criteria</span>
-          <div className="mt-2 flex gap-3 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 transition focus-within:border-emerald-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-emerald-500/10">
+          <div className="mt-2 flex gap-3 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 transition focus-within:border-violet-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-violet-500/10">
             <FiCheckSquare className="mt-0.5 h-5 w-5 shrink-0 text-slate-400" />
             <textarea
               name="successCriteria"
@@ -265,7 +265,7 @@ const CreateTask = ({ onTaskCreated = () => {} }) => {
         <button
           type="submit"
           disabled={saving || loadingEmployees || loadingProjects || projects.length === 0}
-          className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-emerald-600 px-4 py-3 text-sm font-black text-white shadow-lg shadow-emerald-900/20 transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-slate-300"
+          className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-violet-600 px-4 py-3 text-sm font-bold text-white shadow-lg shadow-violet-900/20 transition hover:bg-violet-700 disabled:cursor-not-allowed disabled:bg-slate-300"
         >
           <FiPlusCircle className="h-4 w-4" />
           {saving ? "Assigning task..." : "Assign task"}

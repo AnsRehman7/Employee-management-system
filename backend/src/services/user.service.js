@@ -79,10 +79,15 @@ const ensureOrganization = (currentUser) => {
 
 const mapFirebaseAdminError = (error) => {
   const messages = {
+    EMAIL_EXISTS: "A Firebase login already exists for this email.",
+    INVALID_EMAIL: "Enter a valid email address.",
+    OPERATION_NOT_ALLOWED: "Enable Email/Password sign-in in Firebase Authentication.",
+    WEAK_PASSWORD: "Password must be at least 6 characters.",
     "auth/email-already-exists": "A Firebase login already exists for this email.",
     "auth/invalid-email": "Enter a valid email address.",
     "auth/invalid-password": "Password must be at least 6 characters.",
     "auth/user-not-found": "Firebase account was not found.",
+    "firebase/admin-credentials-required": error?.message,
   };
 
   return messages[error?.code] || error?.message || "Firebase account operation failed.";
@@ -232,6 +237,8 @@ const createOrganizationUser = async (currentUser, payload) => {
       password: payload.password,
     });
   } catch (error) {
+    if (error instanceof ApiError) throw error;
+
     throw new ApiError(400, mapFirebaseAdminError(error), error.code);
   }
 
@@ -306,16 +313,21 @@ const updateOrganizationUser = async (currentUser, userId, payload) => {
     throw new ApiError(400, "You cannot suspend your own account.");
   }
 
+  const nextEmail = payload.email ? normalizeEmail(payload.email) : existingUser.email;
+  const nextStatus = payload.status ? normalizeStatus(payload.status) : existingUser.status;
   const firebaseUpdates = {};
-  if (payload.email) firebaseUpdates.email = normalizeEmail(payload.email);
-  if (payload.fullName) firebaseUpdates.displayName = payload.fullName;
+
+  if (nextEmail !== existingUser.email) firebaseUpdates.email = nextEmail;
+  if (payload.fullName && payload.fullName !== existingUser.fullName) firebaseUpdates.displayName = payload.fullName;
   if (payload.password) firebaseUpdates.password = payload.password;
-  if (payload.status) firebaseUpdates.disabled = normalizeStatus(payload.status) === "SUSPENDED";
+  if (nextStatus !== existingUser.status) firebaseUpdates.disabled = nextStatus === "SUSPENDED";
 
   if (Object.keys(firebaseUpdates).length) {
     try {
       await firebaseAuth.updateUser(existingUser.firebaseUid, firebaseUpdates);
     } catch (error) {
+      if (error instanceof ApiError) throw error;
+
       throw new ApiError(400, mapFirebaseAdminError(error), error.code);
     }
   }
@@ -325,10 +337,10 @@ const updateOrganizationUser = async (currentUser, userId, payload) => {
       contact: payload.contact ?? existingUser.contact,
       department: payload.department ?? existingUser.department,
       designation: payload.designation ?? existingUser.designation,
-      email: payload.email ? normalizeEmail(payload.email) : existingUser.email,
+      email: nextEmail,
       fullName: payload.fullName || existingUser.fullName,
       role: nextRole,
-      status: payload.status ? normalizeStatus(payload.status) : existingUser.status,
+      status: nextStatus,
     },
     include: {
       organization: true,

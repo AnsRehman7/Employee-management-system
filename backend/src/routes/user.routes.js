@@ -10,7 +10,7 @@ router.use(authenticate);
 
 router.get(
   "/employees",
-  requireRoles(USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN, USER_ROLES.MANAGER, USER_ROLES.HR),
+  requireRoles(USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN, USER_ROLES.MANAGER, USER_ROLES.HR, USER_ROLES.ACCOUNTS),
   userController.listEmployees
 );
 router.get("/", requireRoles(USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN, USER_ROLES.HR), userController.listUsers);

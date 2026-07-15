@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import TaskList from "../../tasklist/TaskList";
-import Header from "../../Header";
+import AppShell from "../../AppShell";
 import TaskNumber from "./TaskNumber";
 import { api, formatApiError } from "../../../context/api";
 import { useUser } from "../../../context/UserContext";
@@ -30,12 +30,11 @@ const Employe = () => {
   }, [loadTasks]);
 
   return (
-    <div className="min-h-screen bg-slate-100">
-      <Header
+    <AppShell
         title="My work"
         subtitle={`Welcome back${user?.name ? `, ${user.name}` : ""}. Your assignments are scoped to your account.`}
-      />
-      <main className="mx-auto max-w-7xl px-4 py-8 lg:px-6">
+      >
+      <div>
         <section className="mb-8">
           <TaskNumber error={taskError} tasks={tasks} />
         </section>
@@ -43,8 +42,8 @@ const Employe = () => {
         <section>
           <TaskList error={taskError} loading={loadingTasks} onTasksChanged={loadTasks} tasks={tasks} />
         </section>
-      </main>
-    </div>
+      </div>
+    </AppShell>
   );
 };
 

@@ -22,7 +22,7 @@ const TaskNumber = ({ error = "", tasks = [] }) => {
       value: taskStats.total,
       helper: "All tasks linked to you",
       icon: <FiList className="h-5 w-5" />,
-      tone: "bg-slate-950 text-white",
+      tone: "border-violet-200 bg-violet-600 text-white shadow-violet-200",
     },
     {
       label: "Active",
@@ -36,7 +36,7 @@ const TaskNumber = ({ error = "", tasks = [] }) => {
       value: taskStats.projectCount,
       helper: "Work streams",
       icon: <FiBriefcase className="h-5 w-5" />,
-      tone: "bg-emerald-500 text-slate-950",
+      tone: "border-cyan-200 bg-cyan-50 text-slate-950",
     },
     {
       label: "Logged",
@@ -66,10 +66,10 @@ const TaskNumber = ({ error = "", tasks = [] }) => {
             <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="text-sm font-semibold opacity-70">{label}</p>
-                <p className="mt-3 text-4xl font-black">{value}</p>
+                <p className="mt-3 text-4xl font-bold">{value}</p>
                 <p className="mt-2 text-sm font-medium opacity-70">{helper}</p>
               </div>
-              <span className="rounded-lg bg-black/10 p-3">
+              <span className="rounded-lg bg-white/20 p-3 text-current ring-1 ring-black/5">
                 {icon}
               </span>
             </div>

@@ -1,5 +1,5 @@
 {
-  "name": "RideApp",
+  "name": "staffflow-attendance",
   "version": "0.0.1",
   "private": true,
   "scripts": {
@@ -10,9 +10,12 @@
     "test": "jest"
   },
   "dependencies": {
+    "@react-native-async-storage/async-storage": "^3.1.1",
+    "@react-native-community/geolocation": "^3.4.0",
     "react": "19.2.3",
     "react-native": "0.85.2",
-    "@react-native/new-app-screen": "0.85.2",
+    "react-native-biometrics": "^3.0.1",
+    "react-native-config": "^1.6.1",
     "react-native-safe-area-context": "^5.5.2"
   },
   "devDependencies": {

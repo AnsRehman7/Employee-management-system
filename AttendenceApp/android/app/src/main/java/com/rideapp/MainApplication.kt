@@ -1,4 +1,4 @@
-package com.rideapp
+package com.staffflow.attendance
 
 import android.app.Application
 import com.facebook.react.PackageList

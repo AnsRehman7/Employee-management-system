@@ -19,6 +19,10 @@ const authenticateFirebase = async (req, _res, next) => {
     req.firebaseUser = decodedToken;
     next();
   } catch (error) {
+    if (error instanceof ApiError) {
+      return next(error);
+    }
+
     next(new ApiError(401, "Invalid or expired authentication token.", error.message));
   }
 };

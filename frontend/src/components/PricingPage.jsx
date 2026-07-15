@@ -32,27 +32,27 @@ const PricingPage = () => {
   const navigate = useNavigate();
 
   return (
-    <main className="min-h-screen bg-slate-950 text-white">
+    <main className="min-h-screen bg-[#f4f5fb] text-slate-950">
       <nav className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5">
         <button className="flex items-center gap-3 text-left" onClick={() => navigate("/")} type="button">
-          <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-400 text-slate-950 shadow-lg shadow-emerald-950/30">
+          <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-violet-600 text-white shadow-lg shadow-violet-200">
             <FiLayers className="h-5 w-5" />
           </span>
           <span>
             <span className="block text-lg font-bold tracking-tight">StaffFlow</span>
-            <span className="block text-xs font-medium text-slate-400">Workforce operations</span>
+            <span className="block text-xs font-semibold uppercase text-slate-500">Work intelligence</span>
           </span>
         </button>
         <div className="flex items-center gap-3">
           <button
-            className="rounded-lg px-4 py-2 text-sm font-semibold text-slate-300 transition hover:bg-white/10 hover:text-white"
+            className="rounded-lg px-4 py-2 text-sm font-bold text-slate-600 transition hover:bg-white hover:text-violet-700"
             onClick={() => navigate("/login")}
             type="button"
           >
             Login
           </button>
           <button
-            className="rounded-lg bg-emerald-400 px-4 py-2 text-sm font-bold text-slate-950 shadow-lg shadow-emerald-950/30 transition hover:bg-emerald-300"
+            className="rounded-lg bg-violet-600 px-4 py-2 text-sm font-bold text-white shadow-lg shadow-violet-200 transition hover:bg-violet-700"
             onClick={() => navigate("/signup")}
             type="button"
           >
@@ -63,11 +63,11 @@ const PricingPage = () => {
 
       <section className="mx-auto max-w-7xl px-6 pb-20 pt-10">
         <div className="max-w-3xl">
-          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-emerald-300">Pricing</p>
-          <h1 className="mt-4 text-5xl font-black tracking-tight text-white sm:text-6xl">
+          <p className="text-sm font-bold uppercase tracking-wide text-violet-600">Pricing</p>
+          <h1 className="mt-4 text-5xl font-bold tracking-tight text-slate-950 sm:text-6xl">
             Start lean. Add structure as the company grows.
           </h1>
-          <p className="mt-6 text-lg leading-8 text-slate-300">
+          <p className="mt-6 text-lg leading-8 text-slate-600">
             StaffFlow starts with a free trial workspace and scales into role-based operations for managers, HR,
             accounts, and employees.
           </p>
@@ -76,44 +76,44 @@ const PricingPage = () => {
         <div className="mt-12 grid gap-5 lg:grid-cols-3">
           {plans.map((plan) => (
             <article
-              className={`rounded-lg border p-6 shadow-2xl shadow-slate-950/30 ${
-                plan.featured ? "border-emerald-300 bg-white text-slate-950" : "border-white/10 bg-white/5 text-white"
+              className={`rounded-lg border p-6 shadow-sm shadow-slate-200/70 ${
+                plan.featured ? "border-violet-300 bg-white text-slate-950" : "border-slate-200 bg-white text-slate-950"
               }`}
               key={plan.name}
             >
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <h2 className="text-2xl font-black">{plan.name}</h2>
-                  <p className={`mt-2 text-sm leading-6 ${plan.featured ? "text-slate-600" : "text-slate-300"}`}>
+                  <h2 className="text-2xl font-bold">{plan.name}</h2>
+                  <p className="mt-2 text-sm leading-6 text-slate-600">
                     {plan.description}
                   </p>
                 </div>
                 {plan.featured && (
-                  <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-700">
+                  <span className="rounded-full bg-violet-100 px-3 py-1 text-xs font-bold text-violet-700">
                     Best start
                   </span>
                 )}
               </div>
 
               <div className="mt-8 flex items-end gap-2">
-                <span className="text-5xl font-black">{plan.price}</span>
+                <span className="text-5xl font-bold">{plan.price}</span>
                 {plan.price !== "Custom" && <span className="pb-2 text-sm font-semibold opacity-70">/mo</span>}
               </div>
 
               <ul className="mt-8 space-y-3">
                 {plan.features.map((feature) => (
                   <li className="flex gap-3 text-sm font-semibold" key={feature}>
-                    <FiCheckCircle className={plan.featured ? "mt-0.5 h-4 w-4 text-emerald-600" : "mt-0.5 h-4 w-4 text-emerald-300"} />
+                    <FiCheckCircle className={plan.featured ? "mt-0.5 h-4 w-4 text-violet-600" : "mt-0.5 h-4 w-4 text-cyan-500"} />
                     <span>{feature}</span>
                   </li>
                 ))}
               </ul>
 
               <button
-                className={`mt-8 inline-flex w-full items-center justify-center gap-2 rounded-lg px-4 py-3 text-sm font-black transition ${
+                className={`mt-8 inline-flex w-full items-center justify-center gap-2 rounded-lg px-4 py-3 text-sm font-bold transition ${
                   plan.featured
-                    ? "bg-emerald-600 text-white shadow-lg shadow-emerald-900/20 hover:bg-emerald-700"
-                    : "border border-white/15 text-white hover:border-white/30 hover:bg-white/10"
+                    ? "bg-violet-600 text-white shadow-lg shadow-violet-200 hover:bg-violet-700"
+                    : "border border-slate-200 bg-slate-50 text-slate-700 hover:border-violet-200 hover:text-violet-700"
                 }`}
                 onClick={() => navigate("/signup")}
                 type="button"

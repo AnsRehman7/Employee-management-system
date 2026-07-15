@@ -1,4 +1,4 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:4000/api";
+const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 let authTokenProvider = async () => null;
 
@@ -52,6 +52,7 @@ export const formatApiError = (error) => {
 };
 
 export const api = {
+  createAttendanceScan: (payload) => request("/attendance/scans", { body: payload, method: "POST" }),
   createProject: (payload) => request("/projects", { body: payload, method: "POST" }),
   createTask: (payload) => request("/tasks", { body: payload, method: "POST" }),
   createTimeLog: (taskId, payload) => request(`/tasks/${taskId}/time-logs`, { body: payload, method: "POST" }),
@@ -59,6 +60,7 @@ export const api = {
   deleteProject: (projectId) => request(`/projects/${projectId}`, { method: "DELETE" }),
   deleteTask: (taskId) => request(`/tasks/${taskId}`, { method: "DELETE" }),
   deleteUser: (userId) => request(`/users/${userId}`, { method: "DELETE" }),
+  getAttendanceScans: (date) => request(`/attendance/scans${date ? `?date=${encodeURIComponent(date)}` : ""}`),
   getCurrentUser: () => request("/auth/me"),
   getEmployees: () => request("/users/employees"),
   getProject: (projectId) => request(`/projects/${projectId}`),
