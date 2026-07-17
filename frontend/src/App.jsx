@@ -6,15 +6,21 @@ import PricingPage from "./components/PricingPage";
 import Employe from "./components/dashboard/employe/Employe";
 import AdminDashboard from "./components/dashboard/AdminDashboard/AdminDashboard";
 import AttendancePortal from "./components/dashboard/AttendancePortal";
-import ProjectsPage from "./components/dashboard/AdminDashboard/ProjectsPage";
+import ProjectsIndexPage from "./components/dashboard/AdminDashboard/ProjectsIndexPage";
+import ProjectCreatePage from "./components/dashboard/AdminDashboard/ProjectCreatePage";
+import ProjectDetailPage from "./components/dashboard/AdminDashboard/ProjectDetailPage";
+import TasksPage from "./components/dashboard/AdminDashboard/TasksPage";
+import TaskCreatePage from "./components/dashboard/AdminDashboard/TaskCreatePage";
+import TaskDetailPage from "./components/dashboard/AdminDashboard/TaskDetailPage";
 import UsersPage from "./components/dashboard/AdminDashboard/UsersPage";
 import ForgotPassword from "./components/ForgotPassword";
 import LoadingScreen from "./components/LoadingScreen";
 import { useUser } from "./context/UserContext";
 
 const workRoles = ["super_admin", "admin", "manager", "hr"];
-const projectRoles = [...workRoles, "accounts"];
-const attendanceRoles = [...workRoles, "accounts", "employee"];
+const authenticatedRoles = [...workRoles, "accounts", "employee"];
+const projectRoles = authenticatedRoles;
+const attendanceRoles = authenticatedRoles;
 const userManagerRoles = ["super_admin", "admin", "hr"];
 const dashboardForRole = (role) => {
   if (workRoles.includes(role)) return "/admin";
@@ -101,10 +107,50 @@ function App() {
           }
         />
         <Route
+          path="/tasks/new"
+          element={
+            <RequireAuth allowedRoles={workRoles}>
+              <TaskCreatePage />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/tasks/:taskId"
+          element={
+            <RequireAuth allowedRoles={authenticatedRoles}>
+              <TaskDetailPage />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/tasks"
+          element={
+            <RequireAuth allowedRoles={authenticatedRoles}>
+              <TasksPage />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/projects/new"
+          element={
+            <RequireAuth allowedRoles={workRoles}>
+              <ProjectCreatePage />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/projects/:projectId"
+          element={
+            <RequireAuth allowedRoles={projectRoles}>
+              <ProjectDetailPage />
+            </RequireAuth>
+          }
+        />
+        <Route
           path="/projects"
           element={
             <RequireAuth allowedRoles={projectRoles}>
-              <ProjectsPage />
+              <ProjectsIndexPage />
             </RequireAuth>
           }
         />

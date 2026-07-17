@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import {
   FiBriefcase,
-  FiBell,
+  FiCheckSquare,
   FiClock,
   FiGrid,
   FiLogOut,
@@ -43,6 +43,7 @@ const AppShell = ({ children, subtitle = "", title = "Workspace" }) => {
   const { formatFirebaseError, logout } = useFirebase();
   const [isSigningOut, setIsSigningOut] = useState(false);
   const [error, setError] = useState("");
+  const [globalSearch, setGlobalSearch] = useState("");
 
   const navItems = useMemo(
     () =>
@@ -57,7 +58,12 @@ const AppShell = ({ children, subtitle = "", title = "Workspace" }) => {
           label: "Dashboard",
           to: "/admin",
         },
-        user?.permissions?.canViewOrganizationWork && {
+        user && {
+          icon: <FiCheckSquare className="h-4 w-4" />,
+          label: "Tasks",
+          to: "/tasks",
+        },
+        user && {
           icon: <FiBriefcase className="h-4 w-4" />,
           label: "Projects",
           to: "/projects",
@@ -88,6 +94,12 @@ const AppShell = ({ children, subtitle = "", title = "Workspace" }) => {
     } finally {
       setIsSigningOut(false);
     }
+  };
+
+  const handleGlobalSearch = (event) => {
+    event.preventDefault();
+    const query = globalSearch.trim();
+    navigate(query ? `/tasks?search=${encodeURIComponent(query)}` : "/tasks");
   };
 
   const workspaceName = user?.organization?.name || "StaffFlow";
@@ -185,20 +197,15 @@ const AppShell = ({ children, subtitle = "", title = "Workspace" }) => {
               </div>
 
               <div className="hidden min-w-0 items-center gap-3 xl:flex">
-                <label className="flex h-10 w-[360px] items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 px-3 text-sm text-slate-500 focus-within:border-violet-300 focus-within:bg-white focus-within:ring-4 focus-within:ring-violet-100">
+                <form className="flex h-10 w-[360px] items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 px-3 text-sm text-slate-500 focus-within:border-violet-300 focus-within:bg-white focus-within:ring-4 focus-within:ring-violet-100" onSubmit={handleGlobalSearch}>
                   <FiSearch className="h-4 w-4 shrink-0" />
-                  <input
-                    className="w-full bg-transparent text-sm text-slate-700 outline-none placeholder:text-slate-400"
-                    placeholder="Search tasks, projects, or people..."
-                    type="search"
-                  />
-                </label>
-                <button className="flex h-10 w-10 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 transition hover:bg-slate-50" type="button">
-                  <FiPlus className="h-4 w-4" />
-                </button>
-                <button className="flex h-10 w-10 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 transition hover:bg-slate-50" type="button">
-                  <FiBell className="h-4 w-4" />
-                </button>
+                  <input className="w-full bg-transparent text-sm text-slate-700 outline-none placeholder:text-slate-400" onChange={(event) => setGlobalSearch(event.target.value)} placeholder="Search tasks..." type="search" value={globalSearch} />
+                </form>
+                {user?.permissions?.canManageWork && (
+                  <button aria-label="Create task" className="flex h-10 w-10 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 transition hover:bg-violet-50 hover:text-violet-700" onClick={() => navigate("/tasks/new")} title="Create task" type="button">
+                    <FiPlus className="h-4 w-4" />
+                  </button>
+                )}
                 <div className="flex items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
                   <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-white text-slate-700 ring-1 ring-slate-200">
                     <FiUser className="h-4 w-4" />

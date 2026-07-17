@@ -14,9 +14,11 @@ const formatDate = (date) => {
 };
 
 const statusStyles = {
-  completed: "bg-violet-100 text-violet-700",
-  new: "bg-sky-100 text-sky-700",
-  pending: "bg-amber-100 text-amber-700",
+  active: "bg-cyan-100 text-cyan-800",
+  completed: "bg-emerald-100 text-emerald-800",
+  in_progress: "bg-indigo-100 text-indigo-800",
+  open: "bg-amber-100 text-amber-800",
+  pending: "bg-slate-100 text-slate-700",
 };
 
 const TaskList = ({ error = "", loading = false, onTasksChanged = async () => {}, tasks = [] }) => {
@@ -242,7 +244,7 @@ const TaskList = ({ error = "", loading = false, onTasksChanged = async () => {}
               <div className="mt-5">
                 {task.status === "completed" ? (
                   <button
-                    onClick={() => handleStatusChange(task.id, "new")}
+                    onClick={() => handleStatusChange(task.id, "open")}
                     disabled={updatingId === task.id}
                     className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm font-bold text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-60"
                   >

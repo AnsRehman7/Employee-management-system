@@ -65,11 +65,13 @@ export const api = {
   getEmployees: () => request("/users/employees"),
   getProject: (projectId) => request(`/projects/${projectId}`),
   getProjects: () => request("/projects"),
+  getTask: (taskId) => request(`/tasks/${taskId}`),
   getTaskStats: () => request("/tasks/stats"),
   getTasks: () => request("/tasks"),
   getUsers: () => request("/users"),
   syncProfile: (payload = {}) => request("/auth/sync", { body: payload, method: "POST" }),
   updateProject: (projectId, payload) => request(`/projects/${projectId}`, { body: payload, method: "PATCH" }),
+  updateTask: (taskId, payload) => request(`/tasks/${taskId}`, { body: payload, method: "PATCH" }),
   updateTaskStatus: (taskId, status) =>
     request(`/tasks/${taskId}/status`, { body: { status }, method: "PATCH" }),
   updateUser: (userId, payload) => request(`/users/${userId}`, { body: payload, method: "PATCH" }),

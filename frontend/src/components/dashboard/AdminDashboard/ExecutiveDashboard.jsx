@@ -15,6 +15,7 @@ import { NavLink } from "react-router-dom";
 import Alert from "../../Alert";
 import { api, formatApiError } from "../../../context/api";
 import { useUser } from "../../../context/UserContext";
+import { labelForValue } from "./workUtils";
 
 const monthFormatter = new Intl.DateTimeFormat("en", { month: "short" });
 const dayFormatter = new Intl.DateTimeFormat("en", {
@@ -467,7 +468,7 @@ const ExecutiveDashboard = () => {
                   <div className="min-w-0">
                     <p className="truncate text-sm font-bold text-slate-950">{task.title}</p>
                     <p className="mt-1 text-xs font-semibold text-slate-500">
-                      {task.assignedToName} / {task.status}
+                      {task.assignedToName} / {labelForValue(task.status)}
                     </p>
                   </div>
                 </div>
