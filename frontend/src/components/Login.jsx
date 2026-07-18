@@ -6,16 +6,17 @@ import Alert from "./Alert";
 import { useFirebase } from "../context/firebase";
 import { useUser } from "../context/UserContext";
 
-const dashboardForRole = (role) => {
-  if (["super_admin", "admin", "manager", "hr"].includes(role)) return "/admin";
-  if (role === "accounts") return "/projects";
-  return "/employee";
+const dashboardForUser = (user) => {
+  if (user?.permissions?.canViewDashboard) return "/admin";
+  if (user?.role === "employee") return "/employee";
+  if (user?.role === "accounts") return "/projects";
+  return "/tasks";
 };
 
 const Login = () => {
   const navigate = useNavigate();
   const { refreshUser } = useUser();
-  const { formatFirebaseError, login, signupWithGoogle } = useFirebase();
+  const { formatFirebaseError, login, logout, signInWithGoogle } = useFirebase();
   const [form, setForm] = useState({ email: "", password: "" });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [notice, setNotice] = useState({ message: "", type: "info" });
@@ -26,7 +27,7 @@ const Login = () => {
 
   const finishLogin = async () => {
     const profile = await refreshUser();
-    navigate(dashboardForRole(profile.role), { replace: true });
+    navigate(dashboardForUser(profile), { replace: true });
   };
 
   const handleLogin = async (event) => {
@@ -49,9 +50,10 @@ const Login = () => {
     setNotice({ message: "", type: "info" });
 
     try {
-      await signupWithGoogle();
+      await signInWithGoogle();
       await finishLogin();
     } catch (error) {
+      if (error?.status === 400 || error?.status === 404) await logout().catch(() => {});
       setNotice({ type: "error", message: formatFirebaseError(error) });
     } finally {
       setIsSubmitting(false);

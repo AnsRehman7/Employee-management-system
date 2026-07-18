@@ -13,13 +13,15 @@ import {
 } from "react-icons/fi";
 import { NavLink, useNavigate } from "react-router-dom";
 import Alert from "./Alert";
+import NotificationCenter from "./NotificationCenter";
 import { useFirebase } from "../context/firebase";
 import { useUser } from "../context/UserContext";
 
-const dashboardForRole = (role) => {
-  if (["super_admin", "admin", "manager", "hr"].includes(role)) return "/admin";
-  if (role === "accounts") return "/projects";
-  return "/employee";
+const dashboardForUser = (user) => {
+  if (user?.permissions?.canViewDashboard) return "/admin";
+  if (user?.role === "employee") return "/employee";
+  if (user?.role === "accounts") return "/projects";
+  return "/tasks";
 };
 
 const formatRole = (role = "employee") =>
@@ -44,7 +46,7 @@ const AppShell = ({ children, subtitle = "", title = "Workspace" }) => {
           label: "My work",
           to: "/employee",
         },
-        user?.permissions?.canManageWork && {
+        user?.permissions?.canViewDashboard && {
           icon: <FiGrid className="h-4 w-4" />,
           label: "Dashboard",
           to: "/admin",
@@ -64,10 +66,15 @@ const AppShell = ({ children, subtitle = "", title = "Workspace" }) => {
           label: "Attendance",
           to: "/attendance",
         },
-        user?.permissions?.canManageUsers && {
+        user?.permissions?.canViewUsers && {
           icon: <FiUsers className="h-4 w-4" />,
           label: "Users",
           to: "/users",
+        },
+        user && {
+          icon: <FiUser className="h-4 w-4" />,
+          label: "Profile",
+          to: "/profile",
         },
       ].filter(Boolean),
     [user]
@@ -95,7 +102,7 @@ const AppShell = ({ children, subtitle = "", title = "Workspace" }) => {
 
   const workspaceName = user?.organization?.name || "StaffFlow";
   const userName = user?.name || "Team member";
-  const homePath = dashboardForRole(user?.role);
+  const homePath = dashboardForUser(user);
 
   const renderNavLink = ({ icon, label, to }, compact = false) => (
     <NavLink
@@ -177,25 +184,26 @@ const AppShell = ({ children, subtitle = "", title = "Workspace" }) => {
                 {subtitle && <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-500">{subtitle}</p>}
               </div>
 
-              <div className="hidden min-w-0 items-center gap-3 xl:flex">
-                <form className="flex h-10 w-[360px] items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 px-3 text-sm text-slate-500 focus-within:border-violet-300 focus-within:bg-white focus-within:ring-4 focus-within:ring-violet-100" onSubmit={handleGlobalSearch}>
+              <div className="flex min-w-0 items-center gap-3">
+                <form className="hidden h-10 w-[360px] items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 px-3 text-sm text-slate-500 focus-within:border-violet-300 focus-within:bg-white focus-within:ring-4 focus-within:ring-violet-100 xl:flex" onSubmit={handleGlobalSearch}>
                   <FiSearch className="h-4 w-4 shrink-0" />
                   <input className="w-full bg-transparent text-sm text-slate-700 outline-none placeholder:text-slate-400" onChange={(event) => setGlobalSearch(event.target.value)} placeholder="Search tasks..." type="search" value={globalSearch} />
                 </form>
-                {user?.permissions?.canManageWork && (
-                  <button aria-label="Create task" className="flex h-10 w-10 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 transition hover:bg-violet-50 hover:text-violet-700" onClick={() => navigate("/tasks/new")} title="Create task" type="button">
+                {user?.permissions?.canCreateTasks && (
+                  <button aria-label="Create task" className="hidden h-10 w-10 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 transition hover:bg-violet-50 hover:text-violet-700 xl:flex" onClick={() => navigate("/tasks/new")} title="Create task" type="button">
                     <FiPlus className="h-4 w-4" />
                   </button>
                 )}
-                <div className="flex items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
+                <NotificationCenter />
+                <NavLink className="flex items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 px-2 py-2 transition hover:border-violet-200 hover:bg-violet-50 sm:px-3" to="/profile">
                   <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-white text-slate-700 ring-1 ring-slate-200">
                     <FiUser className="h-4 w-4" />
                   </span>
-                  <div className="min-w-0">
+                  <div className="hidden min-w-0 sm:block">
                     <p className="max-w-44 truncate text-sm font-bold text-slate-950">{userName}</p>
                     <p className="text-xs font-semibold uppercase text-slate-500">{formatRole(user?.role)}</p>
                   </div>
-                </div>
+                </NavLink>
               </div>
             </div>
 

@@ -63,8 +63,9 @@ const TaskDetailPage = () => {
     location.state?.notice ? { message: location.state.notice, type: "success" } : { message: "", type: "info" }
   );
 
-  const canManageWork = Boolean(user?.permissions?.canManageWork);
-  const canUpdateWork = canManageWork || task?.assignedToId === user?.id;
+  const canDeleteTasks = Boolean(user?.permissions?.canDeleteTasks);
+  const canEditTasks = Boolean(user?.permissions?.canEditTasks);
+  const canUpdateWork = canEditTasks || task?.assignedToId === user?.id;
   const canLogWork = Boolean(task?.assignedToId) && canUpdateWork;
 
   const loadTask = useCallback(async ({ showLoading = false } = {}) => {
@@ -86,7 +87,7 @@ const TaskDetailPage = () => {
   }, [loadTask]);
 
   useEffect(() => {
-    if (!canManageWork) return undefined;
+    if (!canEditTasks) return undefined;
     let active = true;
 
     Promise.all([api.getEmployees(), api.getProjects()])
@@ -102,7 +103,7 @@ const TaskDetailPage = () => {
     return () => {
       active = false;
     };
-  }, [canManageWork]);
+  }, [canEditTasks]);
 
   const handleStatusChange = async (status) => {
     if (!task || status === task.status) return;
@@ -191,17 +192,17 @@ const TaskDetailPage = () => {
       <div className="space-y-5">
         <div className="flex flex-col gap-3 border-b border-slate-200 pb-5 sm:flex-row sm:items-center sm:justify-between">
           <Link className="inline-flex items-center gap-2 text-sm font-bold text-slate-600 transition hover:text-violet-700" to="/tasks"><FiArrowLeft className="h-4 w-4" />Back to tasks</Link>
-          {canManageWork && (
+          {(canEditTasks || canDeleteTasks) && (
             <div className="flex gap-2">
-              <button className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-3 text-sm font-bold text-slate-700 transition hover:bg-slate-50" onClick={() => setEditing((current) => !current)} type="button">{editing ? <FiX className="h-4 w-4" /> : <FiEdit2 className="h-4 w-4" />}{editing ? "Cancel edit" : "Edit task"}</button>
-              <button aria-label="Delete task" className="flex h-10 w-10 items-center justify-center rounded-lg border border-rose-200 bg-rose-50 text-rose-700 transition hover:bg-rose-100" disabled={busy} onClick={handleDelete} title="Delete task" type="button"><FiTrash2 className="h-4 w-4" /></button>
+              {canEditTasks && <button className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-3 text-sm font-bold text-slate-700 transition hover:bg-slate-50" onClick={() => setEditing((current) => !current)} type="button">{editing ? <FiX className="h-4 w-4" /> : <FiEdit2 className="h-4 w-4" />}{editing ? "Cancel edit" : "Edit task"}</button>}
+              {canDeleteTasks && <button aria-label="Delete task" className="flex h-10 w-10 items-center justify-center rounded-lg border border-rose-200 bg-rose-50 text-rose-700 transition hover:bg-rose-100" disabled={busy} onClick={handleDelete} title="Delete task" type="button"><FiTrash2 className="h-4 w-4" /></button>}
             </div>
           )}
         </div>
 
         <Alert message={notice.message} type={notice.type} />
 
-        {editing ? (
+        {editing && canEditTasks ? (
           <form className="rounded-lg border border-slate-200 bg-white shadow-sm" onSubmit={handleSave}>
             <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4"><div><h2 className="text-base font-bold text-slate-950">Edit task</h2><p className="mt-1 text-sm text-slate-500">Update the assignment without losing its activity history.</p></div><button className="inline-flex h-10 items-center gap-2 rounded-lg bg-violet-600 px-4 text-sm font-bold text-white disabled:bg-slate-300" disabled={busy} type="submit"><FiSave className="h-4 w-4" />{busy ? "Saving..." : "Save changes"}</button></div>
             <div className="grid gap-5 p-5 lg:grid-cols-2 xl:grid-cols-3">

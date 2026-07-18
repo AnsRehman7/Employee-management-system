@@ -42,7 +42,7 @@ const ProjectsIndexPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [filters, setFilters] = useState(emptyFilters);
-  const canManageWork = Boolean(user?.permissions?.canManageWork);
+  const canCreateProjects = Boolean(user?.permissions?.canCreateProjects);
 
   const loadProjects = useCallback(async ({ showLoading = false } = {}) => {
     if (showLoading) setLoading(true);
@@ -65,7 +65,7 @@ const ProjectsIndexPage = () => {
     () =>
       Array.from(
         new Map(
-          projects.map((project) => [project.createdById, { id: project.createdById, name: project.createdByName }])
+          projects.map((project) => [project.ownerId || project.createdById, { id: project.ownerId || project.createdById, name: project.ownerName || project.createdByName }])
         ).values()
       ).sort((a, b) => a.name.localeCompare(b.name)),
     [projects]
@@ -85,7 +85,7 @@ const ProjectsIndexPage = () => {
     const result = projects.filter((project) => {
       if (filters.status !== "all" && project.status !== filters.status) return false;
       if (filters.health !== "all" && project.health !== filters.health) return false;
-      if (filters.owner !== "all" && project.createdById !== filters.owner) return false;
+      if (filters.owner !== "all" && (project.ownerId || project.createdById) !== filters.owner) return false;
       if (filters.dueFrom && (!project.dueDate || project.dueDate < filters.dueFrom)) return false;
       if (filters.dueTo && (!project.dueDate || project.dueDate > filters.dueTo)) return false;
       return true;
@@ -121,7 +121,7 @@ const ProjectsIndexPage = () => {
               </div>
             ))}
           </div>
-          {canManageWork && <Link className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-lg bg-violet-600 px-4 text-sm font-bold text-white shadow-sm shadow-violet-200 transition hover:bg-violet-700" to="/projects/new"><FiFolderPlus className="h-4 w-4" />Create project</Link>}
+          {canCreateProjects && <Link className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-lg bg-violet-600 px-4 text-sm font-bold text-white shadow-sm shadow-violet-200 transition hover:bg-violet-700" to="/projects/new"><FiFolderPlus className="h-4 w-4" />Create project</Link>}
         </section>
 
         <section className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
@@ -164,7 +164,7 @@ const ProjectsIndexPage = () => {
                         <td className="px-4 py-4 align-top"><Link className="block min-w-0" to={`/projects/${project.id}`}><div className="flex gap-3"><span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-violet-100 text-xs font-bold text-violet-800">{project.name.slice(0, 2).toUpperCase()}</span><div className="min-w-0"><p className="truncate text-sm font-bold text-slate-950 group-hover:text-violet-700">{project.name}</p><p className="mt-1 truncate text-xs text-slate-500">{project.taskCount} tasks / {project.totalLoggedHours.toFixed(1)}h logged</p></div></div></Link></td>
                         <td className="px-3 py-4 align-top"><span className={`inline-flex rounded-full border px-2.5 py-1 text-xs font-bold ${PROJECT_STATUS_STYLES[project.status] || PROJECT_STATUS_STYLES.active}`}>{labelForValue(project.status)}</span></td>
                         <td className={`px-3 py-4 text-sm font-bold align-top ${PROJECT_HEALTH_STYLES[project.health] || "text-slate-600"}`}>{labelForValue(project.health)}</td>
-                        <td className="px-3 py-4 align-top"><div className="flex min-w-0 items-center gap-2"><span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-cyan-100 text-[10px] font-bold text-cyan-800">{initialsFor(project.createdByName)}</span><span className="truncate text-sm font-semibold text-slate-700">{project.createdByName}</span></div></td>
+                        <td className="px-3 py-4 align-top"><div className="flex min-w-0 items-center gap-2"><span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-cyan-100 text-[10px] font-bold text-cyan-800">{initialsFor(project.ownerName)}</span><span className="truncate text-sm font-semibold text-slate-700">{project.ownerName}</span></div></td>
                         <td className="px-3 py-4 text-sm font-semibold text-slate-600 align-top">{formatDate(project.dueDate, "No due date")}</td>
                         <td className="px-3 py-4 align-top"><div className="flex items-center gap-3"><div className="h-2 min-w-20 flex-1 overflow-hidden rounded-full bg-slate-100"><div className="h-full rounded-full bg-violet-600" style={{ width: `${project.progress}%` }} /></div><span className="w-9 text-right text-xs font-bold text-slate-700">{project.progress}%</span></div><p className="mt-2 text-xs text-slate-400">{project.completedTaskCount}/{project.taskCount} complete</p></td>
                         <td className="px-2 py-4 align-top"><Link aria-label={`Open ${project.name}`} className="text-slate-400 group-hover:text-violet-700" to={`/projects/${project.id}`}><FiChevronRight className="h-4 w-4" /></Link></td>

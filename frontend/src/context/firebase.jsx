@@ -2,10 +2,12 @@
 import { createContext, useContext } from "react";
 import { initializeApp } from "firebase/app";
 import {
+  browserLocalPersistence,
   GoogleAuthProvider,
   createUserWithEmailAndPassword,
   getAuth,
   sendPasswordResetEmail,
+  setPersistence,
   signInWithEmailAndPassword,
   signInWithPopup,
   signOut,
@@ -25,6 +27,7 @@ const firebaseConfig = {
 
 export const firebaseapp = initializeApp(firebaseConfig);
 export const auth = getAuth(firebaseapp);
+const authPersistenceReady = setPersistence(auth, browserLocalPersistence);
 
 const normalizeEmail = (email = "") => email.trim().toLowerCase();
 
@@ -36,9 +39,15 @@ export const formatFirebaseError = (error) => {
     "auth/invalid-credential": "The email or password is incorrect.",
     "auth/invalid-email": "Enter a valid email address.",
     "auth/network-request-failed": "Network error. Check your connection and try again.",
+    "auth/operation-not-allowed": "Enable Google sign-in in Firebase Authentication, then try again.",
+    "auth/account-exists-with-different-credential":
+      "This email already uses password sign-in. Sign in with your password first.",
+    "auth/popup-blocked": "Allow pop-ups for this site, then try Google sign-in again.",
     "auth/popup-closed-by-user": "Google sign-in was closed before it finished.",
     "auth/too-many-requests": "Too many attempts. Please wait a moment and try again.",
     "auth/user-not-found": "No account was found for this email.",
+    "auth/unauthorized-domain":
+      "This website is not authorized in Firebase. Add this Netlify domain under Authentication > Settings > Authorized domains.",
     "auth/weak-password": "Use a stronger password with at least 6 characters.",
     "permission-denied": "You do not have permission to perform this action.",
   };
@@ -47,17 +56,21 @@ export const formatFirebaseError = (error) => {
 };
 
 const signup = async ({ email, password }) => {
+  await authPersistenceReady;
   const userCredential = await createUserWithEmailAndPassword(auth, normalizeEmail(email), password);
   return userCredential.user;
 };
 
-export const signupWithGoogle = async () => {
+export const signInWithGoogle = async () => {
+  await authPersistenceReady;
   const provider = new GoogleAuthProvider();
+  provider.setCustomParameters({ prompt: "select_account" });
   const result = await signInWithPopup(auth, provider);
   return result.user;
 };
 
 export const login = async (email, password) => {
+  await authPersistenceReady;
   const userCredential = await signInWithEmailAndPassword(auth, normalizeEmail(email), password);
   return userCredential.user;
 };
@@ -77,7 +90,7 @@ export const FirebaseProvider = ({ children }) => (
       logout,
       sendResetPassword,
       signup,
-      signupWithGoogle,
+      signInWithGoogle,
     }}
   >
     {children}

@@ -56,7 +56,8 @@ const TasksPage = () => {
     status: searchParams.get("status") || "all",
   }));
 
-  const canManageWork = Boolean(user?.permissions?.canManageWork);
+  const canCreateTasks = Boolean(user?.permissions?.canCreateTasks);
+  const canViewOrganizationWork = Boolean(user?.permissions?.canViewOrganizationWork);
 
   const loadTasks = useCallback(async ({ showLoading = false } = {}) => {
     if (showLoading) setLoading(true);
@@ -167,7 +168,7 @@ const TasksPage = () => {
   return (
     <AppShell
       title="Tasks"
-      subtitle={canManageWork ? "Plan, assign, and monitor work across the workspace." : "Review the work assigned to you and keep delivery status current."}
+      subtitle={canViewOrganizationWork ? "Plan, assign, and monitor work across the workspace." : "Review the work assigned to you and keep delivery status current."}
     >
       <div className="space-y-5">
         <section className="flex flex-col gap-4 border-b border-slate-200 pb-5 sm:flex-row sm:items-center sm:justify-between">
@@ -188,7 +189,7 @@ const TasksPage = () => {
               </div>
             ))}
           </div>
-          {canManageWork && (
+          {canCreateTasks && (
             <Link className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-lg bg-violet-600 px-4 text-sm font-bold text-white shadow-sm shadow-violet-200 transition hover:bg-violet-700" to="/tasks/new">
               <FiPlus className="h-4 w-4" />
               Create task

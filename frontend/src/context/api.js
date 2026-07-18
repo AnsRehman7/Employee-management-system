@@ -65,16 +65,23 @@ export const api = {
   getEmployees: () => request("/users/employees"),
   getProject: (projectId) => request(`/projects/${projectId}`),
   getProjects: () => request("/projects"),
+  getNotifications: () => request("/notifications"),
+  getPermissionCatalog: () => request("/users/permissions/catalog"),
   getTask: (taskId) => request(`/tasks/${taskId}`),
   getTaskStats: () => request("/tasks/stats"),
   getTasks: () => request("/tasks"),
   getUser: (userId) => request(`/users/${userId}`),
   getUsers: () => request("/users"),
   syncProfile: (payload = {}) => request("/auth/sync", { body: payload, method: "POST" }),
+  markAllNotificationsRead: () => request("/notifications/read-all", { method: "PATCH" }),
+  markNotificationRead: (notificationId) => request(`/notifications/${notificationId}/read`, { method: "PATCH" }),
+  updateCurrentProfile: (payload) => request("/auth/me", { body: payload, method: "PATCH" }),
   updateProject: (projectId, payload) => request(`/projects/${projectId}`, { body: payload, method: "PATCH" }),
   updateTask: (taskId, payload) => request(`/tasks/${taskId}`, { body: payload, method: "PATCH" }),
   updateTaskStatus: (taskId, status) =>
     request(`/tasks/${taskId}/status`, { body: { status }, method: "PATCH" }),
   updateUser: (userId, payload) => request(`/users/${userId}`, { body: payload, method: "PATCH" }),
   updateUserRole: (userId, role) => request(`/users/${userId}/role`, { body: { role }, method: "PATCH" }),
+  updateUserPermissions: (userId, payload) =>
+    request(`/users/${userId}/permissions`, { body: payload, method: "PATCH" }),
 };

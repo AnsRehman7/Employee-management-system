@@ -1,5 +1,5 @@
 /* eslint-disable react-refresh/only-export-components */
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import { api, formatApiError, setAuthTokenProvider } from "./api";
 import { auth } from "./firebase";
@@ -15,21 +15,32 @@ export const UserProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const requestVersion = useRef(0);
 
   const refreshUser = useCallback(async (profileData = {}) => {
+    const version = ++requestVersion.current;
+
     if (!auth.currentUser) {
       setUser(null);
+      setLoading(false);
       return null;
     }
 
-    const { user: profile } = await api.syncProfile(profileData);
-    setUser(profile);
-    return profile;
+    try {
+      const { user: profile } = await api.syncProfile(profileData);
+      if (version === requestVersion.current) {
+        setError("");
+        setUser(profile);
+      }
+      return profile;
+    } finally {
+      if (version === requestVersion.current) setLoading(false);
+    }
   }, []);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      setLoading(true);
+      const version = ++requestVersion.current;
       setError("");
 
       try {
@@ -38,14 +49,18 @@ export const UserProvider = ({ children }) => {
           return;
         }
 
-        const { user: profile } = await api.syncProfile();
-        setUser(profile);
+        const { user: profile } = await api.getCurrentUser();
+        if (version === requestVersion.current) setUser(profile);
       } catch (sessionError) {
-        console.error("Session error:", sessionError);
-        setError(formatApiError(sessionError));
-        setUser(null);
+        if (version === requestVersion.current) {
+          if (sessionError?.status !== 404) {
+            console.error("Session error:", sessionError);
+            setError(formatApiError(sessionError));
+          }
+          setUser(null);
+        }
       } finally {
-        setLoading(false);
+        if (version === requestVersion.current) setLoading(false);
       }
     });
 

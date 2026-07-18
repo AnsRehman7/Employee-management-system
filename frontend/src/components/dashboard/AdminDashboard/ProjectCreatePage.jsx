@@ -1,26 +1,69 @@
-import { useState } from "react";
-import { FiArrowLeft, FiBriefcase, FiCalendar, FiCheckCircle, FiCpu, FiFolderPlus, FiTarget } from "react-icons/fi";
+import { useEffect, useState } from "react";
+import {
+  FiArrowLeft,
+  FiBriefcase,
+  FiCalendar,
+  FiCheckCircle,
+  FiClock,
+  FiCpu,
+  FiFolderPlus,
+  FiHash,
+  FiLayers,
+  FiTag,
+  FiTarget,
+  FiUser,
+} from "react-icons/fi";
 import { Link, useNavigate } from "react-router-dom";
 import Alert from "../../Alert";
 import AppShell from "../../AppShell";
 import { api, formatApiError } from "../../../context/api";
+import { useUser } from "../../../context/UserContext";
 
 const fieldClass =
   "mt-2 h-11 w-full rounded-lg border border-slate-200 bg-slate-50 px-3.5 text-sm text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-violet-400 focus:bg-white focus:ring-4 focus:ring-violet-100";
 const initialForm = {
+  clientName: "",
+  code: "",
+  department: "",
   description: "",
   dueDate: "",
+  estimatedHours: "",
   generateTasksWithAi: false,
   name: "",
+  objective: "",
+  ownerId: "",
+  priority: "normal",
   startDate: "",
   status: "active",
+  tags: "",
 };
 
 const ProjectCreatePage = () => {
   const navigate = useNavigate();
+  const { user } = useUser();
   const [formData, setFormData] = useState(initialForm);
+  const [teamMembers, setTeamMembers] = useState([]);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    let active = true;
+
+    api
+      .getEmployees()
+      .then(({ employees }) => {
+        if (!active) return;
+        setTeamMembers(employees);
+        setFormData((current) => ({ ...current, ownerId: current.ownerId || user?.id || "" }));
+      })
+      .catch((requestError) => {
+        if (active) setError(formatApiError(requestError));
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [user?.id]);
 
   const handleChange = (event) => {
     const { checked, name, type, value } = event.target;
@@ -32,7 +75,14 @@ const ProjectCreatePage = () => {
     setSaving(true);
     setError("");
     try {
-      const { project } = await api.createProject(formData);
+      const payload = {
+        ...formData,
+        tags: formData.tags
+          .split(",")
+          .map((tag) => tag.trim())
+          .filter(Boolean),
+      };
+      const { project } = await api.createProject(payload);
       const notice = formData.generateTasksWithAi
         ? `Project created with ${project.taskCount} unassigned AI-planned tasks.`
         : "Project created successfully.";
@@ -57,32 +107,55 @@ const ProjectCreatePage = () => {
 
         <Alert message={error} type="error" />
 
-        <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_380px]">
-          <section className="rounded-lg border border-slate-200 bg-white shadow-sm">
-            <div className="border-b border-slate-200 px-5 py-4"><div className="flex items-center gap-3"><span className="flex h-9 w-9 items-center justify-center rounded-lg bg-violet-100 text-violet-700"><FiBriefcase className="h-4 w-4" /></span><div><h2 className="text-base font-bold text-slate-950">Project brief</h2><p className="text-sm text-slate-500">Give the team a stable source of context for the work.</p></div></div></div>
-            <div className="space-y-5 p-5">
-              <label className="block"><span className="text-sm font-bold text-slate-700">Project name</span><input autoFocus className={fieldClass} maxLength="160" name="name" onChange={handleChange} placeholder="Customer onboarding modernization" required value={formData.name} /><span className="mt-1.5 block text-xs text-slate-400">Use the product, client, or initiative name.</span></label>
-              <label className="block"><span className="flex items-center gap-2 text-sm font-bold text-slate-700"><FiTarget className="h-4 w-4 text-emerald-600" />Purpose, scope, and requirements</span><textarea className="mt-2 min-h-72 w-full resize-y rounded-lg border border-slate-200 bg-slate-50 px-3.5 py-3 text-sm leading-6 text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-violet-400 focus:bg-white focus:ring-4 focus:ring-violet-100" minLength={formData.generateTasksWithAi ? 40 : undefined} name="description" onChange={handleChange} placeholder="Describe the objective, deliverables, workflows, constraints, integrations, stakeholders, and acceptance expectations." required={formData.generateTasksWithAi} value={formData.description} />{formData.generateTasksWithAi && <span className="mt-1.5 block text-xs font-semibold text-violet-700">Groq will use these requirements as the source for the task plan.</span>}</label>
-            </div>
-          </section>
+        <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_400px]">
+          <div className="space-y-5">
+            <section className="rounded-lg border border-slate-200 bg-white shadow-sm">
+              <div className="border-b border-slate-200 px-5 py-4">
+                <div className="flex items-center gap-3">
+                  <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-violet-100 text-violet-700"><FiBriefcase className="h-4 w-4" /></span>
+                  <div><h2 className="text-base font-bold text-slate-950">Project brief</h2><p className="text-sm text-slate-500">Core identity, outcome, and delivery requirements.</p></div>
+                </div>
+              </div>
+              <div className="space-y-5 p-5">
+                <div className="grid gap-5 md:grid-cols-[minmax(0,1fr)_220px]">
+                  <label className="block"><span className="text-sm font-bold text-slate-700">Project name</span><input autoFocus className={fieldClass} maxLength="160" name="name" onChange={handleChange} placeholder="Customer onboarding modernization" required value={formData.name} /></label>
+                  <label className="block"><span className="flex items-center gap-2 text-sm font-bold text-slate-700"><FiHash className="h-4 w-4 text-slate-400" />Project code</span><input className={fieldClass} maxLength="32" name="code" onChange={handleChange} placeholder="CRM-2026" value={formData.code} /></label>
+                </div>
+                <label className="block"><span className="flex items-center gap-2 text-sm font-bold text-slate-700"><FiTarget className="h-4 w-4 text-emerald-600" />Primary objective</span><textarea className="mt-2 min-h-28 w-full resize-y rounded-lg border border-slate-200 bg-slate-50 px-3.5 py-3 text-sm leading-6 text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-violet-400 focus:bg-white focus:ring-4 focus:ring-violet-100" maxLength="5000" name="objective" onChange={handleChange} placeholder="State the measurable business outcome this project must deliver." value={formData.objective} /></label>
+                <label className="block"><span className="text-sm font-bold text-slate-700">Scope and requirements</span><textarea className="mt-2 min-h-64 w-full resize-y rounded-lg border border-slate-200 bg-slate-50 px-3.5 py-3 text-sm leading-6 text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-violet-400 focus:bg-white focus:ring-4 focus:ring-violet-100" minLength={formData.generateTasksWithAi ? 40 : undefined} name="description" onChange={handleChange} placeholder="Document deliverables, workflows, constraints, integrations, stakeholders, and acceptance expectations." required={formData.generateTasksWithAi} value={formData.description} /></label>
+                <label className="block"><span className="flex items-center gap-2 text-sm font-bold text-slate-700"><FiTag className="h-4 w-4 text-slate-400" />Tags</span><input className={fieldClass} name="tags" onChange={handleChange} placeholder="platform, onboarding, q3" value={formData.tags} /><span className="mt-1.5 block text-xs text-slate-400">Separate up to 12 tags with commas.</span></label>
+              </div>
+            </section>
 
-          <section className="rounded-lg border border-slate-200 bg-white shadow-sm">
-            <div className="border-b border-slate-200 px-5 py-4"><h2 className="text-base font-bold text-slate-950">Project setup</h2><p className="mt-1 text-sm text-slate-500">Choose the initial lifecycle and schedule.</p></div>
+            <section className="rounded-lg border border-slate-200 bg-white shadow-sm">
+              <div className="border-b border-slate-200 px-5 py-4"><h2 className="text-base font-bold text-slate-950">Delivery context</h2><p className="mt-1 text-sm text-slate-500">Ownership and reporting information for the portfolio.</p></div>
+              <div className="grid gap-5 p-5 md:grid-cols-2">
+                <label className="block"><span className="text-sm font-bold text-slate-700">Client or stakeholder</span><input className={fieldClass} maxLength="160" name="clientName" onChange={handleChange} placeholder="Internal operations" value={formData.clientName} /></label>
+                <label className="block"><span className="flex items-center gap-2 text-sm font-bold text-slate-700"><FiLayers className="h-4 w-4 text-slate-400" />Department</span><input className={fieldClass} maxLength="120" name="department" onChange={handleChange} placeholder="Product and Engineering" value={formData.department} /></label>
+              </div>
+            </section>
+          </div>
+
+          <section className="rounded-lg border border-slate-200 bg-white shadow-sm xl:sticky xl:top-28">
+            <div className="border-b border-slate-200 px-5 py-4"><h2 className="text-base font-bold text-slate-950">Project setup</h2><p className="mt-1 text-sm text-slate-500">Ownership, priority, lifecycle, and schedule.</p></div>
             <div className="space-y-5 p-5">
-              <label className="block"><span className="flex items-center gap-2 text-sm font-bold text-slate-700"><FiCheckCircle className="h-4 w-4 text-slate-400" />Initial status</span><select className={fieldClass} name="status" onChange={handleChange} value={formData.status}><option value="planned">Planned</option><option value="active">Active</option></select><span className="mt-1.5 block text-xs text-slate-400">Planned projects can be prepared before delivery begins.</span></label>
-              <label className="block"><span className="flex items-center gap-2 text-sm font-bold text-slate-700"><FiCalendar className="h-4 w-4 text-slate-400" />Start date</span><input className={fieldClass} name="startDate" onChange={handleChange} type="date" value={formData.startDate} /></label>
-              <label className="block"><span className="flex items-center gap-2 text-sm font-bold text-slate-700"><FiCalendar className="h-4 w-4 text-slate-400" />Target due date</span><input className={fieldClass} min={formData.startDate || undefined} name="dueDate" onChange={handleChange} required={formData.generateTasksWithAi} type="date" value={formData.dueDate} /></label>
+              <label className="block"><span className="flex items-center gap-2 text-sm font-bold text-slate-700"><FiUser className="h-4 w-4 text-slate-400" />Project owner</span><select className={fieldClass} name="ownerId" onChange={handleChange} required value={formData.ownerId}><option value="">Select owner</option>{teamMembers.map((member) => <option key={member.id} value={member.id}>{member.name} / {member.role.replaceAll("_", " ")}</option>)}</select></label>
+              <div className="grid grid-cols-2 gap-3">
+                <label className="block"><span className="text-sm font-bold text-slate-700">Priority</span><select className={fieldClass} name="priority" onChange={handleChange} value={formData.priority}><option value="low">Low</option><option value="normal">Normal</option><option value="high">High</option><option value="critical">Critical</option></select></label>
+                <label className="block"><span className="flex items-center gap-2 text-sm font-bold text-slate-700"><FiCheckCircle className="h-4 w-4 text-slate-400" />Status</span><select className={fieldClass} name="status" onChange={handleChange} value={formData.status}><option value="planned">Planned</option><option value="active">Active</option></select></label>
+              </div>
+              <label className="block"><span className="flex items-center gap-2 text-sm font-bold text-slate-700"><FiClock className="h-4 w-4 text-slate-400" />Estimated effort</span><div className="relative"><input className={`${fieldClass} pr-16`} min="0" name="estimatedHours" onChange={handleChange} placeholder="120" step="0.25" type="number" value={formData.estimatedHours} /><span className="pointer-events-none absolute bottom-3 right-3 text-xs font-semibold text-slate-400">hours</span></div></label>
+              <div className="grid grid-cols-2 gap-3">
+                <label className="block"><span className="flex items-center gap-2 text-sm font-bold text-slate-700"><FiCalendar className="h-4 w-4 text-slate-400" />Start</span><input className={fieldClass} name="startDate" onChange={handleChange} type="date" value={formData.startDate} /></label>
+                <label className="block"><span className="flex items-center gap-2 text-sm font-bold text-slate-700"><FiCalendar className="h-4 w-4 text-slate-400" />Due</span><input className={fieldClass} min={formData.startDate || undefined} name="dueDate" onChange={handleChange} required={formData.generateTasksWithAi} type="date" value={formData.dueDate} /></label>
+              </div>
 
               <label className={`flex cursor-pointer items-start gap-3 rounded-lg border p-4 transition ${formData.generateTasksWithAi ? "border-violet-300 bg-violet-50 ring-2 ring-violet-100" : "border-slate-200 bg-slate-50 hover:border-violet-200"}`}>
                 <input checked={formData.generateTasksWithAi} className="mt-1 h-4 w-4 shrink-0 accent-violet-600" name="generateTasksWithAi" onChange={handleChange} type="checkbox" />
-                <span className="min-w-0">
-                  <span className="flex items-center gap-2 text-sm font-bold text-slate-900"><FiCpu className="h-4 w-4 text-violet-600" />Generate task plan with Groq</span>
-                  <span className="mt-1 block text-xs leading-5 text-slate-500">Creates scoped tasks with due dates, estimates, priorities, and success criteria. Tasks remain unassigned.</span>
-                </span>
+                <span className="min-w-0"><span className="flex items-center gap-2 text-sm font-bold text-slate-900"><FiCpu className="h-4 w-4 text-violet-600" />Generate tasks with AI</span><span className="mt-1 block text-xs leading-5 text-slate-500">Creates an unassigned plan with estimates, deadlines, priorities, and completion criteria.</span></span>
               </label>
 
-              <div className="rounded-lg border border-cyan-200 bg-cyan-50 p-4"><p className="text-xs font-bold text-cyan-800">After creation</p><p className="mt-1 text-xs leading-5 text-cyan-700">{formData.generateTasksWithAi ? "Review the generated plan from the project page, then open each task to assign an employee." : "You can add tasks manually from the project page."}</p></div>
-              <button className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-violet-600 px-4 text-sm font-bold text-white shadow-sm shadow-violet-200 transition hover:bg-violet-700 disabled:bg-slate-300" disabled={saving} type="submit"><FiFolderPlus className="h-4 w-4" />{saving ? (formData.generateTasksWithAi ? "Groq is planning tasks..." : "Creating project...") : "Create project"}</button>
+              <button className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-violet-600 px-4 text-sm font-bold text-white shadow-sm shadow-violet-200 transition hover:bg-violet-700 disabled:bg-slate-300" disabled={saving} type="submit"><FiFolderPlus className="h-4 w-4" />{saving ? (formData.generateTasksWithAi ? "Planning tasks..." : "Creating project...") : "Create project"}</button>
             </div>
           </section>
         </div>

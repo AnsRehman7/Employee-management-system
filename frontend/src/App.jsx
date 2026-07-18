@@ -17,26 +17,30 @@ import UserDetailPage from "./components/dashboard/AdminDashboard/UserDetailPage
 import UsersIndexPage from "./components/dashboard/AdminDashboard/UsersIndexPage";
 import ForgotPassword from "./components/ForgotPassword";
 import LoadingScreen from "./components/LoadingScreen";
+import ProfilePage from "./components/ProfilePage";
 import { useUser } from "./context/UserContext";
 
 const workRoles = ["super_admin", "admin", "manager", "hr"];
 const authenticatedRoles = [...workRoles, "accounts", "employee"];
 const projectRoles = authenticatedRoles;
 const attendanceRoles = authenticatedRoles;
-const userManagerRoles = ["super_admin", "admin", "hr"];
-const dashboardForRole = (role) => {
-  if (workRoles.includes(role)) return "/admin";
-  if (role === "accounts") return "/projects";
-  return "/employee";
+const dashboardForUser = (user) => {
+  if (user?.permissions?.canViewDashboard) return "/admin";
+  if (user?.role === "employee") return "/employee";
+  if (user?.role === "accounts") return "/projects";
+  return "/tasks";
 };
 
-const RequireAuth = ({ allowedRoles, children }) => {
+const RequireAuth = ({ allowedRoles, children, permission }) => {
   const { loading, user } = useUser();
 
   if (loading) return <LoadingScreen />;
   if (!user) return <Navigate to="/login" replace />;
   if (allowedRoles?.length && !allowedRoles.includes(user.role)) {
-    return <Navigate to={dashboardForRole(user.role)} replace />;
+    return <Navigate to={dashboardForUser(user)} replace />;
+  }
+  if (permission && !user.permissions?.assigned?.includes(permission)) {
+    return <Navigate to={dashboardForUser(user)} replace />;
   }
 
   return children;
@@ -46,7 +50,7 @@ const PublicOnly = ({ children }) => {
   const { loading, user } = useUser();
 
   if (loading) return <LoadingScreen />;
-  if (user) return <Navigate to={dashboardForRole(user.role)} replace />;
+  if (user) return <Navigate to={dashboardForUser(user)} replace />;
 
   return children;
 };
@@ -57,7 +61,7 @@ const DashboardRedirect = () => {
   if (loading) return <LoadingScreen />;
   if (!user) return <Navigate to="/login" replace />;
 
-  return <Navigate to={dashboardForRole(user.role)} replace />;
+  return <Navigate to={dashboardForUser(user)} replace />;
 };
 
 function App() {
@@ -103,7 +107,7 @@ function App() {
         <Route
           path="/admin"
           element={
-            <RequireAuth allowedRoles={workRoles}>
+            <RequireAuth permission="dashboard.view">
               <AdminDashboard />
             </RequireAuth>
           }
@@ -111,7 +115,7 @@ function App() {
         <Route
           path="/tasks/new"
           element={
-            <RequireAuth allowedRoles={workRoles}>
+            <RequireAuth permission="tasks.create">
               <TaskCreatePage />
             </RequireAuth>
           }
@@ -135,7 +139,7 @@ function App() {
         <Route
           path="/projects/new"
           element={
-            <RequireAuth allowedRoles={workRoles}>
+            <RequireAuth permission="projects.create">
               <ProjectCreatePage />
             </RequireAuth>
           }
@@ -167,7 +171,7 @@ function App() {
         <Route
           path="/users/new"
           element={
-            <RequireAuth allowedRoles={userManagerRoles}>
+            <RequireAuth permission="users.manage">
               <UserCreatePage />
             </RequireAuth>
           }
@@ -175,7 +179,7 @@ function App() {
         <Route
           path="/users/:userId"
           element={
-            <RequireAuth allowedRoles={userManagerRoles}>
+            <RequireAuth permission="users.view">
               <UserDetailPage />
             </RequireAuth>
           }
@@ -183,8 +187,16 @@ function App() {
         <Route
           path="/users"
           element={
-            <RequireAuth allowedRoles={userManagerRoles}>
+            <RequireAuth permission="users.view">
               <UsersIndexPage />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <RequireAuth allowedRoles={authenticatedRoles}>
+              <ProfilePage />
             </RequireAuth>
           }
         />
