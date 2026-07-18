@@ -28,15 +28,6 @@ const formatRole = (role = "employee") =>
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
     .join(" ");
 
-const initialsFor = (name = "Team Member") =>
-  name
-    .split(" ")
-    .map((part) => part[0])
-    .filter(Boolean)
-    .slice(0, 2)
-    .join("")
-    .toUpperCase();
-
 const AppShell = ({ children, subtitle = "", title = "Workspace" }) => {
   const navigate = useNavigate();
   const { user } = useUser();
@@ -155,16 +146,6 @@ const AppShell = ({ children, subtitle = "", title = "Workspace" }) => {
                   {user?.organization?.plan || "Trial"} workspace
                 </p>
               </div>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3 rounded-lg border border-slate-200 bg-white p-3">
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-cyan-100 text-sm font-bold text-cyan-800">
-              {initialsFor(userName)}
-            </span>
-            <div className="min-w-0">
-              <p className="truncate text-sm font-bold text-slate-950">{userName}</p>
-              <p className="text-xs font-semibold uppercase text-slate-500">{formatRole(user?.role)}</p>
             </div>
           </div>
 

@@ -12,7 +12,9 @@ import ProjectDetailPage from "./components/dashboard/AdminDashboard/ProjectDeta
 import TasksPage from "./components/dashboard/AdminDashboard/TasksPage";
 import TaskCreatePage from "./components/dashboard/AdminDashboard/TaskCreatePage";
 import TaskDetailPage from "./components/dashboard/AdminDashboard/TaskDetailPage";
-import UsersPage from "./components/dashboard/AdminDashboard/UsersPage";
+import UserCreatePage from "./components/dashboard/AdminDashboard/UserCreatePage";
+import UserDetailPage from "./components/dashboard/AdminDashboard/UserDetailPage";
+import UsersIndexPage from "./components/dashboard/AdminDashboard/UsersIndexPage";
 import ForgotPassword from "./components/ForgotPassword";
 import LoadingScreen from "./components/LoadingScreen";
 import { useUser } from "./context/UserContext";
@@ -163,10 +165,26 @@ function App() {
           }
         />
         <Route
+          path="/users/new"
+          element={
+            <RequireAuth allowedRoles={userManagerRoles}>
+              <UserCreatePage />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/users/:userId"
+          element={
+            <RequireAuth allowedRoles={userManagerRoles}>
+              <UserDetailPage />
+            </RequireAuth>
+          }
+        />
+        <Route
           path="/users"
           element={
             <RequireAuth allowedRoles={userManagerRoles}>
-              <UsersPage />
+              <UsersIndexPage />
             </RequireAuth>
           }
         />

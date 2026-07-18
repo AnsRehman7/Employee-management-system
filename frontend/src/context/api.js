@@ -68,6 +68,7 @@ export const api = {
   getTask: (taskId) => request(`/tasks/${taskId}`),
   getTaskStats: () => request("/tasks/stats"),
   getTasks: () => request("/tasks"),
+  getUser: (userId) => request(`/users/${userId}`),
   getUsers: () => request("/users"),
   syncProfile: (payload = {}) => request("/auth/sync", { body: payload, method: "POST" }),
   updateProject: (projectId, payload) => request(`/projects/${projectId}`, { body: payload, method: "PATCH" }),

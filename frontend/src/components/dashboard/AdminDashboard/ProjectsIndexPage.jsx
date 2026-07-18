@@ -4,12 +4,12 @@ import {
   FiBriefcase,
   FiCheckCircle,
   FiChevronRight,
-  FiFilter,
   FiFolderPlus,
+  FiHeart,
   FiRefreshCw,
-  FiSearch,
   FiSliders,
   FiTrendingUp,
+  FiUser,
   FiX,
 } from "react-icons/fi";
 import { Link } from "react-router-dom";
@@ -17,6 +17,7 @@ import Alert from "../../Alert";
 import AppShell from "../../AppShell";
 import { api, formatApiError } from "../../../context/api";
 import { useUser } from "../../../context/UserContext";
+import { FilterDate, FilterSelect } from "./FilterControls";
 import {
   formatDate,
   initialsFor,
@@ -31,7 +32,6 @@ const emptyFilters = {
   dueTo: "",
   health: "all",
   owner: "all",
-  search: "",
   sort: "updated_desc",
   status: "all",
 };
@@ -42,7 +42,6 @@ const ProjectsIndexPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [filters, setFilters] = useState(emptyFilters);
-  const [showFilters, setShowFilters] = useState(true);
   const canManageWork = Boolean(user?.permissions?.canManageWork);
 
   const loadProjects = useCallback(async ({ showLoading = false } = {}) => {
@@ -83,10 +82,7 @@ const ProjectsIndexPage = () => {
   );
 
   const filteredProjects = useMemo(() => {
-    const query = filters.search.trim().toLowerCase();
     const result = projects.filter((project) => {
-      const searchable = [project.name, project.description, project.createdByName].join(" ").toLowerCase();
-      if (query && !searchable.includes(query)) return false;
       if (filters.status !== "all" && project.status !== filters.status) return false;
       if (filters.health !== "all" && project.health !== filters.health) return false;
       if (filters.owner !== "all" && project.createdById !== filters.owner) return false;
@@ -129,30 +125,27 @@ const ProjectsIndexPage = () => {
         </section>
 
         <section className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
-          <div className="flex flex-col gap-3 border-b border-slate-200 p-4 lg:flex-row lg:items-center">
-            <label className="flex h-10 min-w-0 flex-1 items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 focus-within:border-violet-400 focus-within:bg-white focus-within:ring-4 focus-within:ring-violet-100">
-              <FiSearch className="h-4 w-4 shrink-0 text-slate-400" />
-              <input className="w-full bg-transparent text-sm text-slate-800 outline-none placeholder:text-slate-400" onChange={(event) => updateFilter("search", event.target.value)} placeholder="Search projects by name, description, or owner" type="search" value={filters.search} />
-            </label>
-            <div className="flex gap-2">
-              <button className={`inline-flex h-10 items-center justify-center gap-2 rounded-lg border px-3 text-sm font-bold transition ${showFilters || activeFilterCount ? "border-violet-200 bg-violet-50 text-violet-700" : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"}`} onClick={() => setShowFilters((current) => !current)} type="button"><FiFilter className="h-4 w-4" />Filters{activeFilterCount ? ` (${activeFilterCount})` : ""}</button>
-              <button aria-label="Refresh projects" className="flex h-10 w-10 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 transition hover:bg-slate-50" onClick={() => loadProjects({ showLoading: true })} title="Refresh projects" type="button"><FiRefreshCw className="h-4 w-4" /></button>
+          <div className="flex flex-col gap-3 border-b border-slate-200 px-4 py-3.5 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h2 className="text-sm font-bold text-slate-950">Project portfolio</h2>
+              <p className="mt-0.5 text-xs text-slate-500">{filteredProjects.length} of {projects.length} projects in this view</p>
+            </div>
+            <div className="flex items-center gap-2">
+              {activeFilterCount > 0 && <button className="inline-flex h-9 items-center gap-2 rounded-lg px-2.5 text-xs font-bold text-violet-700 transition hover:bg-violet-50" onClick={() => setFilters(emptyFilters)} type="button"><FiX className="h-4 w-4" />Clear filters</button>}
+              <button aria-label="Refresh projects" className="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:border-slate-300 hover:bg-slate-50" onClick={() => loadProjects({ showLoading: true })} title="Refresh projects" type="button"><FiRefreshCw className="h-4 w-4" /></button>
             </div>
           </div>
 
-          {showFilters && (
-            <div className="border-b border-slate-200 bg-slate-50/70 p-4">
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
-                <label className="block"><span className="mb-1.5 block text-xs font-bold text-slate-500">Status</span><select className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700 outline-none focus:border-violet-400 focus:ring-4 focus:ring-violet-100" onChange={(event) => updateFilter("status", event.target.value)} value={filters.status}><option value="all">All statuses</option>{PROJECT_STATUS_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select></label>
-                <label className="block"><span className="mb-1.5 block text-xs font-bold text-slate-500">Health</span><select className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700 outline-none focus:border-violet-400 focus:ring-4 focus:ring-violet-100" onChange={(event) => updateFilter("health", event.target.value)} value={filters.health}><option value="all">All health</option><option value="on-track">On track</option><option value="due-soon">Due soon</option><option value="overdue">Overdue</option><option value="complete">Complete</option><option value="archived">Archived</option></select></label>
-                <label className="block"><span className="mb-1.5 block text-xs font-bold text-slate-500">Owner</span><select className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700 outline-none focus:border-violet-400 focus:ring-4 focus:ring-violet-100" onChange={(event) => updateFilter("owner", event.target.value)} value={filters.owner}><option value="all">All owners</option>{owners.map((owner) => <option key={owner.id} value={owner.id}>{owner.name}</option>)}</select></label>
-                <label className="block"><span className="mb-1.5 block text-xs font-bold text-slate-500">Due from</span><input className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700 outline-none focus:border-violet-400 focus:ring-4 focus:ring-violet-100" onChange={(event) => updateFilter("dueFrom", event.target.value)} type="date" value={filters.dueFrom} /></label>
-                <label className="block"><span className="mb-1.5 block text-xs font-bold text-slate-500">Due to</span><input className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700 outline-none focus:border-violet-400 focus:ring-4 focus:ring-violet-100" onChange={(event) => updateFilter("dueTo", event.target.value)} type="date" value={filters.dueTo} /></label>
-                <label className="block sm:col-span-2 lg:col-span-1"><span className="mb-1.5 block text-xs font-bold text-slate-500">Sort</span><select className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700 outline-none focus:border-violet-400 focus:ring-4 focus:ring-violet-100" onChange={(event) => updateFilter("sort", event.target.value)} value={filters.sort}><option value="updated_desc">Recently updated</option><option value="due_asc">Due date</option><option value="progress_desc">Progress</option><option value="name">Name</option></select></label>
-              </div>
-              {activeFilterCount > 0 && <button className="mt-3 inline-flex items-center gap-2 text-xs font-bold text-violet-700 hover:text-violet-900" onClick={() => setFilters(emptyFilters)} type="button"><FiX className="h-4 w-4" />Clear filters</button>}
+          <div className="border-b border-slate-200 bg-slate-50/70 p-4">
+            <div className="grid gap-x-3 gap-y-4 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-6">
+              <FilterSelect icon={FiBriefcase} label="Status" onChange={(event) => updateFilter("status", event.target.value)} value={filters.status}><option value="all">All statuses</option>{PROJECT_STATUS_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</FilterSelect>
+              <FilterSelect icon={FiHeart} label="Health" onChange={(event) => updateFilter("health", event.target.value)} value={filters.health}><option value="all">All health</option><option value="on-track">On track</option><option value="due-soon">Due soon</option><option value="overdue">Overdue</option><option value="complete">Complete</option><option value="archived">Archived</option></FilterSelect>
+              <FilterSelect icon={FiUser} label="Owner" onChange={(event) => updateFilter("owner", event.target.value)} value={filters.owner}><option value="all">All owners</option>{owners.map((owner) => <option key={owner.id} value={owner.id}>{owner.name}</option>)}</FilterSelect>
+              <FilterDate label="Due from" onChange={(event) => updateFilter("dueFrom", event.target.value)} value={filters.dueFrom} />
+              <FilterDate label="Due to" onChange={(event) => updateFilter("dueTo", event.target.value)} value={filters.dueTo} />
+              <FilterSelect icon={FiSliders} label="Sort" onChange={(event) => updateFilter("sort", event.target.value)} value={filters.sort}><option value="updated_desc">Recently updated</option><option value="due_asc">Due date</option><option value="progress_desc">Progress</option><option value="name">Name</option></FilterSelect>
             </div>
-          )}
+          </div>
 
           <div className="px-4 pt-4"><Alert message={error} type="error" /></div>
 

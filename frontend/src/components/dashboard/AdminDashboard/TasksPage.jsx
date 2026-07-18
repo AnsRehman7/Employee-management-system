@@ -1,15 +1,17 @@
 import { createElement, useCallback, useEffect, useMemo, useState } from "react";
 import {
   FiAlertCircle,
+  FiBriefcase,
   FiCheckCircle,
   FiCheckSquare,
   FiChevronRight,
   FiClock,
-  FiFilter,
+  FiFlag,
   FiPlus,
   FiRefreshCw,
-  FiSearch,
   FiSliders,
+  FiUser,
+  FiUserCheck,
   FiUserX,
   FiX,
 } from "react-icons/fi";
@@ -18,6 +20,7 @@ import Alert from "../../Alert";
 import AppShell from "../../AppShell";
 import { api, formatApiError } from "../../../context/api";
 import { useUser } from "../../../context/UserContext";
+import { FilterDate, FilterSelect } from "./FilterControls";
 import {
   formatDate,
   initialsFor,
@@ -43,11 +46,10 @@ const priorityOrder = { high: 0, normal: 1, low: 2 };
 
 const TasksPage = () => {
   const { user } = useUser();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [showFilters, setShowFilters] = useState(true);
   const [filters, setFilters] = useState(() => ({
     ...emptyFilters,
     search: searchParams.get("search") || "",
@@ -151,20 +153,16 @@ const TasksPage = () => {
   ).length;
 
   const updateFilter = (name, value) => setFilters((current) => ({ ...current, [name]: value }));
-  const clearFilters = () => setFilters(emptyFilters);
-
-  const FilterSelect = ({ children, label, name }) => (
-    <label className="block min-w-0">
-      <span className="mb-1.5 block text-xs font-bold text-slate-500">{label}</span>
-      <select
-        className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700 outline-none transition focus:border-violet-400 focus:ring-4 focus:ring-violet-100"
-        onChange={(event) => updateFilter(name, event.target.value)}
-        value={filters[name]}
-      >
-        {children}
-      </select>
-    </label>
-  );
+  const clearFilters = () => {
+    setFilters(emptyFilters);
+    setSearchParams({}, { replace: true });
+  };
+  const clearSearch = () => {
+    updateFilter("search", "");
+    const nextParams = new URLSearchParams(searchParams);
+    nextParams.delete("search");
+    setSearchParams(nextParams, { replace: true });
+  };
 
   return (
     <AppShell
@@ -199,81 +197,65 @@ const TasksPage = () => {
         </section>
 
         <section className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
-          <div className="flex flex-col gap-3 border-b border-slate-200 p-4 lg:flex-row lg:items-center">
-            <label className="flex h-10 min-w-0 flex-1 items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 focus-within:border-violet-400 focus-within:bg-white focus-within:ring-4 focus-within:ring-violet-100">
-              <FiSearch className="h-4 w-4 shrink-0 text-slate-400" />
-              <input
-                className="w-full bg-transparent text-sm text-slate-800 outline-none placeholder:text-slate-400"
-                onChange={(event) => updateFilter("search", event.target.value)}
-                placeholder="Search by task, project, category, or person"
-                type="search"
-                value={filters.search}
-              />
-            </label>
-            <div className="flex gap-2">
-              <button
-                className={`inline-flex h-10 items-center justify-center gap-2 rounded-lg border px-3 text-sm font-bold transition ${showFilters || activeFilterCount ? "border-violet-200 bg-violet-50 text-violet-700" : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"}`}
-                onClick={() => setShowFilters((current) => !current)}
-                type="button"
-              >
-                <FiFilter className="h-4 w-4" />
-                Filters{activeFilterCount ? ` (${activeFilterCount})` : ""}
-              </button>
-              <button aria-label="Refresh tasks" className="flex h-10 w-10 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 transition hover:bg-slate-50" onClick={() => loadTasks({ showLoading: true })} title="Refresh tasks" type="button">
+          <div className="flex flex-col gap-3 border-b border-slate-200 px-4 py-3.5 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h2 className="text-sm font-bold text-slate-950">Task register</h2>
+              <p className="mt-0.5 text-xs text-slate-500">{filteredTasks.length} of {tasks.length} tasks in this view</p>
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              {filters.search && (
+                <span className="inline-flex h-9 max-w-full items-center gap-2 rounded-lg border border-violet-200 bg-violet-50 px-3 text-xs font-bold text-violet-700">
+                  <span className="max-w-56 truncate">Search: {filters.search}</span>
+                  <button aria-label="Clear task search" className="text-violet-500 hover:text-violet-900" onClick={clearSearch} title="Clear search" type="button"><FiX className="h-3.5 w-3.5" /></button>
+                </span>
+              )}
+              {activeFilterCount > 0 && (
+                <button className="inline-flex h-9 items-center gap-2 rounded-lg px-2.5 text-xs font-bold text-violet-700 transition hover:bg-violet-50" onClick={clearFilters} type="button">
+                  <FiX className="h-4 w-4" />
+                  Clear filters
+                </button>
+              )}
+              <button aria-label="Refresh tasks" className="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:border-slate-300 hover:bg-slate-50" onClick={() => loadTasks({ showLoading: true })} title="Refresh tasks" type="button">
                 <FiRefreshCw className="h-4 w-4" />
               </button>
             </div>
           </div>
 
-          {showFilters && (
-            <div className="border-b border-slate-200 bg-slate-50/70 p-4">
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-8">
-                <FilterSelect label="Status" name="status">
-                  <option value="all">All statuses</option>
-                  {TASK_STATUS_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
-                </FilterSelect>
-                <FilterSelect label="Priority" name="priority">
-                  <option value="all">All priorities</option>
-                  <option value="high">High</option>
-                  <option value="normal">Normal</option>
-                  <option value="low">Low</option>
-                </FilterSelect>
-                <FilterSelect label="Project" name="project">
-                  <option value="all">All projects</option>
-                  {filterOptions.projects.map((option) => <option key={option.id} value={option.id}>{option.name}</option>)}
-                </FilterSelect>
-                <FilterSelect label="Assigned to" name="assignee">
-                  <option value="all">All assignees</option>
-                  <option value="unassigned">Unassigned</option>
-                  {filterOptions.assignees.map((option) => <option key={option.id} value={option.id}>{option.name}</option>)}
-                </FilterSelect>
-                <FilterSelect label="Assigned by" name="assigner">
-                  <option value="all">All assigners</option>
-                  {filterOptions.assigners.map((option) => <option key={option.id} value={option.id}>{option.name}</option>)}
-                </FilterSelect>
-                <label className="block">
-                  <span className="mb-1.5 block text-xs font-bold text-slate-500">Due from</span>
-                  <input className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700 outline-none focus:border-violet-400 focus:ring-4 focus:ring-violet-100" onChange={(event) => updateFilter("dueFrom", event.target.value)} type="date" value={filters.dueFrom} />
-                </label>
-                <label className="block">
-                  <span className="mb-1.5 block text-xs font-bold text-slate-500">Due to</span>
-                  <input className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700 outline-none focus:border-violet-400 focus:ring-4 focus:ring-violet-100" onChange={(event) => updateFilter("dueTo", event.target.value)} type="date" value={filters.dueTo} />
-                </label>
-                <FilterSelect label="Sort" name="sort">
-                  <option value="updated_desc">Recently updated</option>
-                  <option value="due_asc">Due date</option>
-                  <option value="created_desc">Recently created</option>
-                  <option value="priority">Priority</option>
-                </FilterSelect>
-              </div>
-              {activeFilterCount > 0 && (
-                <button className="mt-3 inline-flex items-center gap-2 text-xs font-bold text-violet-700 hover:text-violet-900" onClick={clearFilters} type="button">
-                  <FiX className="h-4 w-4" />
-                  Clear filters
-                </button>
-              )}
+          <div className="border-b border-slate-200 bg-slate-50/70 p-4">
+            <div className="grid gap-x-3 gap-y-4 sm:grid-cols-2 lg:grid-cols-4 2xl:grid-cols-8">
+              <FilterSelect icon={FiCheckSquare} label="Status" onChange={(event) => updateFilter("status", event.target.value)} value={filters.status}>
+                <option value="all">All statuses</option>
+                {TASK_STATUS_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+              </FilterSelect>
+              <FilterSelect icon={FiFlag} label="Priority" onChange={(event) => updateFilter("priority", event.target.value)} value={filters.priority}>
+                <option value="all">All priorities</option>
+                <option value="high">High</option>
+                <option value="normal">Normal</option>
+                <option value="low">Low</option>
+              </FilterSelect>
+              <FilterSelect icon={FiBriefcase} label="Project" onChange={(event) => updateFilter("project", event.target.value)} value={filters.project}>
+                <option value="all">All projects</option>
+                {filterOptions.projects.map((option) => <option key={option.id} value={option.id}>{option.name}</option>)}
+              </FilterSelect>
+              <FilterSelect icon={FiUserCheck} label="Assigned to" onChange={(event) => updateFilter("assignee", event.target.value)} value={filters.assignee}>
+                <option value="all">All assignees</option>
+                <option value="unassigned">Unassigned</option>
+                {filterOptions.assignees.map((option) => <option key={option.id} value={option.id}>{option.name}</option>)}
+              </FilterSelect>
+              <FilterSelect icon={FiUser} label="Assigned by" onChange={(event) => updateFilter("assigner", event.target.value)} value={filters.assigner}>
+                <option value="all">All assigners</option>
+                {filterOptions.assigners.map((option) => <option key={option.id} value={option.id}>{option.name}</option>)}
+              </FilterSelect>
+              <FilterDate label="Due from" onChange={(event) => updateFilter("dueFrom", event.target.value)} value={filters.dueFrom} />
+              <FilterDate label="Due to" onChange={(event) => updateFilter("dueTo", event.target.value)} value={filters.dueTo} />
+              <FilterSelect icon={FiSliders} label="Sort" onChange={(event) => updateFilter("sort", event.target.value)} value={filters.sort}>
+                <option value="updated_desc">Recently updated</option>
+                <option value="due_asc">Due date</option>
+                <option value="created_desc">Recently created</option>
+                <option value="priority">Priority</option>
+              </FilterSelect>
             </div>
-          )}
+          </div>
 
           <div className="px-4 pt-4"><Alert message={error} type="error" /></div>
 
