@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
+import { FcGoogle } from "react-icons/fc";
 import {
   FiBriefcase,
   FiCheck,
   FiChevronRight,
   FiMail,
+  FiKey,
   FiPhone,
   FiRefreshCw,
   FiSave,
@@ -15,6 +17,7 @@ import Alert from "./Alert";
 import AppShell from "./AppShell";
 import { api, formatApiError } from "../context/api";
 import { useUser } from "../context/UserContext";
+import { useFirebase } from "../context/firebase";
 
 const fieldClass =
   "mt-2 h-11 w-full rounded-lg border border-slate-200 bg-slate-50 px-3.5 text-sm text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-violet-400 focus:bg-white focus:ring-4 focus:ring-violet-100 disabled:cursor-not-allowed disabled:text-slate-400";
@@ -35,6 +38,7 @@ const initialsFor = (name = "") =>
 
 const ProfilePage = () => {
   const { setUser, user } = useUser();
+  const { auth, formatFirebaseError, linkGoogleAccount, sendResetPassword } = useFirebase();
   const [profileForm, setProfileForm] = useState({
     contact: user?.contact || "",
     department: user?.department || "",
@@ -48,6 +52,8 @@ const ProfilePage = () => {
   const [useRoleDefaults, setUseRoleDefaults] = useState(true);
   const [profileBusy, setProfileBusy] = useState(false);
   const [accessBusy, setAccessBusy] = useState(false);
+  const [securityBusy, setSecurityBusy] = useState("");
+  const [providers, setProviders] = useState(() => auth.currentUser?.providerData.map(({ providerId }) => providerId) || []);
   const [loadingAccess, setLoadingAccess] = useState(Boolean(user?.permissions?.canManagePermissions));
   const [notice, setNotice] = useState({ message: "", type: "info" });
 
@@ -151,6 +157,33 @@ const ProfilePage = () => {
     }
   };
 
+  const connectGoogle = async () => {
+    setSecurityBusy("google");
+    setNotice({ message: "", type: "info" });
+    try {
+      const firebaseUser = await linkGoogleAccount();
+      setProviders(firebaseUser.providerData.map(({ providerId }) => providerId));
+      setNotice({ message: "Google sign-in connected successfully.", type: "success" });
+    } catch (requestError) {
+      setNotice({ message: formatFirebaseError(requestError), type: "error" });
+    } finally {
+      setSecurityBusy("");
+    }
+  };
+
+  const sendPasswordLink = async () => {
+    setSecurityBusy("password");
+    setNotice({ message: "", type: "info" });
+    try {
+      await sendResetPassword(user.email);
+      setNotice({ message: "Password setup link sent to your email.", type: "success" });
+    } catch (requestError) {
+      setNotice({ message: formatFirebaseError(requestError), type: "error" });
+    } finally {
+      setSecurityBusy("");
+    }
+  };
+
   return (
     <AppShell title="Profile and access" subtitle="Manage your account details and workspace authorization.">
       <div className="space-y-6">
@@ -187,6 +220,14 @@ const ProfilePage = () => {
             </div>
           </form>
         </div>
+
+        <section className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
+          <div className="flex items-center gap-3 border-b border-slate-200 px-5 py-4"><span className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-100 text-emerald-700"><FiKey className="h-4 w-4" /></span><div><h2 className="text-base font-bold text-slate-950">Sign-in security</h2><p className="text-sm text-slate-500">Manage the identity providers connected to your account.</p></div></div>
+          <div className="divide-y divide-slate-100">
+            <div className="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-between"><div className="flex items-center gap-3"><span className="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-100 text-slate-600"><FiMail className="h-4 w-4" /></span><div><p className="text-sm font-bold text-slate-900">Email and password</p><p className="mt-0.5 text-xs text-slate-500">{user.email}</p></div></div><button className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-slate-200 px-3 text-sm font-bold text-slate-700 transition hover:bg-slate-50 disabled:opacity-60" disabled={Boolean(securityBusy)} onClick={sendPasswordLink} type="button">{securityBusy === "password" ? "Sending..." : "Send password link"}</button></div>
+            <div className="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-between"><div className="flex items-center gap-3"><span className="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-50 ring-1 ring-slate-200"><FcGoogle className="h-5 w-5" /></span><div><p className="text-sm font-bold text-slate-900">Google</p><p className="mt-0.5 text-xs text-slate-500">{providers.includes("google.com") ? "Connected to this account" : "Not connected"}</p></div></div>{providers.includes("google.com") ? <span className="inline-flex h-9 items-center gap-2 self-start rounded-full border border-emerald-200 bg-emerald-50 px-3 text-xs font-bold text-emerald-700 sm:self-auto"><FiCheck className="h-3.5 w-3.5" />Connected</span> : <button className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-slate-200 px-3 text-sm font-bold text-slate-700 transition hover:bg-slate-50 disabled:opacity-60" disabled={Boolean(securityBusy)} onClick={connectGoogle} type="button"><FcGoogle className="h-4 w-4" />{securityBusy === "google" ? "Connecting..." : "Connect Google"}</button>}</div>
+          </div>
+        </section>
 
         {canManageAccess && (
           <section className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">

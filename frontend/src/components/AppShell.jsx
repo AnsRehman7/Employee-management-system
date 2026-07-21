@@ -1,12 +1,15 @@
 import { useMemo, useState } from "react";
 import {
   FiBriefcase,
+  FiBarChart2,
   FiCheckSquare,
   FiClock,
+  FiFileText,
   FiGrid,
   FiLogOut,
   FiPlus,
   FiSearch,
+  FiSettings,
   FiShield,
   FiUser,
   FiUsers,
@@ -44,40 +47,70 @@ const AppShell = ({ children, subtitle = "", title = "Workspace" }) => {
         user?.role === "employee" && {
           icon: <FiGrid className="h-4 w-4" />,
           label: "My work",
+          section: "Overview",
           to: "/employee",
         },
         user?.permissions?.canViewDashboard && {
           icon: <FiGrid className="h-4 w-4" />,
           label: "Dashboard",
+          section: "Overview",
           to: "/admin",
+        },
+        user?.permissions?.canViewReports && {
+          icon: <FiBarChart2 className="h-4 w-4" />,
+          label: "Reports",
+          section: "Overview",
+          to: "/reports",
         },
         user && {
           icon: <FiCheckSquare className="h-4 w-4" />,
           label: "Tasks",
+          section: "Work management",
           to: "/tasks",
         },
         user && {
           icon: <FiBriefcase className="h-4 w-4" />,
           label: "Projects",
+          section: "Work management",
           to: "/projects",
         },
         user && {
           icon: <FiClock className="h-4 w-4" />,
           label: "Attendance",
+          section: "People and time",
           to: "/attendance",
         },
         user?.permissions?.canViewUsers && {
           icon: <FiUsers className="h-4 w-4" />,
           label: "Users",
+          section: "People and time",
           to: "/users",
+        },
+        user?.permissions?.canViewAudit && {
+          icon: <FiFileText className="h-4 w-4" />,
+          label: "Audit log",
+          section: "Administration",
+          to: "/audit",
+        },
+        user?.permissions?.canManageSettings && {
+          icon: <FiSettings className="h-4 w-4" />,
+          label: "Settings",
+          section: "Administration",
+          to: "/settings",
         },
         user && {
           icon: <FiUser className="h-4 w-4" />,
           label: "Profile",
+          section: "Account",
           to: "/profile",
         },
       ].filter(Boolean),
     [user]
+  );
+
+  const navGroups = useMemo(
+    () => navItems.reduce((groups, item) => ({ ...groups, [item.section]: [...(groups[item.section] || []), item] }), {}),
+    [navItems],
   );
 
   const handleLogout = async () => {
@@ -137,8 +170,14 @@ const AppShell = ({ children, subtitle = "", title = "Workspace" }) => {
         </div>
 
         <div className="flex-1 overflow-y-auto px-3 py-4">
-          <p className="px-3 text-xs font-bold uppercase tracking-wide text-slate-400">Workspace</p>
-          <nav className="mt-3 space-y-1">{navItems.map((item) => renderNavLink(item))}</nav>
+          <nav className="space-y-5">
+            {Object.entries(navGroups).map(([section, items]) => (
+              <div key={section}>
+                <p className="px-3 text-[11px] font-bold uppercase text-slate-400">{section}</p>
+                <div className="mt-2 space-y-1">{items.map((item) => renderNavLink(item))}</div>
+              </div>
+            ))}
+          </nav>
         </div>
 
         <div className="space-y-3 border-t border-slate-200 p-4">

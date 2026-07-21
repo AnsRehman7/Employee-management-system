@@ -1,24 +1,29 @@
+import { lazy, Suspense } from "react";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import Signup from "./components/Signup";
 import Login from "./components/Login";
 import LandingPage from "./components/LandingPage";
 import PricingPage from "./components/PricingPage";
-import Employe from "./components/dashboard/employe/Employe";
-import AdminDashboard from "./components/dashboard/AdminDashboard/AdminDashboard";
-import AttendancePortal from "./components/dashboard/AttendancePortal";
-import ProjectsIndexPage from "./components/dashboard/AdminDashboard/ProjectsIndexPage";
-import ProjectCreatePage from "./components/dashboard/AdminDashboard/ProjectCreatePage";
-import ProjectDetailPage from "./components/dashboard/AdminDashboard/ProjectDetailPage";
-import TasksPage from "./components/dashboard/AdminDashboard/TasksPage";
-import TaskCreatePage from "./components/dashboard/AdminDashboard/TaskCreatePage";
-import TaskDetailPage from "./components/dashboard/AdminDashboard/TaskDetailPage";
-import UserCreatePage from "./components/dashboard/AdminDashboard/UserCreatePage";
-import UserDetailPage from "./components/dashboard/AdminDashboard/UserDetailPage";
-import UsersIndexPage from "./components/dashboard/AdminDashboard/UsersIndexPage";
 import ForgotPassword from "./components/ForgotPassword";
 import LoadingScreen from "./components/LoadingScreen";
-import ProfilePage from "./components/ProfilePage";
 import { useUser } from "./context/UserContext";
+
+const AdminDashboard = lazy(() => import("./components/dashboard/AdminDashboard/AdminDashboard"));
+const AttendancePortal = lazy(() => import("./components/dashboard/AttendancePortal"));
+const AuditLogPage = lazy(() => import("./components/AuditLogPage"));
+const Employe = lazy(() => import("./components/dashboard/employe/Employe"));
+const ProfilePage = lazy(() => import("./components/ProfilePage"));
+const ProjectCreatePage = lazy(() => import("./components/dashboard/AdminDashboard/ProjectCreatePage"));
+const ProjectDetailPage = lazy(() => import("./components/dashboard/AdminDashboard/ProjectDetailPage"));
+const ProjectsIndexPage = lazy(() => import("./components/dashboard/AdminDashboard/ProjectsIndexPage"));
+const ReportsPage = lazy(() => import("./components/dashboard/AdminDashboard/ReportsPage"));
+const TaskCreatePage = lazy(() => import("./components/dashboard/AdminDashboard/TaskCreatePage"));
+const TaskDetailPage = lazy(() => import("./components/dashboard/AdminDashboard/TaskDetailPage"));
+const TasksPage = lazy(() => import("./components/dashboard/AdminDashboard/TasksPage"));
+const UserCreatePage = lazy(() => import("./components/dashboard/AdminDashboard/UserCreatePage"));
+const UserDetailPage = lazy(() => import("./components/dashboard/AdminDashboard/UserDetailPage"));
+const UsersIndexPage = lazy(() => import("./components/dashboard/AdminDashboard/UsersIndexPage"));
+const WorkspaceSettingsPage = lazy(() => import("./components/WorkspaceSettingsPage"));
 
 const workRoles = ["super_admin", "admin", "manager", "hr"];
 const authenticatedRoles = [...workRoles, "accounts", "employee"];
@@ -67,7 +72,8 @@ const DashboardRedirect = () => {
 function App() {
   return (
     <BrowserRouter>
-      <Routes>
+      <Suspense fallback={<LoadingScreen />}>
+        <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/pricing" element={<PricingPage />} />
         <Route
@@ -200,8 +206,33 @@ function App() {
             </RequireAuth>
           }
         />
+        <Route
+          path="/reports"
+          element={
+            <RequireAuth permission="reports.view">
+              <ReportsPage />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/settings"
+          element={
+            <RequireAuth permission="settings.manage">
+              <WorkspaceSettingsPage />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/audit"
+          element={
+            <RequireAuth permission="audit.view">
+              <AuditLogPage />
+            </RequireAuth>
+          }
+        />
         <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
+        </Routes>
+      </Suspense>
     </BrowserRouter>
   );
 }

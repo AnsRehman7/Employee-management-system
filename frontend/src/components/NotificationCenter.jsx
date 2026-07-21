@@ -21,6 +21,7 @@ const NotificationCenter = () => {
   const [open, setOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [error, setError] = useState("");
   const [desktopPermission, setDesktopPermission] = useState(
     typeof window !== "undefined" && "Notification" in window ? window.Notification.permission : "unsupported",
   );
@@ -49,17 +50,27 @@ const NotificationCenter = () => {
 
       knownIds.current = new Set(incoming.map(({ id }) => id));
       initialized.current = true;
+      setError("");
       setNotifications(incoming);
       setUnreadCount(result.unreadCount || 0);
     } catch {
-      // Notifications are supplementary; the main workspace remains usable if polling fails.
+      setError("Notifications are temporarily unavailable.");
     }
   };
 
   useEffect(() => {
     loadNotifications();
     const poller = window.setInterval(loadNotifications, 30_000);
-    return () => window.clearInterval(poller);
+    const refreshWhenVisible = () => {
+      if (document.visibilityState === "visible") loadNotifications();
+    };
+    window.addEventListener("focus", refreshWhenVisible);
+    document.addEventListener("visibilitychange", refreshWhenVisible);
+    return () => {
+      window.clearInterval(poller);
+      window.removeEventListener("focus", refreshWhenVisible);
+      document.removeEventListener("visibilitychange", refreshWhenVisible);
+    };
     // Permission changes are intentionally picked up by the next polling cycle.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [desktopPermission]);
@@ -74,8 +85,12 @@ const NotificationCenter = () => {
 
   const enableDesktopNotifications = async () => {
     if (!("Notification" in window)) return;
-    const permission = await window.Notification.requestPermission();
-    setDesktopPermission(permission);
+    try {
+      const permission = await window.Notification.requestPermission();
+      setDesktopPermission(permission);
+    } catch {
+      setError("Your browser could not enable desktop notifications.");
+    }
   };
 
   const openNotification = async (notification) => {
@@ -91,9 +106,14 @@ const NotificationCenter = () => {
   };
 
   const markAllRead = async () => {
-    await api.markAllNotificationsRead();
-    setNotifications((current) => current.map((notification) => ({ ...notification, isRead: true })));
-    setUnreadCount(0);
+    try {
+      await api.markAllNotificationsRead();
+      setNotifications((current) => current.map((notification) => ({ ...notification, isRead: true })));
+      setUnreadCount(0);
+      setError("");
+    } catch {
+      setError("Could not mark notifications as read.");
+    }
   };
 
   return (
@@ -113,6 +133,8 @@ const NotificationCenter = () => {
           {desktopPermission === "default" && (
             <button className="flex w-full items-center gap-3 border-b border-violet-100 bg-violet-50 px-4 py-3 text-left transition hover:bg-violet-100" onClick={enableDesktopNotifications} type="button"><span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white text-violet-700 ring-1 ring-violet-200"><FiBell className="h-4 w-4" /></span><span><span className="block text-xs font-bold text-violet-900">Enable desktop alerts</span><span className="mt-0.5 block text-xs text-violet-700">Show new StaffFlow activity in Windows.</span></span></button>
           )}
+
+          {error && <p aria-live="polite" className="border-b border-rose-100 bg-rose-50 px-4 py-2 text-xs font-semibold text-rose-700">{error}</p>}
 
           <div className="max-h-[430px] overflow-y-auto">
             {notifications.length === 0 ? (

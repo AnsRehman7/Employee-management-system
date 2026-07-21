@@ -6,9 +6,9 @@ import { auth } from "./firebase";
 
 const UserContext = createContext(null);
 
-setAuthTokenProvider(async () => {
+setAuthTokenProvider(async ({ forceRefresh = false } = {}) => {
   if (!auth.currentUser) return null;
-  return auth.currentUser.getIdToken();
+  return auth.currentUser.getIdToken(forceRefresh);
 });
 
 export const UserProvider = ({ children }) => {

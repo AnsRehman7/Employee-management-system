@@ -11,6 +11,9 @@ StaffFlow is a company workspace for small teams that need projects, tasks, hour
 - **User management:** Authorized workspace admins create logins, roles, designations, departments, and account status.
 - **Project delivery:** Projects include ownership, priority, objective, department, stakeholder, estimates, tags, and delivery dates.
 - **Notifications:** Assignments and task/project activity appear in-app and can be shown as browser/Windows alerts.
+- **Reports:** Authorized roles can review delivery trends, attendance, workload, and operational risk.
+- **Workspace administration:** Super admins can maintain work hours, timezone, departments, and organization identity.
+- **Audit log:** Authorized administrators can review important account, task, project, and attendance changes.
 - **Employee-specific tasks:** Employees only see tasks assigned to their own backend user profile.
 - **AI planning and weightage:** Groq can turn project requirements into tasks and analyze project scope to assign task weights.
 - **AI progress:** Time-log comments are analyzed against task requirements to update task progress.
@@ -47,6 +50,8 @@ Set `VITE_API_URL` when the API is not running at `http://localhost:4000/api`.
 1. Enable **Google** under Firebase Authentication > Sign-in method.
 2. Add the production Netlify hostname under Firebase Authentication > Settings > Authorized domains.
 3. Set every `VITE_FIREBASE_*` variable in Netlify and trigger a fresh deploy.
-4. Netlify SPA refresh routing is supplied by `public/_redirects` and is copied into the production build.
+4. Netlify SPA refresh routing is supplied by both the root `netlify.toml` and `public/_redirects`. The production publish directory is `frontend/dist`.
+
+For this deployment, the Firebase authorized-domain entry must be the hostname only: `ahsanfyp.netlify.app`. Vercel must allow the exact origin `https://ahsanfyp.netlify.app` through `CORS_ORIGIN`.
 
 Browser notifications require HTTPS and explicit permission from the user. The current implementation displays desktop alerts while StaffFlow is open; background push would additionally require a push service and service worker.

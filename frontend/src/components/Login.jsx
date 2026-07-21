@@ -61,8 +61,8 @@ const Login = () => {
   };
 
   return (
-    <main className="min-h-screen bg-[#f5f7fb] text-slate-950 lg:h-screen lg:overflow-hidden">
-      <div className="grid min-h-screen lg:grid-cols-[0.9fr_1.1fr]">
+    <main className="min-h-screen max-w-full overflow-x-hidden bg-[#f5f7fb] text-slate-950 lg:h-screen lg:overflow-hidden">
+      <div className="grid min-h-screen min-w-0 lg:grid-cols-[0.9fr_1.1fr]">
         <section className="hidden flex-col justify-between border-r border-slate-200 bg-white p-10 text-slate-950 lg:flex">
           <div>
             <p className="text-sm font-bold uppercase tracking-wide text-violet-600">StaffFlow</p>
@@ -88,20 +88,20 @@ const Login = () => {
           </div>
         </section>
 
-        <section className="flex min-h-screen items-center justify-center px-4 py-4 sm:px-6">
-          <div className="w-full max-w-md rounded-lg border border-slate-200 bg-white p-6 shadow-xl shadow-slate-200/70">
+        <section className="flex min-h-screen min-w-0 items-center justify-center px-4 py-4 sm:px-6">
+          <div className="w-[calc(100vw-2rem)] min-w-0 max-w-md rounded-lg border border-slate-200 bg-white p-6 shadow-xl shadow-slate-200/70">
             <div className="mb-6">
               <p className="text-xs font-bold uppercase tracking-wide text-violet-700">Sign in</p>
               <h2 className="mt-2 text-3xl font-bold tracking-tight text-slate-950">Access StaffFlow</h2>
               <p className="mt-1 text-sm text-slate-500">Use your workspace email and password.</p>
             </div>
 
-          <form onSubmit={handleLogin} className="space-y-4">
+          <form onSubmit={handleLogin} className="min-w-0 space-y-4 [&_label]:min-w-0">
             <Alert message={notice.message} type={notice.type} />
 
             <label className="block">
               <span className="text-xs font-bold uppercase text-slate-600">Email</span>
-              <div className="mt-1.5 flex items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 transition focus-within:border-violet-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-violet-500/10">
+              <div className="mt-1.5 flex min-w-0 items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 transition focus-within:border-violet-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-violet-500/10">
                 <FiMail className="h-5 w-5 text-slate-400" />
                 <input
                   type="email"
@@ -110,14 +110,14 @@ const Login = () => {
                   value={form.email}
                   onChange={updateField}
                   placeholder="you@company.com"
-                  className="w-full bg-transparent text-sm text-slate-950 outline-none placeholder:text-slate-400"
+                  className="min-w-0 flex-1 bg-transparent text-sm text-slate-950 outline-none placeholder:text-slate-400"
                 />
               </div>
             </label>
 
             <label className="block">
               <span className="text-xs font-bold uppercase text-slate-600">Password</span>
-              <div className="mt-1.5 flex items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 transition focus-within:border-violet-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-violet-500/10">
+              <div className="mt-1.5 flex min-w-0 items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 transition focus-within:border-violet-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-violet-500/10">
                 <FiLock className="h-5 w-5 text-slate-400" />
                 <input
                   type="password"
@@ -126,7 +126,7 @@ const Login = () => {
                   value={form.password}
                   onChange={updateField}
                   placeholder="Enter your password"
-                  className="w-full bg-transparent text-sm text-slate-950 outline-none placeholder:text-slate-400"
+                  className="min-w-0 flex-1 bg-transparent text-sm text-slate-950 outline-none placeholder:text-slate-400"
                 />
               </div>
             </label>
