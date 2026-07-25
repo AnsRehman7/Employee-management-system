@@ -22,6 +22,7 @@ jest.mock('@react-native-async-storage/async-storage', () => {
 
 jest.mock('@react-native-community/geolocation', () => ({
   getCurrentPosition: jest.fn(),
+  setRNConfiguration: jest.fn(),
 }));
 
 jest.mock('react-native-biometrics', () =>
@@ -38,3 +39,17 @@ jest.mock('react-native-config', () => ({
   OFFICE_RADIUS_METERS: '100',
   STAFFFLOW_API_URL: 'http://localhost:4000/api',
 }));
+
+jest.mock('lucide-react-native', () => {
+  const React = require('react');
+  const { View } = require('react-native');
+  const Icon = props => React.createElement(View, props);
+
+  return new Proxy(
+    { __esModule: true },
+    {
+      get: (target, property) =>
+        property === '__esModule' ? target[property] : Icon,
+    },
+  );
+});

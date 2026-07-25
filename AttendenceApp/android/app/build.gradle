@@ -87,7 +87,6 @@ android {
     namespace "com.staffflow.attendance"
     defaultConfig {
         applicationId "com.staffflow.attendance"
-        manifestPlaceholders = [usesCleartextTraffic: "true"]
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         resValue "string", "build_config_package", "com.staffflow.attendance"
@@ -104,9 +103,11 @@ android {
     }
     buildTypes {
         debug {
+            manifestPlaceholders = [usesCleartextTraffic: "true"]
             signingConfig signingConfigs.debug
         }
         release {
+            manifestPlaceholders = [usesCleartextTraffic: "false"]
             // Caution! In production, you need to generate your own keystore file.
             // see https://reactnative.dev/docs/signed-apk-android.
             signingConfig signingConfigs.debug
