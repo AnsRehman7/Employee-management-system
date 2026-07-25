@@ -2,6 +2,11 @@ import { useEffect, useRef, useState } from "react";
 import { FiBell, FiCheck, FiCheckCircle } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import { api } from "../context/api";
+import {
+  getBrowserNotificationPermission,
+  requestBrowserNotificationPermission,
+  showBrowserNotification,
+} from "../utils/browserNotifications";
 
 const formatRelativeTime = (value) => {
   const difference = Date.now() - new Date(value).getTime();
@@ -22,9 +27,7 @@ const NotificationCenter = () => {
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [error, setError] = useState("");
-  const [desktopPermission, setDesktopPermission] = useState(
-    typeof window !== "undefined" && "Notification" in window ? window.Notification.permission : "unsupported",
-  );
+  const [desktopPermission, setDesktopPermission] = useState(getBrowserNotificationPermission);
 
   const loadNotifications = async () => {
     try {
@@ -35,16 +38,9 @@ const NotificationCenter = () => {
         incoming
           .filter((notification) => !notification.isRead && !knownIds.current.has(notification.id))
           .forEach((notification) => {
-            const desktopNotification = new window.Notification(notification.title, {
-              body: notification.message,
-              icon: "/employee.png",
-              tag: notification.id,
+            showBrowserNotification(notification).catch(() => {
+              setError("Windows could not display a new notification.");
             });
-            desktopNotification.onclick = () => {
-              window.focus();
-              if (notification.actionUrl) navigate(notification.actionUrl);
-              desktopNotification.close();
-            };
           });
       }
 
@@ -60,7 +56,7 @@ const NotificationCenter = () => {
 
   useEffect(() => {
     loadNotifications();
-    const poller = window.setInterval(loadNotifications, 30_000);
+    const poller = window.setInterval(loadNotifications, 15_000);
     const refreshWhenVisible = () => {
       if (document.visibilityState === "visible") loadNotifications();
     };
@@ -76,6 +72,13 @@ const NotificationCenter = () => {
   }, [desktopPermission]);
 
   useEffect(() => {
+    const syncPermission = (event) =>
+      setDesktopPermission(event.detail || getBrowserNotificationPermission());
+    window.addEventListener("staffflow:notification-permission", syncPermission);
+    return () => window.removeEventListener("staffflow:notification-permission", syncPermission);
+  }, []);
+
+  useEffect(() => {
     const handlePointerDown = (event) => {
       if (panelRef.current && !panelRef.current.contains(event.target)) setOpen(false);
     };
@@ -84,9 +87,8 @@ const NotificationCenter = () => {
   }, []);
 
   const enableDesktopNotifications = async () => {
-    if (!("Notification" in window)) return;
     try {
-      const permission = await window.Notification.requestPermission();
+      const permission = await requestBrowserNotificationPermission();
       setDesktopPermission(permission);
     } catch {
       setError("Your browser could not enable desktop notifications.");

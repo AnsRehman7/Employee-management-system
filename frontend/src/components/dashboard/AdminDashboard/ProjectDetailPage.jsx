@@ -20,6 +20,7 @@ import Alert from "../../Alert";
 import AppShell from "../../AppShell";
 import { api, formatApiError } from "../../../context/api";
 import { useUser } from "../../../context/UserContext";
+import WorkActivityTimeline from "./WorkActivityTimeline";
 import {
   formatDate,
   formatDateTime,
@@ -57,6 +58,7 @@ const ProjectDetailPage = () => {
   const location = useLocation();
   const { user } = useUser();
   const [project, setProject] = useState(null);
+  const [activity, setActivity] = useState([]);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [editing, setEditing] = useState(false);
@@ -74,8 +76,12 @@ const ProjectDetailPage = () => {
   const loadProject = useCallback(async ({ showLoading = false } = {}) => {
     if (showLoading) setLoading(true);
     try {
-      const { project: projectDetail } = await api.getProject(projectId);
+      const [{ project: projectDetail }, { activity: projectActivity }] = await Promise.all([
+        api.getProject(projectId),
+        api.getProjectActivity(projectId),
+      ]);
       setProject(projectDetail);
+      setActivity(projectActivity || []);
       setEditForm(projectToForm(projectDetail));
       setNotice((current) => (current.type === "error" ? { message: "", type: "info" } : current));
     } catch (requestError) {
@@ -225,10 +231,20 @@ const ProjectDetailPage = () => {
             </div>
 
             <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_330px]">
-              <section className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
+              <div className="space-y-5">
+                <section className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
                 <div className="flex flex-col gap-3 border-b border-slate-200 p-4 lg:flex-row lg:items-center lg:justify-between"><div><h2 className="text-base font-bold text-slate-950">Project tasks</h2><p className="mt-1 text-sm text-slate-500">{filteredTasks.length} tasks in this view</p></div><div className="flex flex-col gap-2 sm:flex-row"><label className="flex h-10 min-w-64 items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 focus-within:border-violet-400 focus-within:bg-white"><FiSearch className="h-4 w-4 text-slate-400" /><input className="w-full bg-transparent text-sm outline-none" onChange={(event) => setTaskSearch(event.target.value)} placeholder="Search tasks" value={taskSearch} /></label><select className="h-10 rounded-lg border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700 outline-none" onChange={(event) => setTaskStatus(event.target.value)} value={taskStatus}><option value="all">All statuses</option>{TASK_STATUS_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select></div></div>
                 {filteredTasks.length === 0 ? <div className="py-14 text-center"><FiBriefcase className="mx-auto h-8 w-8 text-slate-400" /><p className="mt-3 text-sm font-semibold text-slate-500">No tasks match this view.</p>{canCreateTasks && project.taskCount === 0 && <Link className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-violet-700" to={`/tasks/new?project=${project.id}`}><FiPlus className="h-4 w-4" />Create the first task</Link>}</div> : <div className="divide-y divide-slate-100">{filteredTasks.map((task) => <Link className="group block px-4 py-4 transition hover:bg-violet-50/40" key={task.id} to={`/tasks/${task.id}`}><div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between"><div className="min-w-0"><div className="flex flex-wrap items-center gap-2"><span className={`rounded-full border px-2.5 py-1 text-xs font-bold ${TASK_STATUS_STYLES[task.status] || TASK_STATUS_STYLES.open}`}>{labelForValue(task.status)}</span><span className="text-xs font-semibold text-slate-500">{task.category}</span></div><h3 className="mt-2 text-sm font-bold text-slate-950 group-hover:text-violet-700">{task.title}</h3><p className="mt-1 text-xs text-slate-500">{task.assignedToName} / Due {formatDate(task.deadline, "not set")}</p></div><div className="min-w-32"><div className="flex items-center justify-between text-xs font-bold text-slate-500"><span>Progress</span><span>{task.aiProgress || 0}%</span></div><div className="mt-2 h-1.5 overflow-hidden rounded-full bg-slate-100"><div className="h-full rounded-full bg-violet-600" style={{ width: `${task.aiProgress || 0}%` }} /></div></div></div></Link>)}</div>}
-              </section>
+                </section>
+
+                <section className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
+                  <div className="border-b border-slate-200 px-5 py-4">
+                    <h2 className="text-base font-bold text-slate-950">Project timeline</h2>
+                    <p className="mt-1 text-sm text-slate-500">Ownership, scope, schedule, and lifecycle changes.</p>
+                  </div>
+                  <WorkActivityTimeline activity={activity} emptyMessage="No project activity has been recorded yet." />
+                </section>
+              </div>
 
               <aside className="rounded-lg border border-slate-200 bg-white shadow-sm">
                 <div className="border-b border-slate-200 px-5 py-4"><h2 className="text-base font-bold text-slate-950">Project information</h2></div>

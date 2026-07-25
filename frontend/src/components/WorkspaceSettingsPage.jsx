@@ -12,8 +12,11 @@ import {
   FiUsers,
   FiX,
 } from "react-icons/fi";
+import { useLocation } from "react-router-dom";
 import Alert from "./Alert";
 import AppShell from "./AppShell";
+import BrowserNotificationSettings from "./BrowserNotificationSettings";
+import SettingsNavigation from "./SettingsNavigation";
 import { api, formatApiError } from "../context/api";
 import { useUser } from "../context/UserContext";
 
@@ -52,12 +55,14 @@ const initialForm = {
 };
 
 const WorkspaceSettingsPage = () => {
-  const { setUser } = useUser();
+  const location = useLocation();
+  const { setUser, user } = useUser();
+  const canManageWorkspace = Boolean(user?.permissions?.canManageSettings);
   const [form, setForm] = useState(initialForm);
   const [organization, setOrganization] = useState(null);
   const [usage, setUsage] = useState(null);
   const [department, setDepartment] = useState("");
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(canManageWorkspace);
   const [saving, setSaving] = useState(false);
   const [notice, setNotice] = useState({ message: "", type: "info" });
 
@@ -80,6 +85,10 @@ const WorkspaceSettingsPage = () => {
   };
 
   const loadSettings = useCallback(async () => {
+    if (!canManageWorkspace) {
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     setNotice({ message: "", type: "info" });
     try {
@@ -89,11 +98,19 @@ const WorkspaceSettingsPage = () => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [canManageWorkspace]);
 
   useEffect(() => {
     loadSettings();
   }, [loadSettings]);
+
+  useEffect(() => {
+    if (!location.hash) return;
+    const target = window.setTimeout(() => {
+      document.getElementById(location.hash.slice(1))?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 0);
+    return () => window.clearTimeout(target);
+  }, [loading, location.hash]);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -137,8 +154,12 @@ const WorkspaceSettingsPage = () => {
   };
 
   return (
-    <AppShell title="Workspace settings" subtitle="Configure organization identity, operating hours, timezone, and department structure.">
-      <form className="space-y-6" onSubmit={saveSettings}>
+    <AppShell title="Settings" subtitle="Manage your account preferences, workspace configuration, people, and governance.">
+      <div className="grid items-start gap-5 lg:grid-cols-[240px_minmax(0,1fr)]">
+        <SettingsNavigation />
+        <div className="space-y-6">
+          {canManageWorkspace && (
+            <form className="space-y-6 scroll-mt-28" id="workspace" onSubmit={saveSettings}>
         <div className="flex flex-col gap-3 border-b border-slate-200 pb-5 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-3"><span className="flex h-10 w-10 items-center justify-center rounded-lg bg-violet-100 text-violet-700"><FiSettings className="h-5 w-5" /></span><div><p className="text-sm font-bold text-slate-900">Administration</p><p className="text-xs text-slate-500">Changes apply across reports, attendance, projects, and users.</p></div></div>
           <div className="flex gap-2"><button aria-label="Reload workspace settings" className="flex h-10 w-10 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 transition hover:bg-slate-50" onClick={loadSettings} title="Reload settings" type="button"><FiRefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} /></button><button className="inline-flex h-10 items-center gap-2 rounded-lg bg-violet-600 px-4 text-sm font-bold text-white transition hover:bg-violet-700 disabled:bg-slate-300" disabled={loading || saving} type="submit"><FiSave className="h-4 w-4" />{saving ? "Saving..." : "Save settings"}</button></div>
@@ -178,7 +199,11 @@ const WorkspaceSettingsPage = () => {
             </aside>
           </div>
         ) : null}
-      </form>
+            </form>
+          )}
+          <BrowserNotificationSettings />
+        </div>
+      </div>
     </AppShell>
   );
 };

@@ -10,6 +10,8 @@ StaffFlow is a company workspace for small teams that need projects, tasks, hour
 - **Account permissions:** Role defaults can be customized per workspace account and are enforced by the API.
 - **User management:** Authorized workspace admins create logins, roles, designations, departments, and account status.
 - **Project delivery:** Projects include ownership, priority, objective, department, stakeholder, estimates, tags, and delivery dates.
+- **Task workflow:** Assignees can move work through its lifecycle, mark it complete, and log delivery effort.
+- **Change timelines:** Task and project pages show who changed ownership, scope, schedule, status, or estimates with before/after values.
 - **Notifications:** Assignments and task/project activity appear in-app and can be shown as browser/Windows alerts.
 - **Reports:** Authorized roles can review delivery trends, attendance, workload, and operational risk.
 - **Workspace administration:** Super admins can maintain work hours, timezone, departments, and organization identity.
@@ -54,4 +56,4 @@ Set `VITE_API_URL` when the API is not running at `http://localhost:4000/api`.
 
 For this deployment, the Firebase authorized-domain entry must be the hostname only: `ahsanfyp.netlify.app`. Vercel must allow the exact origin `https://ahsanfyp.netlify.app` through `CORS_ORIGIN`.
 
-Browser notifications require HTTPS and explicit permission from the user. The current implementation displays desktop alerts while StaffFlow is open; background push would additionally require a push service and service worker.
+Browser notifications require HTTPS and explicit permission from the user. A service worker displays native alerts while StaffFlow is open, including when its tab is in the background. Alerts after every StaffFlow tab has been closed would additionally require a push subscription service such as Firebase Cloud Messaging.

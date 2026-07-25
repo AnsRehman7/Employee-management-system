@@ -13,6 +13,7 @@ import {
   FiUser,
   FiUsers,
 } from "react-icons/fi";
+import { useLocation } from "react-router-dom";
 import Alert from "./Alert";
 import AppShell from "./AppShell";
 import { api, formatApiError } from "../context/api";
@@ -37,6 +38,7 @@ const initialsFor = (name = "") =>
     .join("") || "SF";
 
 const ProfilePage = () => {
+  const location = useLocation();
   const { setUser, user } = useUser();
   const { auth, formatFirebaseError, linkGoogleAccount, sendResetPassword } = useFirebase();
   const [profileForm, setProfileForm] = useState({
@@ -101,6 +103,14 @@ const ProfilePage = () => {
     // The selected account is preserved manually after refresh.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [canManageAccess]);
+
+  useEffect(() => {
+    if (!location.hash) return;
+    const target = window.setTimeout(() => {
+      document.getElementById(location.hash.slice(1))?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 0);
+    return () => window.clearTimeout(target);
+  }, [loadingAccess, location.hash]);
 
   const handleProfileChange = (event) => {
     setProfileForm((current) => ({ ...current, [event.target.name]: event.target.value }));
@@ -230,7 +240,7 @@ const ProfilePage = () => {
         </section>
 
         {canManageAccess && (
-          <section className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
+          <section className="scroll-mt-28 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm" id="access-control">
             <div className="flex flex-col gap-3 border-b border-slate-200 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex items-center gap-3"><span className="flex h-9 w-9 items-center justify-center rounded-lg bg-violet-100 text-violet-700"><FiShield className="h-4 w-4" /></span><div><h2 className="text-base font-bold text-slate-950">Access control</h2><p className="text-sm text-slate-500">Role defaults with account-specific overrides.</p></div></div>
               <button aria-label="Refresh access control" className="flex h-10 w-10 items-center justify-center rounded-lg border border-slate-200 text-slate-600 transition hover:bg-slate-50" onClick={loadAccessControl} title="Refresh access control" type="button"><FiRefreshCw className={`h-4 w-4 ${loadingAccess ? "animate-spin" : ""}`} /></button>

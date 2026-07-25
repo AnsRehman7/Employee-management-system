@@ -4,17 +4,14 @@ import {
   FiBarChart2,
   FiCheckSquare,
   FiClock,
-  FiFileText,
   FiGrid,
   FiLogOut,
   FiPlus,
   FiSearch,
   FiSettings,
   FiShield,
-  FiUser,
-  FiUsers,
 } from "react-icons/fi";
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import Alert from "./Alert";
 import NotificationCenter from "./NotificationCenter";
 import { useFirebase } from "../context/firebase";
@@ -33,8 +30,17 @@ const formatRole = (role = "employee") =>
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
     .join(" ");
 
+const initialsFor = (name = "") =>
+  name
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase())
+    .join("") || "SF";
+
 const AppShell = ({ children, subtitle = "", title = "Workspace" }) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useUser();
   const { formatFirebaseError, logout } = useFirebase();
   const [isSigningOut, setIsSigningOut] = useState(false);
@@ -80,30 +86,6 @@ const AppShell = ({ children, subtitle = "", title = "Workspace" }) => {
           section: "People and time",
           to: "/attendance",
         },
-        user?.permissions?.canViewUsers && {
-          icon: <FiUsers className="h-4 w-4" />,
-          label: "Users",
-          section: "People and time",
-          to: "/users",
-        },
-        user?.permissions?.canViewAudit && {
-          icon: <FiFileText className="h-4 w-4" />,
-          label: "Audit log",
-          section: "Administration",
-          to: "/audit",
-        },
-        user?.permissions?.canManageSettings && {
-          icon: <FiSettings className="h-4 w-4" />,
-          label: "Settings",
-          section: "Administration",
-          to: "/settings",
-        },
-        user && {
-          icon: <FiUser className="h-4 w-4" />,
-          label: "Profile",
-          section: "Account",
-          to: "/profile",
-        },
       ].filter(Boolean),
     [user]
   );
@@ -136,6 +118,11 @@ const AppShell = ({ children, subtitle = "", title = "Workspace" }) => {
   const workspaceName = user?.organization?.name || "StaffFlow";
   const userName = user?.name || "Team member";
   const homePath = dashboardForUser(user);
+  const settingsAreaActive =
+    location.pathname === "/settings" ||
+    location.pathname === "/audit" ||
+    location.pathname === "/users" ||
+    location.pathname.startsWith("/users/");
 
   const renderNavLink = ({ icon, label, to }, compact = false) => (
     <NavLink
@@ -233,15 +220,34 @@ const AppShell = ({ children, subtitle = "", title = "Workspace" }) => {
                     <FiPlus className="h-4 w-4" />
                   </button>
                 )}
+                <NavLink
+                  aria-label="Settings"
+                  className={({ isActive }) =>
+                    `flex h-10 w-10 items-center justify-center rounded-lg border transition ${
+                      isActive || settingsAreaActive
+                        ? "border-violet-200 bg-violet-50 text-violet-700"
+                        : "border-slate-200 bg-white text-slate-600 hover:bg-violet-50 hover:text-violet-700"
+                    }`
+                  }
+                  title="Settings"
+                  to="/settings"
+                >
+                  <FiSettings className="h-4 w-4" />
+                </NavLink>
                 <NotificationCenter />
-                <NavLink className="flex items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 px-2 py-2 transition hover:border-violet-200 hover:bg-violet-50 sm:px-3" to="/profile">
-                  <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-white text-slate-700 ring-1 ring-slate-200">
-                    <FiUser className="h-4 w-4" />
-                  </span>
-                  <div className="hidden min-w-0 sm:block">
-                    <p className="max-w-44 truncate text-sm font-bold text-slate-950">{userName}</p>
-                    <p className="text-xs font-semibold uppercase text-slate-500">{formatRole(user?.role)}</p>
-                  </div>
+                <NavLink
+                  aria-label="Profile"
+                  className={({ isActive }) =>
+                    `flex h-10 w-10 items-center justify-center rounded-lg border text-xs font-bold transition ${
+                      isActive
+                        ? "border-violet-300 bg-violet-600 text-white"
+                        : "border-cyan-200 bg-cyan-50 text-cyan-800 hover:border-violet-300 hover:bg-violet-50 hover:text-violet-700"
+                    }`
+                  }
+                  title={`${userName} / ${formatRole(user?.role)}`}
+                  to="/profile"
+                >
+                  {initialsFor(userName)}
                 </NavLink>
               </div>
             </div>

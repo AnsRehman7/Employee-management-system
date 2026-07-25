@@ -217,7 +217,7 @@ function App() {
         <Route
           path="/settings"
           element={
-            <RequireAuth permission="settings.manage">
+            <RequireAuth allowedRoles={authenticatedRoles}>
               <WorkspaceSettingsPage />
             </RequireAuth>
           }
