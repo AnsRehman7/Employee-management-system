@@ -17,6 +17,7 @@ import {
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import Alert from "../../Alert";
 import AppShell from "../../AppShell";
+import CustomFieldsForm from "../../CustomFieldsForm";
 import { api, formatApiError } from "../../../context/api";
 import { useUser } from "../../../context/UserContext";
 import WorkActivityTimeline from "./WorkActivityTimeline";
@@ -37,6 +38,7 @@ const textareaClass =
 const taskToForm = (task) => ({
   assignedToId: task.assignedToId || "",
   category: task.category || "",
+  customFields: task.customFields || {},
   deadline: task.deadline || "",
   description: task.description || "",
   estimatedHours: task.estimatedHours ?? "",
@@ -56,6 +58,7 @@ const TaskDetailPage = () => {
   const [activity, setActivity] = useState([]);
   const [employees, setEmployees] = useState([]);
   const [projects, setProjects] = useState([]);
+  const [moduleDefinition, setModuleDefinition] = useState(null);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [editing, setEditing] = useState(false);
@@ -72,6 +75,12 @@ const TaskDetailPage = () => {
   const canUpdateWork = canEditTasks || task?.assignedToId === user?.id;
   const canLogWork = Boolean(task?.assignedToId) && canUpdateWork;
   const isCompleted = task?.status === "completed";
+  const fieldVisible = (key) => {
+    const field = moduleDefinition?.fields.find((item) => item.systemFieldKey === key);
+    return !field?.archived && field?.isVisible !== false;
+  };
+  const fieldRequired = (key) =>
+    Boolean(moduleDefinition?.fields.find((field) => field.systemFieldKey === key)?.isRequired);
   const effortProgress = useMemo(() => {
     if (!task?.estimatedHours) return 0;
     return Math.min(100, Math.round(((task.totalLoggedHours || 0) / task.estimatedHours) * 100));
@@ -81,11 +90,13 @@ const TaskDetailPage = () => {
     async ({ showLoading = false } = {}) => {
       if (showLoading) setLoading(true);
       try {
-        const [{ task: taskDetail }, { activity: taskActivity }] = await Promise.all([
+        const [{ task: taskDetail }, { activity: taskActivity }, { module }] = await Promise.all([
           api.getTask(taskId),
           api.getTaskActivity(taskId),
+          api.getCustomModule("tasks"),
         ]);
         setTask(taskDetail);
+        setModuleDefinition(module);
         setActivity(taskActivity || []);
         setEditForm(taskToForm(taskDetail));
         setNotice((current) =>
@@ -306,22 +317,29 @@ const TaskDetailPage = () => {
                 <span className="text-sm font-bold text-slate-700">Category</span>
                 <input className={fieldClass} onChange={(event) => setEditForm((current) => ({ ...current, category: event.target.value }))} required value={editForm.category} />
               </label>
-              <label className="block">
+              {fieldVisible("deadline") && <label className="block">
                 <span className="text-sm font-bold text-slate-700">Due date</span>
-                <input className={fieldClass} onChange={(event) => setEditForm((current) => ({ ...current, deadline: event.target.value }))} type="date" value={editForm.deadline} />
-              </label>
-              <label className="block">
+                <input className={fieldClass} onChange={(event) => setEditForm((current) => ({ ...current, deadline: event.target.value }))} required={fieldRequired("deadline")} type="date" value={editForm.deadline} />
+              </label>}
+              {fieldVisible("estimatedHours") && <label className="block">
                 <span className="text-sm font-bold text-slate-700">Estimated effort (hours)</span>
-                <input className={fieldClass} min="0" onChange={(event) => setEditForm((current) => ({ ...current, estimatedHours: event.target.value }))} step="0.25" type="number" value={editForm.estimatedHours} />
-              </label>
+                <input className={fieldClass} min="0" onChange={(event) => setEditForm((current) => ({ ...current, estimatedHours: event.target.value }))} required={fieldRequired("estimatedHours")} step="0.25" type="number" value={editForm.estimatedHours} />
+              </label>}
               <label className="block lg:col-span-2 xl:col-span-3">
                 <span className="text-sm font-bold text-slate-700">Description</span>
                 <textarea className={textareaClass} onChange={(event) => setEditForm((current) => ({ ...current, description: event.target.value }))} required rows="7" value={editForm.description} />
               </label>
-              <label className="block lg:col-span-2 xl:col-span-3">
+              {fieldVisible("successCriteria") && <label className="block lg:col-span-2 xl:col-span-3">
                 <span className="text-sm font-bold text-slate-700">Success criteria</span>
-                <textarea className={textareaClass} onChange={(event) => setEditForm((current) => ({ ...current, successCriteria: event.target.value }))} rows="5" value={editForm.successCriteria} />
-              </label>
+                <textarea className={textareaClass} onChange={(event) => setEditForm((current) => ({ ...current, successCriteria: event.target.value }))} required={fieldRequired("successCriteria")} rows="5" value={editForm.successCriteria} />
+              </label>}
+              <CustomFieldsForm
+                embedded
+                fields={moduleDefinition?.fields}
+                members={employees}
+                onChange={(customFields) => setEditForm((current) => ({ ...current, customFields }))}
+                values={editForm.customFields}
+              />
             </div>
           </form>
         ) : (
@@ -397,6 +415,14 @@ const TaskDetailPage = () => {
                     </div>
                   </div>
                 </section>
+
+                <CustomFieldsForm
+                  disabled
+                  fields={moduleDefinition?.fields}
+                  onChange={() => {}}
+                  title="Additional information"
+                  values={task.customFields || {}}
+                />
 
                 <section className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
                   <div className="border-b border-slate-200 px-5 py-4">

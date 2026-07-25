@@ -1,9 +1,10 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   FiBriefcase,
   FiBarChart2,
   FiCheckSquare,
   FiClock,
+  FiDatabase,
   FiGrid,
   FiLogOut,
   FiPlus,
@@ -14,6 +15,7 @@ import {
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import Alert from "./Alert";
 import NotificationCenter from "./NotificationCenter";
+import { api } from "../context/api";
 import { useFirebase } from "../context/firebase";
 import { useUser } from "../context/UserContext";
 
@@ -46,6 +48,30 @@ const AppShell = ({ children, subtitle = "", title = "Workspace" }) => {
   const [isSigningOut, setIsSigningOut] = useState(false);
   const [error, setError] = useState("");
   const [globalSearch, setGlobalSearch] = useState("");
+  const [customModules, setCustomModules] = useState([]);
+
+  useEffect(() => {
+    if (!user?.id) {
+      setCustomModules([]);
+      return;
+    }
+    let active = true;
+    const loadModules = () =>
+      api
+        .getAvailableModules()
+        .then(({ modules }) => {
+          if (active) setCustomModules(modules.filter((module) => module.kind === "custom"));
+        })
+        .catch(() => {
+          if (active) setCustomModules([]);
+        });
+    loadModules();
+    window.addEventListener("staffflow:modules-changed", loadModules);
+    return () => {
+      active = false;
+      window.removeEventListener("staffflow:modules-changed", loadModules);
+    };
+  }, [user?.id]);
 
   const navItems = useMemo(
     () =>
@@ -86,8 +112,14 @@ const AppShell = ({ children, subtitle = "", title = "Workspace" }) => {
           section: "People and time",
           to: "/attendance",
         },
+        ...customModules.map((module) => ({
+          icon: <FiDatabase className="h-4 w-4" />,
+          label: module.pluralName,
+          section: "Custom modules",
+          to: `/modules/${module.key}`,
+        })),
       ].filter(Boolean),
-    [user]
+    [customModules, user]
   );
 
   const navGroups = useMemo(
@@ -119,7 +151,7 @@ const AppShell = ({ children, subtitle = "", title = "Workspace" }) => {
   const userName = user?.name || "Team member";
   const homePath = dashboardForUser(user);
   const settingsAreaActive =
-    location.pathname === "/settings" ||
+    location.pathname.startsWith("/settings") ||
     location.pathname === "/audit" ||
     location.pathname === "/users" ||
     location.pathname.startsWith("/users/");

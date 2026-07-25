@@ -5,6 +5,7 @@ import {
   FiPlus,
   FiSettings,
   FiShield,
+  FiSliders,
   FiUser,
   FiUsers,
 } from "react-icons/fi";
@@ -23,8 +24,19 @@ const SettingsNavigation = () => {
       ],
       label: "Account",
     },
-    user?.permissions?.canManageSettings && {
-      items: [{ icon: FiSettings, label: "Workspace", to: "/settings#workspace" }],
+    (user?.permissions?.canManageSettings || user?.permissions?.canManageCustomization) && {
+      items: [
+        user?.permissions?.canManageSettings && {
+          icon: FiSettings,
+          label: "Workspace",
+          to: "/settings#workspace",
+        },
+        user?.permissions?.canManageCustomization && {
+          icon: FiSliders,
+          label: "Customization",
+          to: "/settings/customization",
+        },
+      ].filter(Boolean),
       label: "Workspace",
     },
     (user?.permissions?.canViewUsers || user?.permissions?.canManagePermissions) && {

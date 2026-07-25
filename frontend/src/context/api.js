@@ -91,16 +91,30 @@ export const formatApiError = (error) => {
 
 export const api = {
   createAttendanceScan: (payload) => request("/attendance/scans", { body: payload, method: "POST" }),
+  createCustomField: (moduleId, payload) =>
+    request(`/customization/modules/${moduleId}/fields`, { body: payload, method: "POST" }),
+  createCustomModule: (payload) => request("/customization/modules", { body: payload, method: "POST" }),
+  createCustomRecord: (moduleKey, values) =>
+    request(`/modules/${moduleKey}/records`, { body: { values }, method: "POST" }),
   createProject: (payload) => request("/projects", { body: payload, method: "POST", timeout: 60_000 }),
   createTask: (payload) => request("/tasks", { body: payload, method: "POST" }),
   createTimeLog: (taskId, payload) => request(`/tasks/${taskId}/time-logs`, { body: payload, method: "POST" }),
   createUser: (payload) => request("/users", { body: payload, method: "POST" }),
   deleteProject: (projectId) => request(`/projects/${projectId}`, { method: "DELETE" }),
+  deleteCustomField: (moduleId, fieldId) =>
+    request(`/customization/modules/${moduleId}/fields/${fieldId}`, { method: "DELETE" }),
+  deleteCustomRecord: (moduleKey, recordId) =>
+    request(`/modules/${moduleKey}/records/${recordId}`, { method: "DELETE" }),
   deleteTask: (taskId) => request(`/tasks/${taskId}`, { method: "DELETE" }),
   deleteUser: (userId) => request(`/users/${userId}`, { method: "DELETE" }),
   getAttendanceScans: (date) => request(`/attendance/scans${date ? `?date=${encodeURIComponent(date)}` : ""}`),
   getCurrentUser: () => request("/auth/me"),
   getAuditLogs: (filters = {}) => request(withQuery("/audit", filters)),
+  getAvailableModules: () => request("/modules"),
+  getCustomizationModules: () => request("/customization/modules"),
+  getCustomModule: (moduleKey) => request(`/modules/${moduleKey}`),
+  getCustomRecord: (moduleKey, recordId) => request(`/modules/${moduleKey}/records/${recordId}`),
+  getCustomRecords: (moduleKey) => request(`/modules/${moduleKey}/records`),
   getEmployees: () => request("/users/employees"),
   getProject: (projectId) => request(`/projects/${projectId}`),
   getProjectActivity: (projectId) => request(`/projects/${projectId}/activity`),
@@ -119,6 +133,12 @@ export const api = {
   markAllNotificationsRead: () => request("/notifications/read-all", { method: "PATCH" }),
   markNotificationRead: (notificationId) => request(`/notifications/${notificationId}/read`, { method: "PATCH" }),
   updateCurrentProfile: (payload) => request("/auth/me", { body: payload, method: "PATCH" }),
+  updateCustomField: (moduleId, fieldId, payload) =>
+    request(`/customization/modules/${moduleId}/fields/${fieldId}`, { body: payload, method: "PATCH" }),
+  updateCustomModule: (moduleId, payload) =>
+    request(`/customization/modules/${moduleId}`, { body: payload, method: "PATCH" }),
+  updateCustomRecord: (moduleKey, recordId, values) =>
+    request(`/modules/${moduleKey}/records/${recordId}`, { body: { values }, method: "PATCH" }),
   updateProject: (projectId, payload) => request(`/projects/${projectId}`, { body: payload, method: "PATCH" }),
   updateTask: (taskId, payload) => request(`/tasks/${taskId}`, { body: payload, method: "PATCH" }),
   updateTaskStatus: (taskId, status) =>

@@ -11,6 +11,9 @@ import { useUser } from "./context/UserContext";
 const AdminDashboard = lazy(() => import("./components/dashboard/AdminDashboard/AdminDashboard"));
 const AttendancePortal = lazy(() => import("./components/dashboard/AttendancePortal"));
 const AuditLogPage = lazy(() => import("./components/AuditLogPage"));
+const CustomizationPage = lazy(() => import("./components/CustomizationPage"));
+const CustomModuleRecordPage = lazy(() => import("./components/CustomModuleRecordPage"));
+const CustomModuleRecordsPage = lazy(() => import("./components/CustomModuleRecordsPage"));
 const Employe = lazy(() => import("./components/dashboard/employe/Employe"));
 const ProfilePage = lazy(() => import("./components/ProfilePage"));
 const ProjectCreatePage = lazy(() => import("./components/dashboard/AdminDashboard/ProjectCreatePage"));
@@ -219,6 +222,38 @@ function App() {
           element={
             <RequireAuth allowedRoles={authenticatedRoles}>
               <WorkspaceSettingsPage />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/settings/customization"
+          element={
+            <RequireAuth permission="customization.manage">
+              <CustomizationPage />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/modules/:moduleKey/new"
+          element={
+            <RequireAuth allowedRoles={authenticatedRoles}>
+              <CustomModuleRecordPage create />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/modules/:moduleKey/:recordId"
+          element={
+            <RequireAuth allowedRoles={authenticatedRoles}>
+              <CustomModuleRecordPage />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/modules/:moduleKey"
+          element={
+            <RequireAuth allowedRoles={authenticatedRoles}>
+              <CustomModuleRecordsPage />
             </RequireAuth>
           }
         />

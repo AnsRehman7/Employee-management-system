@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   FiArrowLeft,
   FiBriefcase,
@@ -13,12 +13,14 @@ import {
 import { Link, useNavigate } from "react-router-dom";
 import Alert from "../../Alert";
 import AppShell from "../../AppShell";
+import CustomFieldsForm from "../../CustomFieldsForm";
 import { api, formatApiError } from "../../../context/api";
 import { useUser } from "../../../context/UserContext";
 import { getAssignableRoleOptions } from "./userUtils";
 
 const initialForm = {
   contact: "",
+  customFields: {},
   department: "",
   designation: "",
   email: "",
@@ -36,12 +38,31 @@ const UserCreatePage = () => {
   const [formData, setFormData] = useState(initialForm);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [moduleDefinition, setModuleDefinition] = useState(null);
   const roleOptions = useMemo(() => getAssignableRoleOptions(currentUser?.role), [currentUser?.role]);
+
+  useEffect(() => {
+    let active = true;
+    api
+      .getCustomModule("users")
+      .then(({ module }) => {
+        if (active) setModuleDefinition(module);
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
     setFormData((current) => ({ ...current, [name]: value }));
   };
+  const fieldVisible = (key) =>
+    !moduleDefinition?.fields.find((field) => field.systemFieldKey === key)?.archived &&
+    moduleDefinition?.fields.find((field) => field.systemFieldKey === key)?.isVisible !== false;
+  const fieldRequired = (key) =>
+    Boolean(moduleDefinition?.fields.find((field) => field.systemFieldKey === key)?.isRequired);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -71,7 +92,8 @@ const UserCreatePage = () => {
         <Alert message={error} type="error" />
 
         <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_380px]">
-          <section className="rounded-lg border border-slate-200 bg-white shadow-sm">
+          <div className="space-y-5">
+            <section className="rounded-lg border border-slate-200 bg-white shadow-sm">
             <div className="border-b border-slate-200 px-5 py-4">
               <div className="flex items-center gap-3"><span className="flex h-9 w-9 items-center justify-center rounded-lg bg-cyan-100 text-cyan-700"><FiUser className="h-4 w-4" /></span><div><h2 className="text-base font-bold text-slate-950">Identity and profile</h2><p className="text-sm text-slate-500">The information shown across assignments, attendance, and reports.</p></div></div>
             </div>
@@ -82,12 +104,18 @@ const UserCreatePage = () => {
                 <label className="block"><span className="flex items-center gap-2 text-sm font-bold text-slate-700"><FiLock className="h-4 w-4 text-slate-400" />Temporary password</span><input className={fieldClass} maxLength="128" minLength="6" name="password" onChange={handleChange} placeholder="Minimum 6 characters" required type="password" value={formData.password} /><span className="mt-1.5 block text-xs text-slate-400">The member can reset this password from the sign-in page.</span></label>
               </div>
               <div className="grid gap-5 md:grid-cols-2">
-                <label className="block"><span className="flex items-center gap-2 text-sm font-bold text-slate-700"><FiBriefcase className="h-4 w-4 text-slate-400" />Designation</span><input className={fieldClass} maxLength="120" name="designation" onChange={handleChange} placeholder="Operations Manager" value={formData.designation} /></label>
-                <label className="block"><span className="flex items-center gap-2 text-sm font-bold text-slate-700"><FiLayers className="h-4 w-4 text-slate-400" />Department</span><input className={fieldClass} maxLength="120" name="department" onChange={handleChange} placeholder="Operations" value={formData.department} /></label>
+                {fieldVisible("designation") && <label className="block"><span className="flex items-center gap-2 text-sm font-bold text-slate-700"><FiBriefcase className="h-4 w-4 text-slate-400" />Designation</span><input className={fieldClass} maxLength="120" name="designation" onChange={handleChange} placeholder="Operations Manager" required={fieldRequired("designation")} value={formData.designation} /></label>}
+                {fieldVisible("department") && <label className="block"><span className="flex items-center gap-2 text-sm font-bold text-slate-700"><FiLayers className="h-4 w-4 text-slate-400" />Department</span><input className={fieldClass} maxLength="120" name="department" onChange={handleChange} placeholder="Operations" required={fieldRequired("department")} value={formData.department} /></label>}
               </div>
-              <label className="block"><span className="flex items-center gap-2 text-sm font-bold text-slate-700"><FiPhone className="h-4 w-4 text-slate-400" />Contact number</span><input className={fieldClass} maxLength="40" name="contact" onChange={handleChange} placeholder="+92 300 1234567" type="tel" value={formData.contact} /></label>
+              {fieldVisible("contact") && <label className="block"><span className="flex items-center gap-2 text-sm font-bold text-slate-700"><FiPhone className="h-4 w-4 text-slate-400" />Contact number</span><input className={fieldClass} maxLength="40" name="contact" onChange={handleChange} placeholder="+92 300 1234567" required={fieldRequired("contact")} type="tel" value={formData.contact} /></label>}
             </div>
-          </section>
+            </section>
+            <CustomFieldsForm
+              fields={moduleDefinition?.fields}
+              onChange={(customFields) => setFormData((current) => ({ ...current, customFields }))}
+              values={formData.customFields}
+            />
+          </div>
 
           <section className="rounded-lg border border-slate-200 bg-white shadow-sm">
             <div className="border-b border-slate-200 px-5 py-4"><div className="flex items-center gap-3"><span className="flex h-9 w-9 items-center justify-center rounded-lg bg-violet-100 text-violet-700"><FiShield className="h-4 w-4" /></span><div><h2 className="text-base font-bold text-slate-950">Access</h2><p className="text-sm text-slate-500">Choose the member's workspace permissions.</p></div></div></div>

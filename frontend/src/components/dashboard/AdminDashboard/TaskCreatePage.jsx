@@ -14,12 +14,14 @@ import {
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import Alert from "../../Alert";
 import AppShell from "../../AppShell";
+import CustomFieldsForm from "../../CustomFieldsForm";
 import { api, formatApiError } from "../../../context/api";
 import { TASK_STATUS_OPTIONS } from "./workUtils";
 
 const initialForm = {
   assignedToId: "",
   category: "",
+  customFields: {},
   deadline: "",
   description: "",
   estimatedHours: "",
@@ -44,15 +46,17 @@ const TaskCreatePage = () => {
   const [saving, setSaving] = useState(false);
   const [notice, setNotice] = useState("");
   const [formData, setFormData] = useState(initialForm);
+  const [moduleDefinition, setModuleDefinition] = useState(null);
 
   useEffect(() => {
     let active = true;
 
     const loadSetup = async () => {
       try {
-        const [{ employees: employeeList }, { projects: projectList }] = await Promise.all([
+        const [{ employees: employeeList }, { projects: projectList }, { module }] = await Promise.all([
           api.getEmployees(),
           api.getProjects(),
+          api.getCustomModule("tasks"),
         ]);
         if (!active) return;
 
@@ -60,6 +64,7 @@ const TaskCreatePage = () => {
         const requestedProject = searchParams.get("project");
         setEmployees(employeeList);
         setProjects(availableProjects);
+        setModuleDefinition(module);
         setFormData((current) => ({
           ...current,
           projectId: availableProjects.some((project) => project.id === requestedProject)
@@ -83,6 +88,11 @@ const TaskCreatePage = () => {
     const { name, value } = event.target;
     setFormData((current) => ({ ...current, [name]: value }));
   };
+  const fieldVisible = (key) =>
+    !moduleDefinition?.fields.find((field) => field.systemFieldKey === key)?.archived &&
+    moduleDefinition?.fields.find((field) => field.systemFieldKey === key)?.isVisible !== false;
+  const fieldRequired = (key) =>
+    Boolean(moduleDefinition?.fields.find((field) => field.systemFieldKey === key)?.isRequired);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -119,7 +129,8 @@ const TaskCreatePage = () => {
         <Alert message={notice} type="error" />
 
         <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_380px]">
-          <section className="rounded-lg border border-slate-200 bg-white shadow-sm">
+          <div className="space-y-5">
+            <section className="rounded-lg border border-slate-200 bg-white shadow-sm">
             <div className="border-b border-slate-200 px-5 py-4">
               <div className="flex items-center gap-3">
                 <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-violet-100 text-violet-700"><FiFileText className="h-4 w-4" /></span>
@@ -139,13 +150,20 @@ const TaskCreatePage = () => {
                 <textarea className={textareaClass} name="description" onChange={handleChange} placeholder="Add the background, scope, dependencies, and expected output." required rows="8" value={formData.description} />
               </label>
 
-              <label className="block">
+              {fieldVisible("successCriteria") && <label className="block">
                 <span className="flex items-center gap-2 text-sm font-bold text-slate-700"><FiCheckSquare className="h-4 w-4 text-emerald-600" />Success criteria</span>
-                <textarea className={textareaClass} name="successCriteria" onChange={handleChange} placeholder="List the conditions that must be true before this task can be marked complete." rows="5" value={formData.successCriteria} />
+                <textarea className={textareaClass} name="successCriteria" onChange={handleChange} placeholder="List the conditions that must be true before this task can be marked complete." required={fieldRequired("successCriteria")} rows="5" value={formData.successCriteria} />
                 <span className="mt-1.5 block text-xs text-slate-400">Optional, but recommended for reviewable work.</span>
-              </label>
+              </label>}
             </div>
-          </section>
+            </section>
+            <CustomFieldsForm
+              fields={moduleDefinition?.fields}
+              members={employees}
+              onChange={(customFields) => setFormData((current) => ({ ...current, customFields }))}
+              values={formData.customFields}
+            />
+          </div>
 
           <section className="rounded-lg border border-slate-200 bg-white shadow-sm">
             <div className="border-b border-slate-200 px-5 py-4"><h2 className="text-base font-bold text-slate-950">Planning</h2><p className="mt-1 text-sm text-slate-500">Set ownership and delivery controls.</p></div>
@@ -184,13 +202,13 @@ const TaskCreatePage = () => {
                 <datalist id="task-categories"><option value="Design" /><option value="Development" /><option value="Finance" /><option value="HR" /><option value="Operations" /><option value="Sales" /></datalist>
               </label>
 
-              <div className="grid grid-cols-2 gap-3">
-                <label className="block"><span className="flex items-center gap-2 text-sm font-bold text-slate-700"><FiCalendar className="h-4 w-4 text-slate-400" />Due date</span><input className={fieldClass} name="deadline" onChange={handleChange} type="date" value={formData.deadline} /></label>
-                <label className="block">
+              {(fieldVisible("deadline") || fieldVisible("estimatedHours")) && <div className="grid grid-cols-2 gap-3">
+                {fieldVisible("deadline") && <label className="block"><span className="flex items-center gap-2 text-sm font-bold text-slate-700"><FiCalendar className="h-4 w-4 text-slate-400" />Due date</span><input className={fieldClass} name="deadline" onChange={handleChange} required={fieldRequired("deadline")} type="date" value={formData.deadline} /></label>}
+                {fieldVisible("estimatedHours") && <label className="block">
                   <span className="flex items-center gap-2 text-sm font-bold text-slate-700"><FiClock className="h-4 w-4 text-slate-400" />Estimate</span>
-                  <div className="relative"><input className={`${fieldClass} pr-14`} min="0" name="estimatedHours" onChange={handleChange} placeholder="8" step="0.25" type="number" value={formData.estimatedHours} /><span className="pointer-events-none absolute bottom-3 right-3 text-xs font-bold text-slate-400">hours</span></div>
-                </label>
-              </div>
+                  <div className="relative"><input className={`${fieldClass} pr-14`} min="0" name="estimatedHours" onChange={handleChange} placeholder="8" required={fieldRequired("estimatedHours")} step="0.25" type="number" value={formData.estimatedHours} /><span className="pointer-events-none absolute bottom-3 right-3 text-xs font-bold text-slate-400">hours</span></div>
+                </label>}
+              </div>}
 
               <button className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-violet-600 px-4 text-sm font-bold text-white shadow-sm shadow-violet-200 transition hover:bg-violet-700 disabled:cursor-not-allowed disabled:bg-slate-300" disabled={saving || loadingSetup || projects.length === 0} type="submit"><FiPlus className="h-4 w-4" />{saving ? "Creating task..." : "Create task"}</button>
             </div>

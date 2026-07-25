@@ -18,6 +18,7 @@ import {
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import Alert from "../../Alert";
 import AppShell from "../../AppShell";
+import CustomFieldsForm from "../../CustomFieldsForm";
 import { api, formatApiError } from "../../../context/api";
 import { useUser } from "../../../context/UserContext";
 import WorkActivityTimeline from "./WorkActivityTimeline";
@@ -39,6 +40,7 @@ const fieldClass =
 const projectToForm = (project) => ({
   clientName: project.clientName || "",
   code: project.code || "",
+  customFields: project.customFields || {},
   department: project.department || "",
   description: project.description || "",
   dueDate: project.dueDate || "",
@@ -64,6 +66,7 @@ const ProjectDetailPage = () => {
   const [editing, setEditing] = useState(false);
   const [editForm, setEditForm] = useState(null);
   const [teamMembers, setTeamMembers] = useState([]);
+  const [moduleDefinition, setModuleDefinition] = useState(null);
   const [taskSearch, setTaskSearch] = useState("");
   const [taskStatus, setTaskStatus] = useState("all");
   const [notice, setNotice] = useState(
@@ -72,15 +75,23 @@ const ProjectDetailPage = () => {
   const canCreateTasks = Boolean(user?.permissions?.canCreateTasks);
   const canDeleteProjects = Boolean(user?.permissions?.canDeleteProjects);
   const canEditProjects = Boolean(user?.permissions?.canEditProjects);
+  const fieldVisible = (key) => {
+    const field = moduleDefinition?.fields.find((item) => item.systemFieldKey === key);
+    return !field?.archived && field?.isVisible !== false;
+  };
+  const fieldRequired = (key) =>
+    Boolean(moduleDefinition?.fields.find((field) => field.systemFieldKey === key)?.isRequired);
 
   const loadProject = useCallback(async ({ showLoading = false } = {}) => {
     if (showLoading) setLoading(true);
     try {
-      const [{ project: projectDetail }, { activity: projectActivity }] = await Promise.all([
+      const [{ project: projectDetail }, { activity: projectActivity }, { module }] = await Promise.all([
         api.getProject(projectId),
         api.getProjectActivity(projectId),
+        api.getCustomModule("projects"),
       ]);
       setProject(projectDetail);
+      setModuleDefinition(module);
       setActivity(projectActivity || []);
       setEditForm(projectToForm(projectDetail));
       setNotice((current) => (current.type === "error" ? { message: "", type: "info" } : current));
@@ -194,18 +205,25 @@ const ProjectDetailPage = () => {
             <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4"><div><h2 className="text-base font-bold text-slate-950">Edit project</h2><p className="mt-1 text-sm text-slate-500">Update scope, schedule, or lifecycle.</p></div><button className="inline-flex h-10 items-center gap-2 rounded-lg bg-violet-600 px-4 text-sm font-bold text-white disabled:bg-slate-300" disabled={busy} type="submit"><FiSave className="h-4 w-4" />{busy ? "Saving..." : "Save changes"}</button></div>
             <div className="grid gap-5 p-5 lg:grid-cols-2 xl:grid-cols-4">
               <label className="block lg:col-span-2"><span className="text-sm font-bold text-slate-700">Project name</span><input className={fieldClass} name="name" onChange={handleEditChange} required value={editForm.name} /></label>
-              <label className="block"><span className="text-sm font-bold text-slate-700">Project code</span><input className={fieldClass} maxLength="32" name="code" onChange={handleEditChange} value={editForm.code} /></label>
+              {fieldVisible("code") && <label className="block"><span className="text-sm font-bold text-slate-700">Project code</span><input className={fieldClass} maxLength="32" name="code" onChange={handleEditChange} required={fieldRequired("code")} value={editForm.code} /></label>}
               <label className="block"><span className="text-sm font-bold text-slate-700">Priority</span><select className={fieldClass} name="priority" onChange={handleEditChange} value={editForm.priority}><option value="low">Low</option><option value="normal">Normal</option><option value="high">High</option><option value="critical">Critical</option></select></label>
               <label className="block"><span className="text-sm font-bold text-slate-700">Status</span><select className={fieldClass} name="status" onChange={handleEditChange} value={editForm.status}>{PROJECT_STATUS_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select></label>
               <label className="block"><span className="text-sm font-bold text-slate-700">Owner</span><select className={fieldClass} name="ownerId" onChange={handleEditChange} value={editForm.ownerId}><option value="">Unassigned</option>{teamMembers.map((member) => <option key={member.id} value={member.id}>{member.name}</option>)}</select></label>
-              <label className="block"><span className="text-sm font-bold text-slate-700">Start date</span><input className={fieldClass} name="startDate" onChange={handleEditChange} type="date" value={editForm.startDate} /></label>
-              <label className="block"><span className="text-sm font-bold text-slate-700">Due date</span><input className={fieldClass} min={editForm.startDate || undefined} name="dueDate" onChange={handleEditChange} type="date" value={editForm.dueDate} /></label>
-              <label className="block"><span className="text-sm font-bold text-slate-700">Department</span><input className={fieldClass} name="department" onChange={handleEditChange} value={editForm.department} /></label>
-              <label className="block"><span className="text-sm font-bold text-slate-700">Client or stakeholder</span><input className={fieldClass} name="clientName" onChange={handleEditChange} value={editForm.clientName} /></label>
-              <label className="block"><span className="text-sm font-bold text-slate-700">Estimated hours</span><input className={fieldClass} min="0" name="estimatedHours" onChange={handleEditChange} step="0.25" type="number" value={editForm.estimatedHours} /></label>
-              <label className="block"><span className="text-sm font-bold text-slate-700">Tags</span><input className={fieldClass} name="tags" onChange={handleEditChange} value={editForm.tags} /></label>
-              <label className="block lg:col-span-2 xl:col-span-4"><span className="text-sm font-bold text-slate-700">Objective</span><textarea className="mt-2 w-full resize-y rounded-lg border border-slate-200 bg-slate-50 px-3.5 py-3 text-sm leading-6 text-slate-950 outline-none focus:border-violet-400 focus:bg-white focus:ring-4 focus:ring-violet-100" name="objective" onChange={handleEditChange} rows="3" value={editForm.objective} /></label>
-              <label className="block lg:col-span-2 xl:col-span-4"><span className="text-sm font-bold text-slate-700">Purpose and scope</span><textarea className="mt-2 w-full resize-y rounded-lg border border-slate-200 bg-slate-50 px-3.5 py-3 text-sm leading-6 text-slate-950 outline-none focus:border-violet-400 focus:bg-white focus:ring-4 focus:ring-violet-100" name="description" onChange={handleEditChange} rows="7" value={editForm.description} /></label>
+              {fieldVisible("startDate") && <label className="block"><span className="text-sm font-bold text-slate-700">Start date</span><input className={fieldClass} name="startDate" onChange={handleEditChange} required={fieldRequired("startDate")} type="date" value={editForm.startDate} /></label>}
+              {fieldVisible("dueDate") && <label className="block"><span className="text-sm font-bold text-slate-700">Due date</span><input className={fieldClass} min={editForm.startDate || undefined} name="dueDate" onChange={handleEditChange} required={fieldRequired("dueDate")} type="date" value={editForm.dueDate} /></label>}
+              {fieldVisible("department") && <label className="block"><span className="text-sm font-bold text-slate-700">Department</span><input className={fieldClass} name="department" onChange={handleEditChange} required={fieldRequired("department")} value={editForm.department} /></label>}
+              {fieldVisible("clientName") && <label className="block"><span className="text-sm font-bold text-slate-700">Client or stakeholder</span><input className={fieldClass} name="clientName" onChange={handleEditChange} required={fieldRequired("clientName")} value={editForm.clientName} /></label>}
+              {fieldVisible("estimatedHours") && <label className="block"><span className="text-sm font-bold text-slate-700">Estimated hours</span><input className={fieldClass} min="0" name="estimatedHours" onChange={handleEditChange} required={fieldRequired("estimatedHours")} step="0.25" type="number" value={editForm.estimatedHours} /></label>}
+              {fieldVisible("tags") && <label className="block"><span className="text-sm font-bold text-slate-700">Tags</span><input className={fieldClass} name="tags" onChange={handleEditChange} required={fieldRequired("tags")} value={editForm.tags} /></label>}
+              {fieldVisible("objective") && <label className="block lg:col-span-2 xl:col-span-4"><span className="text-sm font-bold text-slate-700">Objective</span><textarea className="mt-2 w-full resize-y rounded-lg border border-slate-200 bg-slate-50 px-3.5 py-3 text-sm leading-6 text-slate-950 outline-none focus:border-violet-400 focus:bg-white focus:ring-4 focus:ring-violet-100" name="objective" onChange={handleEditChange} required={fieldRequired("objective")} rows="3" value={editForm.objective} /></label>}
+              {fieldVisible("description") && <label className="block lg:col-span-2 xl:col-span-4"><span className="text-sm font-bold text-slate-700">Purpose and scope</span><textarea className="mt-2 w-full resize-y rounded-lg border border-slate-200 bg-slate-50 px-3.5 py-3 text-sm leading-6 text-slate-950 outline-none focus:border-violet-400 focus:bg-white focus:ring-4 focus:ring-violet-100" name="description" onChange={handleEditChange} required={fieldRequired("description")} rows="7" value={editForm.description} /></label>}
+              <CustomFieldsForm
+                embedded
+                fields={moduleDefinition?.fields}
+                members={teamMembers}
+                onChange={(customFields) => setEditForm((current) => ({ ...current, customFields }))}
+                values={editForm.customFields}
+              />
             </div>
           </form>
         ) : (
@@ -225,6 +243,13 @@ const ProjectDetailPage = () => {
               </div>
               {canEditProjects && <div className="border-t border-slate-200 bg-slate-50 px-5 py-4 sm:px-6"><div className="flex flex-col gap-3 lg:flex-row lg:items-center"><span className="text-xs font-bold text-slate-500">Project status</span><div className="flex flex-wrap gap-2">{PROJECT_STATUS_OPTIONS.map((option) => <button className={`rounded-lg border px-3 py-2 text-xs font-bold transition ${project.status === option.value ? `${PROJECT_STATUS_STYLES[option.value]} ring-2 ring-offset-1` : "border-slate-200 bg-white text-slate-600 hover:border-violet-300 hover:text-violet-700"}`} disabled={busy || project.status === option.value} key={option.value} onClick={() => handleStatusChange(option.value)} type="button">{option.label}</button>)}</div></div></div>}
             </section>
+
+            <CustomFieldsForm
+              disabled
+              fields={moduleDefinition?.fields}
+              onChange={() => {}}
+              values={project.customFields || {}}
+            />
 
             <div className="grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-slate-200 bg-slate-200 lg:grid-cols-4">
               {[["Tasks", project.taskCount, FiBriefcase], ["Completed", project.completedTaskCount, FiCheckCircle], ["Logged hours", project.totalLoggedHours.toFixed(1), FiClock], ["Due date", formatDate(project.dueDate, "Not set"), FiCalendar]].map(([label, value, Icon]) => <div className="flex min-h-20 items-center gap-3 bg-white px-4 py-3" key={label}>{createElement(Icon, { className: "h-5 w-5 shrink-0 text-violet-600" })}<div><p className="text-xl font-bold text-slate-950">{value}</p><p className="text-xs font-semibold text-slate-500">{label}</p></div></div>)}

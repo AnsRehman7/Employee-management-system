@@ -12,6 +12,7 @@ import {
 } from "react-icons/fi";
 import AppShell from "../AppShell";
 import Alert from "../Alert";
+import CustomFieldsForm from "../CustomFieldsForm";
 import { api, formatApiError } from "../../context/api";
 import { useUser } from "../../context/UserContext";
 
@@ -232,6 +233,7 @@ const AttendancePortal = () => {
   const [roster, setRoster] = useState(sampleRoster);
   const [savingScan, setSavingScan] = useState(false);
   const [scans, setScans] = useState(() => createSampleScans(today));
+  const [moduleDefinition, setModuleDefinition] = useState(null);
   const [schedule, setSchedule] = useState({
     checkInGraceMinutes: 60,
     checkoutEnd: "18:00",
@@ -240,6 +242,7 @@ const AttendancePortal = () => {
     officeStart: "08:00",
   });
   const [scanForm, setScanForm] = useState({
+    customFields: {},
     direction: "in",
     scanTime: "08:10",
     source: "Door fingerprint",
@@ -248,6 +251,24 @@ const AttendancePortal = () => {
   const canViewAllAttendance = ["super_admin", "admin", "hr", "accounts"].includes(user?.role);
   const canManageAttendance = ["super_admin", "admin", "hr"].includes(user?.role);
   const canRecordAttendance = canManageAttendance || !canViewAllAttendance;
+  const fieldVisible = (key) =>
+    !moduleDefinition?.fields.find((field) => field.systemFieldKey === key)?.archived &&
+    moduleDefinition?.fields.find((field) => field.systemFieldKey === key)?.isVisible !== false;
+  const fieldRequired = (key) =>
+    Boolean(moduleDefinition?.fields.find((field) => field.systemFieldKey === key)?.isRequired);
+
+  useEffect(() => {
+    let active = true;
+    api
+      .getCustomModule("attendance")
+      .then(({ module }) => {
+        if (active) setModuleDefinition(module);
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const currentUserRoster = useMemo(
     () => [
@@ -366,6 +387,7 @@ const AttendancePortal = () => {
 
     try {
       const { scan } = await api.createAttendanceScan({
+        customFields: scanForm.customFields,
         direction: scanForm.direction,
         scannedAt: timestamp,
         source: scanForm.source,
@@ -374,6 +396,7 @@ const AttendancePortal = () => {
       const mappedScan = mapApiScan(scan);
 
       setScans((current) => [...current.filter((item) => item.id !== mappedScan.id), mappedScan]);
+      setScanForm((current) => ({ ...current, customFields: {} }));
       setNotice({
         message:
           mappedScan.accepted === false
@@ -556,19 +579,29 @@ const AttendancePortal = () => {
                 </label>
               </div>
 
-              <label className="block">
+              {fieldVisible("source") && <label className="block">
                 <span className="text-sm font-semibold text-slate-700">Source</span>
                 <select
                   className="mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-950 outline-none transition focus:border-violet-500 focus:bg-white focus:ring-4 focus:ring-violet-500/10"
                   name="source"
                   onChange={handleScanFormChange}
+                  required={fieldRequired("source")}
                   value={scanForm.source}
                 >
                   <option value="Door fingerprint">Door fingerprint</option>
                   <option value="Mobile fingerprint">Mobile fingerprint</option>
                   <option value="Manual admin correction">Manual admin correction</option>
                 </select>
-              </label>
+              </label>}
+
+              <CustomFieldsForm
+                embedded
+                fields={moduleDefinition?.fields}
+                members={roster}
+                onChange={(customFields) => setScanForm((current) => ({ ...current, customFields }))}
+                title="Attendance details"
+                values={scanForm.customFields}
+              />
 
               <button
                 className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-violet-600 px-4 py-3 text-sm font-bold text-white shadow-lg shadow-violet-900/20 transition hover:bg-violet-700 disabled:cursor-not-allowed disabled:bg-slate-300"

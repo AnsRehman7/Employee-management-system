@@ -16,6 +16,7 @@ import {
 import { useLocation } from "react-router-dom";
 import Alert from "./Alert";
 import AppShell from "./AppShell";
+import CustomFieldsForm from "./CustomFieldsForm";
 import { api, formatApiError } from "../context/api";
 import { useUser } from "../context/UserContext";
 import { useFirebase } from "../context/firebase";
@@ -43,6 +44,7 @@ const ProfilePage = () => {
   const { auth, formatFirebaseError, linkGoogleAccount, sendResetPassword } = useFirebase();
   const [profileForm, setProfileForm] = useState({
     contact: user?.contact || "",
+    customFields: user?.customFields || {},
     department: user?.department || "",
     designation: user?.designation || "",
     fullName: user?.name || "",
@@ -58,6 +60,7 @@ const ProfilePage = () => {
   const [providers, setProviders] = useState(() => auth.currentUser?.providerData.map(({ providerId }) => providerId) || []);
   const [loadingAccess, setLoadingAccess] = useState(Boolean(user?.permissions?.canManagePermissions));
   const [notice, setNotice] = useState({ message: "", type: "info" });
+  const [moduleDefinition, setModuleDefinition] = useState(null);
 
   const selectedMember = members.find((member) => member.id === selectedId) || null;
   const canManageAccess = Boolean(user?.permissions?.canManagePermissions);
@@ -65,6 +68,12 @@ const ProfilePage = () => {
     selectedMember?.role === "super_admin" && user?.role !== "super_admin";
   const editingSelf = selectedMember?.id === user?.id;
   const canCustomizeSelected = canManageAccess && !hierarchyBlocked && !editingSelf;
+  const fieldVisible = (key) => {
+    const field = moduleDefinition?.fields.find((item) => item.systemFieldKey === key);
+    return !field?.archived && field?.isVisible !== false;
+  };
+  const fieldRequired = (key) =>
+    Boolean(moduleDefinition?.fields.find((field) => field.systemFieldKey === key)?.isRequired);
 
   const groupedPermissions = useMemo(
     () =>
@@ -103,6 +112,19 @@ const ProfilePage = () => {
     // The selected account is preserved manually after refresh.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [canManageAccess]);
+
+  useEffect(() => {
+    let active = true;
+    api
+      .getCustomModule("users")
+      .then(({ module }) => {
+        if (active) setModuleDefinition(module);
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, []);
 
   useEffect(() => {
     if (!location.hash) return;
@@ -223,10 +245,16 @@ const ProfilePage = () => {
             </div>
             <div className="grid gap-5 p-5 md:grid-cols-2">
               <label className="block md:col-span-2"><span className="flex items-center gap-2 text-sm font-bold text-slate-700"><FiUser className="h-4 w-4 text-slate-400" />Full name</span><input className={fieldClass} maxLength="120" name="fullName" onChange={handleProfileChange} required value={profileForm.fullName} /></label>
-              <label className="block"><span className="flex items-center gap-2 text-sm font-bold text-slate-700"><FiBriefcase className="h-4 w-4 text-slate-400" />Designation</span><input className={fieldClass} maxLength="120" name="designation" onChange={handleProfileChange} placeholder="Role title" value={profileForm.designation} /></label>
-              <label className="block"><span className="flex items-center gap-2 text-sm font-bold text-slate-700"><FiUsers className="h-4 w-4 text-slate-400" />Department</span><input className={fieldClass} maxLength="120" name="department" onChange={handleProfileChange} placeholder="Department" value={profileForm.department} /></label>
-              <label className="block"><span className="flex items-center gap-2 text-sm font-bold text-slate-700"><FiPhone className="h-4 w-4 text-slate-400" />Contact</span><input className={fieldClass} maxLength="40" name="contact" onChange={handleProfileChange} placeholder="Contact number" type="tel" value={profileForm.contact} /></label>
+              {fieldVisible("designation") && <label className="block"><span className="flex items-center gap-2 text-sm font-bold text-slate-700"><FiBriefcase className="h-4 w-4 text-slate-400" />Designation</span><input className={fieldClass} maxLength="120" name="designation" onChange={handleProfileChange} placeholder="Role title" required={fieldRequired("designation")} value={profileForm.designation} /></label>}
+              {fieldVisible("department") && <label className="block"><span className="flex items-center gap-2 text-sm font-bold text-slate-700"><FiUsers className="h-4 w-4 text-slate-400" />Department</span><input className={fieldClass} maxLength="120" name="department" onChange={handleProfileChange} placeholder="Department" required={fieldRequired("department")} value={profileForm.department} /></label>}
+              {fieldVisible("contact") && <label className="block"><span className="flex items-center gap-2 text-sm font-bold text-slate-700"><FiPhone className="h-4 w-4 text-slate-400" />Contact</span><input className={fieldClass} maxLength="40" name="contact" onChange={handleProfileChange} placeholder="Contact number" required={fieldRequired("contact")} type="tel" value={profileForm.contact} /></label>}
               <label className="block"><span className="flex items-center gap-2 text-sm font-bold text-slate-700"><FiMail className="h-4 w-4 text-slate-400" />Email</span><input className={fieldClass} disabled value={user?.email || ""} /></label>
+              <CustomFieldsForm
+                embedded
+                fields={moduleDefinition?.fields}
+                onChange={(customFields) => setProfileForm((current) => ({ ...current, customFields }))}
+                values={profileForm.customFields}
+              />
             </div>
           </form>
         </div>
@@ -279,9 +307,13 @@ const ProfilePage = () => {
                           <div className="mt-2 divide-y divide-slate-100">
                             {permissions.map((permission) => {
                               const checked = selectedPermissions.includes(permission.key);
+                              const roleAllowed =
+                                !permission.roles?.length ||
+                                permission.roles.includes(selectedMember.role);
+                              const permissionEditable = canCustomizeSelected && roleAllowed;
                               return (
-                                <label className={`flex items-start gap-3 py-3 ${canCustomizeSelected ? "cursor-pointer" : "cursor-not-allowed"}`} key={permission.key}>
-                                  <button aria-pressed={checked} className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded border transition ${checked ? "border-violet-600 bg-violet-600 text-white" : "border-slate-300 bg-white"}`} disabled={!canCustomizeSelected} onClick={() => togglePermission(permission.key)} type="button">{checked && <FiCheck className="h-3.5 w-3.5" />}</button>
+                                <label className={`flex items-start gap-3 py-3 ${permissionEditable ? "cursor-pointer" : "cursor-not-allowed opacity-60"}`} key={permission.key}>
+                                  <button aria-pressed={checked} className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded border transition ${checked ? "border-violet-600 bg-violet-600 text-white" : "border-slate-300 bg-white"}`} disabled={!permissionEditable} onClick={() => togglePermission(permission.key)} type="button">{checked && <FiCheck className="h-3.5 w-3.5" />}</button>
                                   <span><span className="block text-sm font-bold text-slate-800">{permission.label}</span><span className="mt-1 block text-xs leading-5 text-slate-500">{permission.description}</span></span>
                                 </label>
                               );
