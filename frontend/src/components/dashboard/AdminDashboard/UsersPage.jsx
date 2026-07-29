@@ -222,9 +222,10 @@ const UsersPage = () => {
                     <FiLock className="h-5 w-5 text-slate-400" />
                     <input
                       className="w-full bg-transparent text-sm text-slate-950 outline-none placeholder:text-slate-400"
+                      minLength={12}
                       name="password"
                       onChange={handleCreateChange}
-                      placeholder="Minimum 6 characters"
+                      placeholder="Minimum 12 characters"
                       required
                       type="password"
                       value={formData.password}

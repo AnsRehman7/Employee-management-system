@@ -18,7 +18,9 @@ export const calculateDistanceMeters = (origin, target) => {
 };
 
 export const formatDistance = meters => {
-  if (!Number.isFinite(Number(meters))) return 'Not measured';
+  if (meters === null || meters === undefined || !Number.isFinite(Number(meters))) {
+    return 'Not measured';
+  }
   if (Number(meters) >= 1000) {
     return `${(Number(meters) / 1000).toFixed(2)} km`;
   }

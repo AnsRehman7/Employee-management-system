@@ -1,97 +1,56 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# StaffFlow Attendance
 
-# Getting Started
+React Native attendance client for StaffFlow. It authenticates against Firebase, stores the session in the operating-system credential vault, loads active office geofences from the API, verifies local user presence with device biometrics, obtains a short-lived server challenge, and submits a location/accuracy-backed attendance scan.
 
-> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+## Configuration
 
-## Step 1: Start Metro
+Copy `.env.example` to `.env`:
 
-First, you will need to run **Metro**, the JavaScript build tool for React Native.
+```dotenv
+STAFFFLOW_API_URL=https://your-api.example.com/api
+STAFFFLOW_WEB_URL=https://your-web-app.example.com
+FIREBASE_WEB_API_KEY=your-restricted-firebase-web-api-key
+```
 
-To start the Metro dev server, run the following command from the root of your React Native project:
+No Google Maps API key is required. GPS coordinates come from the device location provider; office coordinates and radius come from the authenticated StaffFlow API.
 
-```sh
-# Using npm
+## Development
+
+Prerequisites are Node.js 22, JDK 17, Android Studio/SDK for Android, and Xcode/CocoaPods for iOS.
+
+```powershell
+npm ci
 npm start
-
-# OR using Yarn
-yarn start
 ```
 
-## Step 2: Build and run your app
+In another terminal:
 
-With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
-
-### Android
-
-```sh
-# Using npm
+```powershell
 npm run android
-
-# OR using Yarn
-yarn android
 ```
 
-### iOS
+Run quality gates with:
 
-For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
-
-The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
-
-```sh
-bundle install
+```powershell
+npm run lint
+npm test -- --runInBand
+cd android
+.\gradlew.bat assembleDebug --no-daemon
 ```
 
-Then, and every time you update your native dependencies, run:
+## Attendance Behavior
 
-```sh
-bundle exec pod install
-```
+- Read-only location checks do not consume an attendance challenge.
+- A check-in/out obtains a fresh challenge immediately before submission.
+- Network operations allow slow connections; attendance uses a longer timeout and one replay-safe retry.
+- A repeated consumed challenge returns the matching scan when the original response was lost.
+- Location services cannot be silently enabled by an app. StaffFlow requests permission, opens device settings when needed, and explains the required action.
+- The server, not the phone, decides whether the scan meets office, accuracy, timing, and sequence constraints.
 
-For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
+GPS and local biometrics are anti-abuse signals, not proof that a rooted device is trustworthy. Add Play Integrity and App Attest before using mobile attendance for high-stakes payroll decisions.
 
-```sh
-# Using npm
-npm run ios
+## Release Signing
 
-# OR using Yarn
-yarn ios
-```
+Android release builds do not use the debug key. Configure `STAFFFLOW_UPLOAD_STORE_FILE`, `STAFFFLOW_UPLOAD_STORE_PASSWORD`, `STAFFFLOW_UPLOAD_KEY_ALIAS`, and `STAFFFLOW_UPLOAD_KEY_PASSWORD` as protected Gradle/CI secrets. Build an Android App Bundle with `./gradlew bundleRelease`.
 
-If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
-
-This is one way to run your app — you can also build it directly from Android Studio or Xcode.
-
-## Step 3: Modify your app
-
-Now that you have successfully run the app, let's make changes!
-
-Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
-
-When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
-
-- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
-- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
-
-## Congratulations! :tada:
-
-You've successfully run and modified your React Native App. :partying_face:
-
-### Now what?
-
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
-
-# Troubleshooting
-
-If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
-
-# Learn More
-
-To learn more about React Native, take a look at the following resources:
-
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+The iOS bundle identifier is `com.staffflow.attendance`. Register Android and iOS apps in Firebase before adding native push; platform Firebase configuration files must remain outside public source control.

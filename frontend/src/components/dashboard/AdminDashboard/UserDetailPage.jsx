@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
+  FiActivity,
   FiArrowLeft,
   FiBriefcase,
   FiCheckCircle,
@@ -30,6 +31,7 @@ const fieldClass =
   "mt-2 h-11 w-full rounded-lg border border-slate-200 bg-slate-50 px-3.5 text-sm text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-violet-400 focus:bg-white focus:ring-4 focus:ring-violet-100 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-500";
 
 const formFromUser = (member) => ({
+  avatarUrl: member?.avatarUrl || "",
   contact: member?.contact || "",
   customFields: member?.customFields || {},
   department: member?.department || "",
@@ -38,6 +40,8 @@ const formFromUser = (member) => ({
   fullName: member?.name || "",
   password: "",
   role: member?.role || "employee",
+  skills: (member?.skills || []).join(", "),
+  weeklyCapacityHours: member?.weeklyCapacityHours || 40,
 });
 
 const UserDetailPage = () => {
@@ -101,7 +105,10 @@ const UserDetailPage = () => {
     setError("");
     setNotice("");
     try {
-      const payload = { ...formData };
+      const payload = {
+        ...formData,
+        skills: formData.skills.split(",").map((skill) => skill.trim()).filter(Boolean),
+      };
       if (!payload.password) delete payload.password;
       const { user } = await api.updateUser(userId, payload);
       setMember(user);
@@ -163,15 +170,20 @@ const UserDetailPage = () => {
             <div className="border-b border-slate-200 px-5 py-4"><div className="flex items-center gap-3"><span className="flex h-9 w-9 items-center justify-center rounded-lg bg-cyan-100 text-cyan-700"><FiUser className="h-4 w-4" /></span><div><h2 className="text-base font-bold text-slate-950">Profile information</h2><p className="text-sm text-slate-500">Identity and team details used throughout StaffFlow.</p></div></div></div>
             <div className="space-y-5 p-5">
               <label className="block"><span className="flex items-center gap-2 text-sm font-bold text-slate-700"><FiUser className="h-4 w-4 text-slate-400" />Full name</span><input className={fieldClass} disabled={!canEdit} maxLength="120" name="fullName" onChange={handleChange} required value={formData.fullName} /></label>
+              <label className="block"><span className="text-sm font-bold text-slate-700">Avatar URL</span><input className={fieldClass} disabled={!canEdit} maxLength="2048" name="avatarUrl" onChange={handleChange} placeholder="https://..." type="url" value={formData.avatarUrl} /></label>
               <div className="grid gap-5 md:grid-cols-2">
                 <label className="block"><span className="flex items-center gap-2 text-sm font-bold text-slate-700"><FiMail className="h-4 w-4 text-slate-400" />Work email</span><input className={fieldClass} disabled={!canEdit} maxLength="255" name="email" onChange={handleChange} required type="email" value={formData.email} /></label>
                 {fieldVisible("contact") && <label className="block"><span className="flex items-center gap-2 text-sm font-bold text-slate-700"><FiPhone className="h-4 w-4 text-slate-400" />Contact number</span><input className={fieldClass} disabled={!canEdit} maxLength="40" name="contact" onChange={handleChange} placeholder="Not provided" required={fieldRequired("contact")} type="tel" value={formData.contact} /></label>}
+              </div>
+              <div className="grid gap-5 md:grid-cols-[minmax(0,1fr)_220px]">
+                <label className="block"><span className="flex items-center gap-2 text-sm font-bold text-slate-700"><FiActivity className="h-4 w-4 text-slate-400" />Skills</span><input className={fieldClass} disabled={!canEdit} maxLength="1200" name="skills" onChange={handleChange} placeholder="React, PostgreSQL, QA" value={formData.skills} /></label>
+                <label className="block"><span className="text-sm font-bold text-slate-700">Weekly capacity</span><div className="relative"><input className={`${fieldClass} pr-16`} disabled={!canEdit} max="168" min="1" name="weeklyCapacityHours" onChange={handleChange} step="0.5" type="number" value={formData.weeklyCapacityHours} /><span className="pointer-events-none absolute bottom-3 right-3 text-xs font-bold text-slate-400">hours</span></div></label>
               </div>
               <div className="grid gap-5 md:grid-cols-2">
                 {fieldVisible("designation") && <label className="block"><span className="flex items-center gap-2 text-sm font-bold text-slate-700"><FiBriefcase className="h-4 w-4 text-slate-400" />Designation</span><input className={fieldClass} disabled={!canEdit} maxLength="120" name="designation" onChange={handleChange} placeholder="Not assigned" required={fieldRequired("designation")} value={formData.designation} /></label>}
                 {fieldVisible("department") && <label className="block"><span className="flex items-center gap-2 text-sm font-bold text-slate-700"><FiLayers className="h-4 w-4 text-slate-400" />Department</span><input className={fieldClass} disabled={!canEdit} maxLength="120" name="department" onChange={handleChange} placeholder="Not assigned" required={fieldRequired("department")} value={formData.department} /></label>}
               </div>
-              {canEdit && <label className="block"><span className="flex items-center gap-2 text-sm font-bold text-slate-700"><FiLock className="h-4 w-4 text-slate-400" />Set new password</span><input className={fieldClass} maxLength="128" minLength="6" name="password" onChange={handleChange} placeholder="Leave blank to keep the current password" type="password" value={formData.password} /><span className="mt-1.5 block text-xs text-slate-400">Only enter a value when the member needs an administrator-assisted reset.</span></label>}
+              {canEdit && <label className="block"><span className="flex items-center gap-2 text-sm font-bold text-slate-700"><FiLock className="h-4 w-4 text-slate-400" />Set new password</span><input className={fieldClass} maxLength="128" minLength="12" name="password" onChange={handleChange} placeholder="Leave blank to keep the current password" type="password" value={formData.password} /><span className="mt-1.5 block text-xs text-slate-400">Only enter a value when the member needs an administrator-assisted reset.</span></label>}
             </div>
             </section>
             <CustomFieldsForm
@@ -184,7 +196,7 @@ const UserDetailPage = () => {
 
           <aside className="space-y-5">
             <section className="rounded-lg border border-slate-200 bg-white shadow-sm">
-              <div className="p-5 text-center"><span className="mx-auto flex h-16 w-16 items-center justify-center rounded-lg bg-cyan-100 text-lg font-bold text-cyan-800">{initialsFor(member.name)}</span><h2 className="mt-3 text-lg font-bold text-slate-950">{member.name}</h2><p className="mt-1 truncate text-sm text-slate-500">{member.email}</p><div className="mt-3 flex flex-wrap justify-center gap-2"><span className="rounded-full border border-violet-200 bg-violet-50 px-2.5 py-1 text-xs font-bold text-violet-800">{labelForValue(member.role)}</span><span className={`rounded-full border px-2.5 py-1 text-xs font-bold ${USER_STATUS_STYLES[member.status] || USER_STATUS_STYLES.active}`}>{labelForValue(member.status)}</span>{isSelf && <span className="rounded-full border border-cyan-200 bg-cyan-50 px-2.5 py-1 text-xs font-bold text-cyan-800">Your account</span>}</div></div>
+              <div className="p-5 text-center">{member.avatarUrl ? <img alt="" className="mx-auto h-16 w-16 rounded-lg object-cover ring-1 ring-slate-200" src={member.avatarUrl} /> : <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-lg bg-cyan-100 text-lg font-bold text-cyan-800">{initialsFor(member.name)}</span>}<h2 className="mt-3 text-lg font-bold text-slate-950">{member.name}</h2><p className="mt-1 truncate text-sm text-slate-500">{member.email}</p><div className="mt-3 flex flex-wrap justify-center gap-2"><span className="rounded-full border border-violet-200 bg-violet-50 px-2.5 py-1 text-xs font-bold text-violet-800">{labelForValue(member.role)}</span><span className={`rounded-full border px-2.5 py-1 text-xs font-bold ${USER_STATUS_STYLES[member.status] || USER_STATUS_STYLES.active}`}>{labelForValue(member.status)}</span>{isSelf && <span className="rounded-full border border-cyan-200 bg-cyan-50 px-2.5 py-1 text-xs font-bold text-cyan-800">Your account</span>}</div></div>
               <div className="border-t border-slate-200 p-5"><label className="block"><span className="flex items-center gap-2 text-sm font-bold text-slate-700"><FiShield className="h-4 w-4 text-violet-600" />Workspace role</span><select className={fieldClass} disabled={!canEdit} name="role" onChange={handleChange} value={formData.role}>{roleOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select></label></div>
             </section>
 

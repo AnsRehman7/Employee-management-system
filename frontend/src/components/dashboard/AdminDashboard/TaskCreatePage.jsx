@@ -7,6 +7,7 @@ import {
   FiClock,
   FiFileText,
   FiFlag,
+  FiGitBranch,
   FiPlus,
   FiTag,
   FiUser,
@@ -23,10 +24,13 @@ const initialForm = {
   category: "",
   customFields: {},
   deadline: "",
+  dependencyIds: [],
   description: "",
   estimatedHours: "",
   priority: "normal",
   projectId: "",
+  requiredSkills: "",
+  riskLevel: "low",
   status: "open",
   successCriteria: "",
   title: "",
@@ -42,6 +46,7 @@ const TaskCreatePage = () => {
   const [searchParams] = useSearchParams();
   const [employees, setEmployees] = useState([]);
   const [projects, setProjects] = useState([]);
+  const [projectTasks, setProjectTasks] = useState([]);
   const [loadingSetup, setLoadingSetup] = useState(true);
   const [saving, setSaving] = useState(false);
   const [notice, setNotice] = useState("");
@@ -84,6 +89,18 @@ const TaskCreatePage = () => {
     };
   }, [searchParams]);
 
+  useEffect(() => {
+    if (!formData.projectId) {
+      setProjectTasks([]);
+      return;
+    }
+    let active = true;
+    api.getTasks({ limit: 100, projectId: formData.projectId })
+      .then(({ tasks }) => { if (active) setProjectTasks(tasks || []); })
+      .catch(() => { if (active) setProjectTasks([]); });
+    return () => { active = false; };
+  }, [formData.projectId]);
+
   const handleChange = (event) => {
     const { name, value } = event.target;
     setFormData((current) => ({ ...current, [name]: value }));
@@ -100,7 +117,10 @@ const TaskCreatePage = () => {
     setNotice("");
 
     try {
-      const { task } = await api.createTask(formData);
+      const { task } = await api.createTask({
+        ...formData,
+        requiredSkills: formData.requiredSkills.split(",").map((skill) => skill.trim()).filter(Boolean),
+      });
       navigate(`/tasks/${task.id}`, { replace: true, state: { notice: "Task created successfully." } });
     } catch (requestError) {
       setNotice(formatApiError(requestError));
@@ -155,6 +175,8 @@ const TaskCreatePage = () => {
                 <textarea className={textareaClass} name="successCriteria" onChange={handleChange} placeholder="List the conditions that must be true before this task can be marked complete." required={fieldRequired("successCriteria")} rows="5" value={formData.successCriteria} />
                 <span className="mt-1.5 block text-xs text-slate-400">Optional, but recommended for reviewable work.</span>
               </label>}
+              <label className="block"><span className="text-sm font-bold text-slate-700">Required skills</span><input className={fieldClass} maxLength="1200" name="requiredSkills" onChange={handleChange} placeholder="React, QA, PostgreSQL" value={formData.requiredSkills} /></label>
+              <fieldset><legend className="flex items-center gap-2 text-sm font-bold text-slate-700"><FiGitBranch className="text-amber-600" />Prerequisite tasks</legend><div className="mt-2 grid max-h-56 gap-2 overflow-y-auto rounded-lg border border-slate-200 bg-slate-50 p-3 md:grid-cols-2">{projectTasks.length ? projectTasks.map((task) => <label className="flex cursor-pointer items-start gap-2 rounded-lg bg-white px-3 py-2 ring-1 ring-slate-200" key={task.id}><input checked={formData.dependencyIds.includes(task.id)} className="mt-0.5 h-4 w-4 accent-violet-600" onChange={(event) => setFormData((current) => ({ ...current, dependencyIds: event.target.checked ? [...current.dependencyIds, task.id] : current.dependencyIds.filter((id) => id !== task.id) }))} type="checkbox" /><span className="min-w-0"><span className="block truncate text-xs font-bold text-slate-800">{task.title}</span><span className="block text-[11px] text-slate-400">{task.status.replaceAll("_", " ")}</span></span></label>) : <p className="col-span-full py-3 text-center text-xs text-slate-400">Select a project to see available dependencies.</p>}</div></fieldset>
             </div>
             </section>
             <CustomFieldsForm
@@ -180,8 +202,8 @@ const TaskCreatePage = () => {
 
               <label className="block">
                 <span className="flex items-center gap-2 text-sm font-bold text-slate-700"><FiUser className="h-4 w-4 text-slate-400" />Assigned to</span>
-                <select className={fieldClass} disabled={loadingSetup} name="assignedToId" onChange={handleChange} required value={formData.assignedToId}>
-                  <option value="">{loadingSetup ? "Loading team..." : "Select team member"}</option>
+                <select className={fieldClass} disabled={loadingSetup} name="assignedToId" onChange={handleChange} value={formData.assignedToId}>
+                  <option value="">{loadingSetup ? "Loading team..." : "Unassigned"}</option>
                   {employees.map((employee) => <option key={employee.id} value={employee.id}>{employee.name} / {employee.role.replace("_", " ")}</option>)}
                 </select>
               </label>
@@ -195,6 +217,7 @@ const TaskCreatePage = () => {
                 </label>
                 <label className="block"><span className="text-sm font-bold text-slate-700">Priority</span><select className={fieldClass} name="priority" onChange={handleChange} value={formData.priority}><option value="low">Low</option><option value="normal">Normal</option><option value="high">High</option></select></label>
               </div>
+              <label className="block"><span className="text-sm font-bold text-slate-700">Delivery risk</span><select className={fieldClass} name="riskLevel" onChange={handleChange} value={formData.riskLevel}><option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option><option value="critical">Critical</option></select></label>
 
               <label className="block">
                 <span className="flex items-center gap-2 text-sm font-bold text-slate-700"><FiTag className="h-4 w-4 text-slate-400" />Category</span>

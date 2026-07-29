@@ -17,7 +17,9 @@ StaffFlow is a company workspace for small teams that need projects, tasks, hour
 - **Workspace administration:** Super admins can maintain work hours, timezone, departments, and organization identity.
 - **Audit log:** Authorized administrators can review important account, task, project, and attendance changes.
 - **Employee-specific tasks:** Employees only see tasks assigned to their own backend user profile.
-- **AI planning and weightage:** Groq can turn project requirements into tasks and analyze project scope to assign task weights.
+- **Explainable project planning:** Structured requirements become traceable milestones and tasks with dependencies, acceptance criteria, estimates, skills, risks, confidence, and capacity-aware schedules.
+- **Human-controlled recommendations:** Managers see why an assignee was suggested, can override or leave work unassigned, and must explicitly approve a plan before task creation.
+- **Research reporting:** Planner outcomes include coverage, constraint violations, effort error, review time, time saved, and override rate with CSV export.
 - **AI progress:** Time-log comments are analyzed against task requirements to update task progress.
 - **Project progress:** Progress is calculated from weighted task progress.
 - **Hours logging:** Employees can log hours against their own tasks.
@@ -56,4 +58,6 @@ Set `VITE_API_URL` when the API is not running at `http://localhost:4000/api`.
 
 For this deployment, the Firebase authorized-domain entry must be the hostname only: `ahsanfyp.netlify.app`. Vercel must allow the exact origin `https://ahsanfyp.netlify.app` through `CORS_ORIGIN`.
 
-Browser notifications require HTTPS and explicit permission from the user. A service worker displays native alerts while StaffFlow is open, including when its tab is in the background. Alerts after every StaffFlow tab has been closed would additionally require a push subscription service such as Firebase Cloud Messaging.
+Browser notifications require HTTPS and explicit permission from the user. Firebase Cloud Messaging plus the service worker can display system alerts while the tab is foregrounded, backgrounded, or closed. Configure `VITE_FIREBASE_VAPID_KEY`, allow browser notification permission, and keep the backend Firebase Admin credentials available for push delivery.
+
+See the root [deployment runbook](../docs/DEPLOYMENT.md) for migration order, CSP, App Check, readiness checks, and release verification.

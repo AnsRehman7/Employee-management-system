@@ -60,7 +60,7 @@ export const formatFirebaseError = (error) => {
     "auth/user-not-found": "No account was found for this email.",
     "auth/unauthorized-domain":
       `This website is not authorized in Firebase. Add ${typeof window === "undefined" ? "the deployed domain" : window.location.hostname} under Authentication > Settings > Authorized domains.`,
-    "auth/weak-password": "Use a stronger password with at least 6 characters.",
+    "auth/weak-password": "Use a stronger password with at least 12 characters.",
     "permission-denied": "You do not have permission to perform this action.",
   };
 

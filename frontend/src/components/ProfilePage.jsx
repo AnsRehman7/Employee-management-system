@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { FcGoogle } from "react-icons/fc";
 import {
+  FiActivity,
   FiBriefcase,
   FiCheck,
   FiChevronRight,
@@ -43,11 +44,14 @@ const ProfilePage = () => {
   const { setUser, user } = useUser();
   const { auth, formatFirebaseError, linkGoogleAccount, sendResetPassword } = useFirebase();
   const [profileForm, setProfileForm] = useState({
+    avatarUrl: user?.avatarUrl || "",
     contact: user?.contact || "",
     customFields: user?.customFields || {},
     department: user?.department || "",
     designation: user?.designation || "",
     fullName: user?.name || "",
+    skills: (user?.skills || []).join(", "),
+    weeklyCapacityHours: user?.weeklyCapacityHours || 40,
   });
   const [members, setMembers] = useState([]);
   const [catalog, setCatalog] = useState({ permissions: [], roleDefaults: {} });
@@ -143,7 +147,12 @@ const ProfilePage = () => {
     setProfileBusy(true);
     setNotice({ message: "", type: "info" });
     try {
-      const { user: updatedUser } = await api.updateCurrentProfile(profileForm);
+      const payload = {
+        ...profileForm,
+        skills: profileForm.skills.split(",").map((skill) => skill.trim()).filter(Boolean),
+      };
+      if (!user?.permissions?.canManageUsers) delete payload.weeklyCapacityHours;
+      const { user: updatedUser } = await api.updateCurrentProfile(payload);
       setUser(updatedUser);
       setNotice({ message: "Profile updated successfully.", type: "success" });
     } catch (requestError) {
@@ -223,9 +232,7 @@ const ProfilePage = () => {
 
         <div className="grid items-start gap-5 xl:grid-cols-[320px_minmax(0,1fr)]">
           <aside className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-            <span className="flex h-16 w-16 items-center justify-center rounded-lg bg-violet-100 text-xl font-bold text-violet-700">
-              {initialsFor(user?.name)}
-            </span>
+            {user?.avatarUrl ? <img alt="" className="h-16 w-16 rounded-lg object-cover ring-1 ring-slate-200" src={user.avatarUrl} /> : <span className="flex h-16 w-16 items-center justify-center rounded-lg bg-violet-100 text-xl font-bold text-violet-700">{initialsFor(user?.name)}</span>}
             <h2 className="mt-4 text-xl font-bold text-slate-950">{user?.name}</h2>
             <p className="mt-1 break-all text-sm text-slate-500">{user?.email}</p>
             <div className="mt-4 flex flex-wrap gap-2">
@@ -245,10 +252,13 @@ const ProfilePage = () => {
             </div>
             <div className="grid gap-5 p-5 md:grid-cols-2">
               <label className="block md:col-span-2"><span className="flex items-center gap-2 text-sm font-bold text-slate-700"><FiUser className="h-4 w-4 text-slate-400" />Full name</span><input className={fieldClass} maxLength="120" name="fullName" onChange={handleProfileChange} required value={profileForm.fullName} /></label>
+              <label className="block md:col-span-2"><span className="text-sm font-bold text-slate-700">Avatar URL</span><input className={fieldClass} maxLength="2048" name="avatarUrl" onChange={handleProfileChange} placeholder="https://..." type="url" value={profileForm.avatarUrl} /></label>
               {fieldVisible("designation") && <label className="block"><span className="flex items-center gap-2 text-sm font-bold text-slate-700"><FiBriefcase className="h-4 w-4 text-slate-400" />Designation</span><input className={fieldClass} maxLength="120" name="designation" onChange={handleProfileChange} placeholder="Role title" required={fieldRequired("designation")} value={profileForm.designation} /></label>}
               {fieldVisible("department") && <label className="block"><span className="flex items-center gap-2 text-sm font-bold text-slate-700"><FiUsers className="h-4 w-4 text-slate-400" />Department</span><input className={fieldClass} maxLength="120" name="department" onChange={handleProfileChange} placeholder="Department" required={fieldRequired("department")} value={profileForm.department} /></label>}
               {fieldVisible("contact") && <label className="block"><span className="flex items-center gap-2 text-sm font-bold text-slate-700"><FiPhone className="h-4 w-4 text-slate-400" />Contact</span><input className={fieldClass} maxLength="40" name="contact" onChange={handleProfileChange} placeholder="Contact number" required={fieldRequired("contact")} type="tel" value={profileForm.contact} /></label>}
               <label className="block"><span className="flex items-center gap-2 text-sm font-bold text-slate-700"><FiMail className="h-4 w-4 text-slate-400" />Email</span><input className={fieldClass} disabled value={user?.email || ""} /></label>
+              <label className="block md:col-span-2"><span className="flex items-center gap-2 text-sm font-bold text-slate-700"><FiActivity className="h-4 w-4 text-slate-400" />Skills</span><input className={fieldClass} maxLength="1200" name="skills" onChange={handleProfileChange} placeholder="React, PostgreSQL, UX research" value={profileForm.skills} /><span className="mt-1.5 block text-xs text-slate-400">Separate skills with commas. These are used for explainable assignment recommendations.</span></label>
+              <label className="block"><span className="text-sm font-bold text-slate-700">Weekly delivery capacity</span><input className={fieldClass} disabled={!user?.permissions?.canManageUsers} max="168" min="1" name="weeklyCapacityHours" onChange={handleProfileChange} step="0.5" type="number" value={profileForm.weeklyCapacityHours} /></label>
               <CustomFieldsForm
                 embedded
                 fields={moduleDefinition?.fields}

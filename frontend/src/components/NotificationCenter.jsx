@@ -7,6 +7,7 @@ import {
   requestBrowserNotificationPermission,
   showBrowserNotification,
 } from "../utils/browserNotifications";
+import { registerPushDevice, startPushBridge } from "../utils/pushNotifications";
 
 const formatRelativeTime = (value) => {
   const difference = Date.now() - new Date(value).getTime();
@@ -29,12 +30,12 @@ const NotificationCenter = () => {
   const [error, setError] = useState("");
   const [desktopPermission, setDesktopPermission] = useState(getBrowserNotificationPermission);
 
-  const loadNotifications = async () => {
+  const loadNotifications = async ({ suppressDesktop = false } = {}) => {
     try {
       const result = await api.getNotifications();
       const incoming = result.notifications || [];
 
-      if (initialized.current && desktopPermission === "granted") {
+      if (initialized.current && desktopPermission === "granted" && !suppressDesktop) {
         incoming
           .filter((notification) => !notification.isRead && !knownIds.current.has(notification.id))
           .forEach((notification) => {
@@ -56,16 +57,24 @@ const NotificationCenter = () => {
 
   useEffect(() => {
     loadNotifications();
+    if (desktopPermission === "granted") registerPushDevice().catch(() => {});
+    startPushBridge().catch(() => {});
     const poller = window.setInterval(loadNotifications, 15_000);
     const refreshWhenVisible = () => {
       if (document.visibilityState === "visible") loadNotifications();
     };
     window.addEventListener("focus", refreshWhenVisible);
     document.addEventListener("visibilitychange", refreshWhenVisible);
+    const refreshFromForegroundPush = () => loadNotifications();
+    const refreshFromBackgroundPush = () => loadNotifications({ suppressDesktop: true });
+    window.addEventListener("staffflow:foreground-push", refreshFromForegroundPush);
+    window.addEventListener("staffflow:background-push", refreshFromBackgroundPush);
     return () => {
       window.clearInterval(poller);
       window.removeEventListener("focus", refreshWhenVisible);
       document.removeEventListener("visibilitychange", refreshWhenVisible);
+      window.removeEventListener("staffflow:foreground-push", refreshFromForegroundPush);
+      window.removeEventListener("staffflow:background-push", refreshFromBackgroundPush);
     };
     // Permission changes are intentionally picked up by the next polling cycle.
     // eslint-disable-next-line react-hooks/exhaustive-deps

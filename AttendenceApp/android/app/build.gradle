@@ -64,7 +64,11 @@ react {
 /**
  * Set this to true to Run Proguard on Release builds to minify the Java bytecode.
  */
-def enableProguardInReleaseBuilds = false
+def enableProguardInReleaseBuilds = true
+def hasReleaseSigning = project.hasProperty("STAFFFLOW_UPLOAD_STORE_FILE") &&
+        project.hasProperty("STAFFFLOW_UPLOAD_STORE_PASSWORD") &&
+        project.hasProperty("STAFFFLOW_UPLOAD_KEY_ALIAS") &&
+        project.hasProperty("STAFFFLOW_UPLOAD_KEY_PASSWORD")
 
 /**
  * The preferred build flavor of JavaScriptCore (JSC)
@@ -100,6 +104,14 @@ android {
             keyAlias 'androiddebugkey'
             keyPassword 'android'
         }
+        if (hasReleaseSigning) {
+            release {
+                storeFile file(STAFFFLOW_UPLOAD_STORE_FILE)
+                storePassword STAFFFLOW_UPLOAD_STORE_PASSWORD
+                keyAlias STAFFFLOW_UPLOAD_KEY_ALIAS
+                keyPassword STAFFFLOW_UPLOAD_KEY_PASSWORD
+            }
+        }
     }
     buildTypes {
         debug {
@@ -108,10 +120,11 @@ android {
         }
         release {
             manifestPlaceholders = [usesCleartextTraffic: "false"]
-            // Caution! In production, you need to generate your own keystore file.
-            // see https://reactnative.dev/docs/signed-apk-android.
-            signingConfig signingConfigs.debug
+            if (hasReleaseSigning) {
+                signingConfig signingConfigs.release
+            }
             minifyEnabled enableProguardInReleaseBuilds
+            shrinkResources enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         }
     }

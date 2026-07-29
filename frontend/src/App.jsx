@@ -6,6 +6,8 @@ import LandingPage from "./components/LandingPage";
 import PricingPage from "./components/PricingPage";
 import ForgotPassword from "./components/ForgotPassword";
 import LoadingScreen from "./components/LoadingScreen";
+import AppErrorBoundary from "./components/AppErrorBoundary";
+import NotFoundPage from "./components/NotFoundPage";
 import { useUser } from "./context/UserContext";
 
 const AdminDashboard = lazy(() => import("./components/dashboard/AdminDashboard/AdminDashboard"));
@@ -18,6 +20,7 @@ const Employe = lazy(() => import("./components/dashboard/employe/Employe"));
 const ProfilePage = lazy(() => import("./components/ProfilePage"));
 const ProjectCreatePage = lazy(() => import("./components/dashboard/AdminDashboard/ProjectCreatePage"));
 const ProjectDetailPage = lazy(() => import("./components/dashboard/AdminDashboard/ProjectDetailPage"));
+const ProjectPlannerPage = lazy(() => import("./components/dashboard/AdminDashboard/ProjectPlannerPage"));
 const ProjectsIndexPage = lazy(() => import("./components/dashboard/AdminDashboard/ProjectsIndexPage"));
 const ReportsPage = lazy(() => import("./components/dashboard/AdminDashboard/ReportsPage"));
 const TaskCreatePage = lazy(() => import("./components/dashboard/AdminDashboard/TaskCreatePage"));
@@ -74,8 +77,9 @@ const DashboardRedirect = () => {
 
 function App() {
   return (
-    <BrowserRouter>
-      <Suspense fallback={<LoadingScreen />}>
+    <AppErrorBoundary>
+      <BrowserRouter>
+        <Suspense fallback={<LoadingScreen />}>
         <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/pricing" element={<PricingPage />} />
@@ -150,6 +154,14 @@ function App() {
           element={
             <RequireAuth permission="projects.create">
               <ProjectCreatePage />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/projects/:projectId/planner"
+          element={
+            <RequireAuth allowedRoles={projectRoles}>
+              <ProjectPlannerPage />
             </RequireAuth>
           }
         />
@@ -265,10 +277,11 @@ function App() {
             </RequireAuth>
           }
         />
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path="*" element={<NotFoundPage />} />
         </Routes>
-      </Suspense>
-    </BrowserRouter>
+        </Suspense>
+      </BrowserRouter>
+    </AppErrorBoundary>
   );
 }
 

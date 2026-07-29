@@ -2,6 +2,7 @@ import { createElement } from "react";
 import {
   FiBell,
   FiFileText,
+  FiMapPin,
   FiPlus,
   FiSettings,
   FiShield,
@@ -30,6 +31,11 @@ const SettingsNavigation = () => {
           icon: FiSettings,
           label: "Workspace",
           to: "/settings#workspace",
+        },
+        user?.permissions?.canManageSettings && {
+          icon: FiMapPin,
+          label: "Attendance offices",
+          to: "/settings#attendance-offices",
         },
         user?.permissions?.canManageCustomization && {
           icon: FiSliders,

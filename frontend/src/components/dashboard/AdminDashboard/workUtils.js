@@ -2,11 +2,13 @@ export const TASK_STATUS_OPTIONS = [
   { label: "Open", value: "open" },
   { label: "Active", value: "active" },
   { label: "In progress", value: "in_progress" },
+  { label: "Blocked", value: "blocked" },
   { label: "Completed", value: "completed" },
 ];
 
 export const TASK_STATUS_STYLES = {
   active: "border-cyan-200 bg-cyan-50 text-cyan-800",
+  blocked: "border-rose-200 bg-rose-50 text-rose-800",
   completed: "border-emerald-200 bg-emerald-50 text-emerald-800",
   in_progress: "border-indigo-200 bg-indigo-50 text-indigo-800",
   open: "border-amber-200 bg-amber-50 text-amber-800",
@@ -79,7 +81,7 @@ export const isOverdue = (value, status) => {
 };
 
 export const initialsFor = (name = "Team member") =>
-  name
+  (String(name || "").trim() || "Team member")
     .split(" ")
     .map((part) => part[0])
     .filter(Boolean)

@@ -10,6 +10,11 @@ import {
   validateRequiredFields,
 } from '../src/components/DynamicFields';
 import { calculateDistanceMeters } from '../src/utils/geofence';
+import {
+  clearSecureSession,
+  loadSecureSession,
+  saveSecureSession,
+} from '../src/services/secureSession';
 
 test('renders correctly', async () => {
   await ReactTestRenderer.act(async () => {
@@ -59,4 +64,13 @@ test('prepares defaults and validates required custom fields', () => {
   expect(validateRequiredFields(fields, { ...values, note: 'On site' })).toBe(
     '',
   );
+});
+
+test('stores mobile sessions in the OS credential vault', async () => {
+  const session = { idToken: 'id-token', refreshToken: 'refresh-token' };
+
+  await saveSecureSession(session);
+  await expect(loadSecureSession()).resolves.toEqual(session);
+  await clearSecureSession();
+  await expect(loadSecureSession()).resolves.toBeNull();
 });

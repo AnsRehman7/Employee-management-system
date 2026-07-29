@@ -7,6 +7,7 @@ import {
   FiCalendar,
   FiCheckCircle,
   FiClock,
+  FiCpu,
   FiEdit2,
   FiPlus,
   FiSave,
@@ -133,6 +134,7 @@ const ProjectDetailPage = () => {
     try {
       await api.updateProject(project.id, {
         ...editForm,
+        expectedVersion: project.version,
         tags: editForm.tags.split(",").map((tag) => tag.trim()).filter(Boolean),
       });
       await loadProject();
@@ -150,7 +152,7 @@ const ProjectDetailPage = () => {
     setBusy(true);
     setNotice({ message: "", type: "info" });
     try {
-      await api.updateProject(project.id, { status });
+      await api.updateProject(project.id, { expectedVersion: project.version, status });
       await loadProject();
       setNotice({ message: `Project moved to ${labelForValue(status)}.`, type: "success" });
     } catch (requestError) {
@@ -195,7 +197,7 @@ const ProjectDetailPage = () => {
       <div className="space-y-5">
         <div className="flex flex-col gap-3 border-b border-slate-200 pb-5 sm:flex-row sm:items-center sm:justify-between">
           <Link className="inline-flex items-center gap-2 text-sm font-bold text-slate-600 transition hover:text-violet-700" to="/projects"><FiArrowLeft className="h-4 w-4" />Back to projects</Link>
-          {(canCreateTasks || canEditProjects || canDeleteProjects) && <div className="flex flex-wrap gap-2">{canCreateTasks && <Link className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-violet-600 px-3 text-sm font-bold text-white transition hover:bg-violet-700" to={`/tasks/new?project=${project.id}`}><FiPlus className="h-4 w-4" />Add task</Link>}{canEditProjects && <button className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-3 text-sm font-bold text-slate-700 transition hover:bg-slate-50" onClick={() => setEditing((current) => !current)} type="button">{editing ? <FiX className="h-4 w-4" /> : <FiEdit2 className="h-4 w-4" />}{editing ? "Cancel edit" : "Edit project"}</button>}{canDeleteProjects && <button aria-label={project.taskCount ? "Archive project" : "Delete project"} className="flex h-10 w-10 items-center justify-center rounded-lg border border-rose-200 bg-rose-50 text-rose-700 transition hover:bg-rose-100" disabled={busy} onClick={handleDelete} title={project.taskCount ? "Archive project" : "Delete project"} type="button">{project.taskCount ? <FiArchive className="h-4 w-4" /> : <FiTrash2 className="h-4 w-4" />}</button>}</div>}
+          {(canCreateTasks || canEditProjects || canDeleteProjects) && <div className="flex flex-wrap gap-2">{canEditProjects && <Link className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-violet-200 bg-violet-50 px-3 text-sm font-bold text-violet-700 transition hover:bg-violet-100" to={`/projects/${project.id}/planner`}><FiCpu className="h-4 w-4" />Planning studio</Link>}{canCreateTasks && <Link className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-violet-600 px-3 text-sm font-bold text-white transition hover:bg-violet-700" to={`/tasks/new?project=${project.id}`}><FiPlus className="h-4 w-4" />Add task</Link>}{canEditProjects && <button className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-3 text-sm font-bold text-slate-700 transition hover:bg-slate-50" onClick={() => setEditing((current) => !current)} type="button">{editing ? <FiX className="h-4 w-4" /> : <FiEdit2 className="h-4 w-4" />}{editing ? "Cancel edit" : "Edit project"}</button>}{canDeleteProjects && <button aria-label={project.taskCount ? "Archive project" : "Delete project"} className="flex h-10 w-10 items-center justify-center rounded-lg border border-rose-200 bg-rose-50 text-rose-700 transition hover:bg-rose-100" disabled={busy} onClick={handleDelete} title={project.taskCount ? "Archive project" : "Delete project"} type="button">{project.taskCount ? <FiArchive className="h-4 w-4" /> : <FiTrash2 className="h-4 w-4" />}</button>}</div>}
         </div>
 
         <Alert message={notice.message} type={notice.type} />

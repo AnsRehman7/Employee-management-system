@@ -1,21 +1,17 @@
 /* global jest */
 
-jest.mock('@react-native-async-storage/async-storage', () => {
-  const store = new Map();
-
+jest.mock('react-native-keychain', () => {
+  let credentials = false;
   return {
-    clear: jest.fn(() => {
-      store.clear();
-      return Promise.resolve();
+    ACCESSIBLE: { WHEN_UNLOCKED_THIS_DEVICE_ONLY: 'device-only' },
+    getGenericPassword: jest.fn(() => Promise.resolve(credentials)),
+    resetGenericPassword: jest.fn(() => {
+      credentials = false;
+      return Promise.resolve(true);
     }),
-    getItem: jest.fn(key => Promise.resolve(store.has(key) ? store.get(key) : null)),
-    removeItem: jest.fn(key => {
-      store.delete(key);
-      return Promise.resolve();
-    }),
-    setItem: jest.fn((key, value) => {
-      store.set(key, value);
-      return Promise.resolve();
+    setGenericPassword: jest.fn((username, password) => {
+      credentials = { password, username };
+      return Promise.resolve(true);
     }),
   };
 });

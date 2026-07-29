@@ -18,6 +18,7 @@ import NotificationCenter from "./NotificationCenter";
 import { api } from "../context/api";
 import { useFirebase } from "../context/firebase";
 import { useUser } from "../context/UserContext";
+import { unregisterPushDevice } from "../utils/pushNotifications";
 
 const dashboardForUser = (user) => {
   if (user?.permissions?.canViewDashboard) return "/admin";
@@ -132,6 +133,7 @@ const AppShell = ({ children, subtitle = "", title = "Workspace" }) => {
     setError("");
 
     try {
+      await unregisterPushDevice();
       await logout();
       navigate("/login", { replace: true });
     } catch (error) {

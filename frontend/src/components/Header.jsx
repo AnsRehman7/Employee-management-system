@@ -4,6 +4,7 @@ import { NavLink, useNavigate } from "react-router-dom";
 import Alert from "./Alert";
 import { useFirebase } from "../context/firebase";
 import { useUser } from "../context/UserContext";
+import { unregisterPushDevice } from "../utils/pushNotifications";
 
 const Header = ({ subtitle = "", title = "Workspace" }) => {
   const navigate = useNavigate();
@@ -17,6 +18,7 @@ const Header = ({ subtitle = "", title = "Workspace" }) => {
     setError("");
 
     try {
+      await unregisterPushDevice();
       await logout();
       navigate("/login", { replace: true });
     } catch (error) {

@@ -1,49 +1,72 @@
 import { environment } from '../config';
 
-const DEFAULT_TIMEOUT_MS = 60000;
+const DEFAULT_TIMEOUT_MS = 75000;
+const wait = milliseconds =>
+  new Promise(resolve => setTimeout(resolve, milliseconds));
 
 export const requestStaffFlow = async (
   session,
   path,
   options = {},
 ) => {
-  const controller = new AbortController();
-  const timeout = setTimeout(
-    () => controller.abort(),
-    options.timeout || DEFAULT_TIMEOUT_MS,
+  const method = options.method || 'GET';
+  const retries = Math.max(
+    0,
+    Math.min(options.retries ?? (method === 'GET' ? 1 : 0), 2),
   );
+  let lastError;
 
-  try {
-    const response = await fetch(`${environment.apiBaseUrl}${path}`, {
-      body: options.body ? JSON.stringify(options.body) : undefined,
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${session.idToken}`,
-        ...(options.headers || {}),
-      },
-      method: options.method || 'GET',
-      signal: controller.signal,
-    });
+  for (let attempt = 0; attempt <= retries; attempt += 1) {
+    const controller = new AbortController();
+    const timeout = setTimeout(
+      () => controller.abort(),
+      options.timeout || DEFAULT_TIMEOUT_MS,
+    );
 
-    if (response.status === 204) return {};
-    const payload = await response.json().catch(() => ({}));
-    if (!response.ok) {
-      const error = new Error(
-        payload?.error?.message ||
-          payload?.message ||
-          'StaffFlow could not complete this request.',
-      );
-      error.status = response.status;
-      throw error;
+    try {
+      const response = await fetch(`${environment.apiBaseUrl}${path}`, {
+        body: options.body ? JSON.stringify(options.body) : undefined,
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.idToken}`,
+          ...(options.headers || {}),
+        },
+        method,
+        signal: controller.signal,
+      });
+
+      if (response.status === 204) return {};
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        const error = new Error(
+          payload?.error?.message ||
+            payload?.message ||
+            'StaffFlow could not complete this request.',
+        );
+        error.status = response.status;
+        throw error;
+      }
+      return payload.data || {};
+    } catch (error) {
+      lastError = error;
+      const retryable =
+        error?.name === 'AbortError' ||
+        error instanceof TypeError ||
+        error?.status === 502 ||
+        error?.status === 503 ||
+        error?.status === 504;
+      if (!retryable || attempt === retries) break;
+      await wait(750 * 2 ** attempt);
+    } finally {
+      clearTimeout(timeout);
     }
-    return payload.data || {};
-  } catch (error) {
-    if (error?.name === 'AbortError') {
-      throw new Error('StaffFlow took too long to respond. Please try again.');
-    }
-    throw error;
-  } finally {
-    clearTimeout(timeout);
   }
+
+  if (lastError?.name === 'AbortError') {
+    throw new Error(
+      'StaffFlow took too long to respond. Check your connection and try again.',
+    );
+  }
+  throw lastError;
 };

@@ -16,7 +16,6 @@ import {
   Text,
   View,
 } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import Geolocation from '@react-native-community/geolocation';
 import ReactNativeBiometrics from 'react-native-biometrics';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
@@ -44,6 +43,11 @@ import {
   signInWithFirebase,
 } from './services/firebaseAuth';
 import { requestStaffFlow } from './services/staffflowApi';
+import {
+  clearSecureSession,
+  loadSecureSession,
+  saveSecureSession,
+} from './services/secureSession';
 import { colors } from './theme';
 import { todayKey } from './utils/formatters';
 import {
@@ -51,11 +55,10 @@ import {
   formatDistance,
 } from './utils/geofence';
 
-const SESSION_STORAGE_KEY = '@staffflow_mobile_session';
 const TOKEN_REFRESH_BUFFER_MS = 5 * 60 * 1000;
 const NOTIFICATION_POLL_MS = 30000;
 const LOCATION_TIMEOUT_MS = 60000;
-const ATTENDANCE_REQUEST_TIMEOUT_MS = 90000;
+const ATTENDANCE_REQUEST_TIMEOUT_MS = 120000;
 
 Geolocation.setRNConfiguration({
   authorizationLevel: 'whenInUse',
@@ -83,6 +86,20 @@ const TABS = [
 
 const getErrorMessage = error =>
   error?.message || 'Something went wrong. Please try again.';
+
+const resolveLocationAgainstOffices = (location, offices = []) => {
+  const nearest = offices
+    .map(office => ({
+      distanceMeters: calculateDistanceMeters(office, location),
+      office,
+    }))
+    .sort((first, second) => first.distanceMeters - second.distanceMeters)[0];
+  return {
+    ...location,
+    distanceMeters: nearest?.distanceMeters ?? null,
+    office: nearest?.office || null,
+  };
+};
 
 const requestLocationPermission = async () => {
   if (Platform.OS !== 'android') return true;
@@ -165,6 +182,7 @@ const BottomNavigation = ({ activeTab, onChange, unreadCount }) => (
 
 const StaffFlowApp = () => {
   const [activeTab, setActiveTab] = useState('home');
+  const [attendanceOffices, setAttendanceOffices] = useState([]);
   const [attendanceCustomFields, setAttendanceCustomFields] = useState({});
   const [email, setEmail] = useState('');
   const [initializing, setInitializing] = useState(true);
@@ -196,10 +214,7 @@ const StaffFlowApp = () => {
 
   const saveSession = useCallback(async nextSession => {
     setSession(nextSession);
-    await AsyncStorage.setItem(
-      SESSION_STORAGE_KEY,
-      JSON.stringify(nextSession),
-    );
+    await saveSecureSession(nextSession);
     return nextSession;
   }, []);
 
@@ -207,11 +222,12 @@ const StaffFlowApp = () => {
     setSession(null);
     setWorkspace(EMPTY_WORKSPACE);
     setWorkspaceReady(false);
+    setAttendanceOffices([]);
     setAttendanceCustomFields({});
     setSelectedTask(null);
     setActiveTab('home');
     setPassword('');
-    await AsyncStorage.removeItem(SESSION_STORAGE_KEY);
+    await clearSecureSession();
   }, []);
 
   const getAuthorizedSession = useCallback(
@@ -270,6 +286,7 @@ const StaffFlowApp = () => {
           employeeData,
           taskModuleData,
           attendanceModuleData,
+          officeData,
         ] = await Promise.all([
           requestStaffFlow(activeSession, '/tasks'),
           requestStaffFlow(
@@ -280,6 +297,7 @@ const StaffFlowApp = () => {
           optionalRequest('/users/employees', { employees: [] }),
           optionalRequest('/modules/tasks', { module: null }),
           optionalRequest('/modules/attendance', { module: null }),
+          optionalRequest('/attendance/offices', { offices: [] }),
         ]);
 
         const currentUserId = activeSession.user?.id;
@@ -299,6 +317,7 @@ const StaffFlowApp = () => {
           tasks,
           unreadCount: notificationData.unreadCount || 0,
         });
+        setAttendanceOffices(officeData.offices || []);
         setAttendanceCustomFields(current =>
           prepareFieldDefaults(
             attendanceModuleData.module?.fields || [],
@@ -340,10 +359,8 @@ const StaffFlowApp = () => {
     let active = true;
     const restore = async () => {
       try {
-        const stored = await AsyncStorage.getItem(SESSION_STORAGE_KEY);
-        if (!stored) return;
-
-        let restored = JSON.parse(stored);
+        let restored = await loadSecureSession();
+        if (!restored) return;
         if (
           Number(restored.expiresAt || 0) - Date.now() <=
           TOKEN_REFRESH_BUFFER_MS
@@ -356,7 +373,7 @@ const StaffFlowApp = () => {
         setEmail(user.email);
         await loadWorkspace({ silent: true, sourceSession: nextSession });
       } catch (error) {
-        await AsyncStorage.removeItem(SESSION_STORAGE_KEY);
+        await clearSecureSession();
         if (active) showNotice(getErrorMessage(error), 'error');
       } finally {
         if (active) setInitializing(false);
@@ -433,10 +450,7 @@ const StaffFlowApp = () => {
     [showNotice],
   );
 
-  const locateUser = useCallback(async () => {
-    if (!environment.office) {
-      throw new Error('Office location is not configured for this build.');
-    }
+  const locateUser = useCallback(async (offices = attendanceOffices) => {
     const allowed = await requestLocationPermission();
     if (!allowed) {
       throw new Error('Location permission is required for attendance.');
@@ -464,26 +478,34 @@ const StaffFlowApp = () => {
       }
       throw error;
     }
-    const currentLocation = {
+    const currentLocation = resolveLocationAgainstOffices({
       accuracy: Number(position.coords.accuracy || 0),
       latitude: position.coords.latitude,
       longitude: position.coords.longitude,
-    };
-    const distanceMeters = calculateDistanceMeters(
-      environment.office,
-      currentLocation,
-    );
-    const result = { ...currentLocation, distanceMeters };
+    }, offices);
+    const result = currentLocation;
     setLastLocation(result);
     return result;
-  }, []);
+  }, [attendanceOffices]);
 
   const handleLocate = useCallback(async () => {
     setSubmittingDirection('locate');
     try {
-      const location = await locateUser();
+      const [officeData, rawLocation] = await Promise.all([
+        attendanceOffices.length
+          ? Promise.resolve({ offices: attendanceOffices })
+          : authorizedRequest('/attendance/offices'),
+        locateUser([]),
+      ]);
+      const offices = officeData.offices || [];
+      setAttendanceOffices(offices);
+      const location = resolveLocationAgainstOffices(rawLocation, offices);
+      setLastLocation(location);
+      if (!location.office) {
+        throw new Error('No active attendance office is configured.');
+      }
       const inside =
-        location.distanceMeters <= environment.office.radiusMeters;
+        location.distanceMeters <= location.office.radiusMeters;
       showNotice(
         inside
           ? `You are inside the office boundary at ${formatDistance(
@@ -499,7 +521,7 @@ const StaffFlowApp = () => {
     } finally {
       setSubmittingDirection('');
     }
-  }, [locateUser, showNotice]);
+  }, [attendanceOffices, authorizedRequest, locateUser, showNotice]);
 
   const verifyBiometric = useCallback(async direction => {
     const biometrics = new ReactNativeBiometrics({
@@ -534,20 +556,20 @@ const StaffFlowApp = () => {
 
       setSubmittingDirection(direction);
       try {
-        const location = await locateUser();
-        if (location.distanceMeters > environment.office.radiusMeters) {
-          throw new Error(
-            `You are ${formatDistance(
-              location.distanceMeters,
-            )} from the office. Attendance is allowed within ${formatDistance(
-              environment.office.radiusMeters,
-            )}.`,
-          );
-        }
+        const rawLocation = await locateUser([]);
         await verifyBiometric(direction);
+        const { challenge } = await authorizedRequest(
+          '/attendance/challenge',
+          { method: 'POST' },
+        );
+        const offices = challenge.offices || [];
+        setAttendanceOffices(offices);
+        const location = resolveLocationAgainstOffices(rawLocation, offices);
+        setLastLocation(location);
         const { scan } = await authorizedRequest('/attendance/scans', {
           body: {
             accuracyMeters: location.accuracy,
+            challengeToken: challenge.token,
             customFields: attendanceCustomFields,
             direction,
             latitude: location.latitude,
@@ -555,6 +577,7 @@ const StaffFlowApp = () => {
             source: 'mobile_biometric',
           },
           method: 'POST',
+          retries: 1,
           timeout: ATTENDANCE_REQUEST_TIMEOUT_MS,
         });
         setWorkspace(current => ({
@@ -574,7 +597,7 @@ const StaffFlowApp = () => {
         showNotice(
           scan.accepted === false
             ? scan.rejectionReason || 'Attendance was rejected.'
-            : `${direction === 'in' ? 'Check-in' : 'Check-out'} recorded.`,
+            : `${direction === 'in' ? 'Check-in' : 'Check-out'} ${scan.replayed ? 'confirmed' : 'recorded'}.`,
           scan.accepted === false ? 'error' : 'success',
         );
       } catch (error) {
@@ -712,7 +735,7 @@ const StaffFlowApp = () => {
           employees={workspace.employees}
           lastLocation={lastLocation}
           moduleDefinition={workspace.attendanceModule}
-          office={environment.office}
+          office={lastLocation?.office || attendanceOffices[0] || null}
           onCustomFieldsChange={setAttendanceCustomFields}
           onLocate={handleLocate}
           onMark={handleAttendance}
@@ -753,7 +776,7 @@ const StaffFlowApp = () => {
       return (
         <ProfileScreen
           configurationIssue={configurationIssue}
-          officeConfigured={Boolean(environment.office)}
+          officeConfigured={attendanceOffices.length > 0}
           onOpenProfile={() => openWeb('/profile')}
           onOpenSettings={() => openWeb('/settings')}
           onSignOut={requestSignOut}
@@ -779,6 +802,7 @@ const StaffFlowApp = () => {
   }, [
     activeTab,
     attendanceCustomFields,
+    attendanceOffices,
     configurationIssue,
     handleAttendance,
     handleLocate,

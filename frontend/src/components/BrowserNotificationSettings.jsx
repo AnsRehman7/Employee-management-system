@@ -5,6 +5,7 @@ import {
   requestBrowserNotificationPermission,
   showBrowserNotification,
 } from "../utils/browserNotifications";
+import { registerPushDevice } from "../utils/pushNotifications";
 
 const permissionCopy = {
   default: {
@@ -45,13 +46,20 @@ const BrowserNotificationSettings = () => {
     };
   }, []);
 
+  useEffect(() => {
+    if (permission === "granted") registerPushDevice().catch(() => {});
+  }, [permission]);
+
   const enableNotifications = async () => {
     setBusy("enable");
     setMessage("");
     try {
       const nextPermission = await requestBrowserNotificationPermission();
       setPermission(nextPermission);
-      if (nextPermission === "granted") setMessage("Desktop notifications are enabled.");
+      if (nextPermission === "granted") {
+        const result = await registerPushDevice();
+        setMessage(result.registered ? "Real-time desktop notifications are enabled." : "Desktop notifications are enabled on this device.");
+      }
     } catch {
       setMessage("The browser could not update notification permissions.");
     } finally {

@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import {
+  FiActivity,
   FiArrowLeft,
   FiBriefcase,
   FiLayers,
-  FiLock,
   FiMail,
   FiPhone,
   FiPlus,
@@ -15,18 +15,21 @@ import Alert from "../../Alert";
 import AppShell from "../../AppShell";
 import CustomFieldsForm from "../../CustomFieldsForm";
 import { api, formatApiError } from "../../../context/api";
+import { useFirebase } from "../../../context/firebase";
 import { useUser } from "../../../context/UserContext";
 import { getAssignableRoleOptions } from "./userUtils";
 
 const initialForm = {
+  avatarUrl: "",
   contact: "",
   customFields: {},
   department: "",
   designation: "",
   email: "",
   fullName: "",
-  password: "",
   role: "employee",
+  skills: "",
+  weeklyCapacityHours: 40,
 };
 
 const fieldClass =
@@ -35,6 +38,7 @@ const fieldClass =
 const UserCreatePage = () => {
   const navigate = useNavigate();
   const { user: currentUser } = useUser();
+  const { sendResetPassword } = useFirebase();
   const [formData, setFormData] = useState(initialForm);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -69,8 +73,16 @@ const UserCreatePage = () => {
     setSaving(true);
     setError("");
     try {
-      const { user } = await api.createUser(formData);
-      navigate(`/users/${user.id}`, { replace: true, state: { notice: "User account created successfully." } });
+      const payload = {
+        ...formData,
+        skills: formData.skills.split(",").map((skill) => skill.trim()).filter(Boolean),
+      };
+      const { user } = await api.createUser(payload);
+      const invitationSent = await sendResetPassword(formData.email).then(() => true).catch(() => false);
+      navigate(`/users/${user.id}`, {
+        replace: true,
+        state: { notice: invitationSent ? "User account created and setup email sent." : "User account created. Send a password setup link from the profile security section." },
+      });
     } catch (requestError) {
       setError(formatApiError(requestError));
     } finally {
@@ -99,15 +111,17 @@ const UserCreatePage = () => {
             </div>
             <div className="space-y-5 p-5">
               <label className="block"><span className="flex items-center gap-2 text-sm font-bold text-slate-700"><FiUser className="h-4 w-4 text-slate-400" />Full name</span><input autoFocus className={fieldClass} maxLength="120" name="fullName" onChange={handleChange} placeholder="Ayesha Noor" required value={formData.fullName} /></label>
+              <label className="block"><span className="text-sm font-bold text-slate-700">Avatar URL</span><input className={fieldClass} maxLength="2048" name="avatarUrl" onChange={handleChange} placeholder="https://..." type="url" value={formData.avatarUrl} /></label>
               <div className="grid gap-5 md:grid-cols-2">
                 <label className="block"><span className="flex items-center gap-2 text-sm font-bold text-slate-700"><FiMail className="h-4 w-4 text-slate-400" />Work email</span><input className={fieldClass} maxLength="255" name="email" onChange={handleChange} placeholder="ayesha@company.com" required type="email" value={formData.email} /></label>
-                <label className="block"><span className="flex items-center gap-2 text-sm font-bold text-slate-700"><FiLock className="h-4 w-4 text-slate-400" />Temporary password</span><input className={fieldClass} maxLength="128" minLength="6" name="password" onChange={handleChange} placeholder="Minimum 6 characters" required type="password" value={formData.password} /><span className="mt-1.5 block text-xs text-slate-400">The member can reset this password from the sign-in page.</span></label>
+                <label className="block"><span className="text-sm font-bold text-slate-700">Weekly capacity</span><div className="relative"><input className={`${fieldClass} pr-16`} max="168" min="1" name="weeklyCapacityHours" onChange={handleChange} step="0.5" type="number" value={formData.weeklyCapacityHours} /><span className="pointer-events-none absolute bottom-3 right-3 text-xs font-bold text-slate-400">hours</span></div></label>
               </div>
               <div className="grid gap-5 md:grid-cols-2">
                 {fieldVisible("designation") && <label className="block"><span className="flex items-center gap-2 text-sm font-bold text-slate-700"><FiBriefcase className="h-4 w-4 text-slate-400" />Designation</span><input className={fieldClass} maxLength="120" name="designation" onChange={handleChange} placeholder="Operations Manager" required={fieldRequired("designation")} value={formData.designation} /></label>}
                 {fieldVisible("department") && <label className="block"><span className="flex items-center gap-2 text-sm font-bold text-slate-700"><FiLayers className="h-4 w-4 text-slate-400" />Department</span><input className={fieldClass} maxLength="120" name="department" onChange={handleChange} placeholder="Operations" required={fieldRequired("department")} value={formData.department} /></label>}
               </div>
               {fieldVisible("contact") && <label className="block"><span className="flex items-center gap-2 text-sm font-bold text-slate-700"><FiPhone className="h-4 w-4 text-slate-400" />Contact number</span><input className={fieldClass} maxLength="40" name="contact" onChange={handleChange} placeholder="+92 300 1234567" required={fieldRequired("contact")} type="tel" value={formData.contact} /></label>}
+              <label className="block"><span className="flex items-center gap-2 text-sm font-bold text-slate-700"><FiActivity className="h-4 w-4 text-slate-400" />Skills</span><input className={fieldClass} maxLength="1200" name="skills" onChange={handleChange} placeholder="React, PostgreSQL, QA" value={formData.skills} /><span className="mt-1.5 block text-xs text-slate-400">Separate skills with commas for capacity-aware planning.</span></label>
             </div>
             </section>
             <CustomFieldsForm

@@ -7,12 +7,12 @@ import {
   FiRefreshCw,
   FiShield,
   FiSliders,
-  FiTrash2,
   FiUserCheck,
 } from "react-icons/fi";
 import AppShell from "../AppShell";
 import Alert from "../Alert";
 import CustomFieldsForm from "../CustomFieldsForm";
+import AttendanceCorrections from "./AttendanceCorrections";
 import { api, formatApiError } from "../../context/api";
 import { useUser } from "../../context/UserContext";
 
@@ -27,6 +27,21 @@ const minutesFromTime = (time = "00:00") => {
 };
 
 const combineDateTime = (date, time) => `${date}T${time}:00`;
+
+const getCurrentLocation = () => new Promise((resolve, reject) => {
+  if (!navigator.geolocation) {
+    reject(new Error("This browser cannot access device location."));
+    return;
+  }
+  navigator.geolocation.getCurrentPosition(resolve, (error) => {
+    const messages = {
+      1: "Location permission is required for verified attendance.",
+      2: "Your device could not determine a location. Turn on Location Services and try again.",
+      3: "Location verification timed out. Move near a window or outdoors and try again.",
+    };
+    reject(new Error(messages[error.code] || "Location verification failed."));
+  }, { enableHighAccuracy: true, maximumAge: 0, timeout: 30_000 });
+});
 
 const formatTime = (timestamp) => {
   if (!timestamp) return "-";
@@ -54,56 +69,6 @@ const getScanMinutes = (scan) => {
 };
 
 const getScanDay = (scan) => toLocalDateInput(new Date(scan.timestamp));
-
-const sampleRoster = [
-  {
-    department: "Operations",
-    designation: "Operations Manager",
-    fingerprintId: "FP-1001",
-    id: "sample-ayesha",
-    name: "Ayesha Noor",
-    role: "manager",
-  },
-  {
-    department: "Sales",
-    designation: "Client Coordinator",
-    fingerprintId: "FP-1002",
-    id: "sample-hamza",
-    name: "Hamza Ali",
-    role: "employee",
-  },
-  {
-    department: "HR",
-    designation: "HR Executive",
-    fingerprintId: "FP-1003",
-    id: "sample-sara",
-    name: "Sara Khan",
-    role: "hr",
-  },
-  {
-    department: "Finance",
-    designation: "Accounts Officer",
-    fingerprintId: "FP-1004",
-    id: "sample-bilal",
-    name: "Bilal Ahmed",
-    role: "accounts",
-  },
-];
-
-const createSampleScans = (date) => [
-  { direction: "in", id: "scan-1", source: "Door fingerprint", timestamp: combineDateTime(date, "08:12"), userId: "sample-ayesha" },
-  { direction: "out", id: "scan-2", source: "Door fingerprint", timestamp: combineDateTime(date, "12:45"), userId: "sample-ayesha" },
-  { direction: "in", id: "scan-3", source: "Door fingerprint", timestamp: combineDateTime(date, "13:24"), userId: "sample-ayesha" },
-  { direction: "out", id: "scan-4", source: "Door fingerprint", timestamp: combineDateTime(date, "16:20"), userId: "sample-ayesha" },
-  { direction: "out", id: "scan-5", source: "Door fingerprint", timestamp: combineDateTime(date, "17:18"), userId: "sample-ayesha" },
-  { direction: "in", id: "scan-6", source: "Door fingerprint", timestamp: combineDateTime(date, "09:32"), userId: "sample-hamza" },
-  { direction: "out", id: "scan-7", source: "Door fingerprint", timestamp: combineDateTime(date, "13:05"), userId: "sample-hamza" },
-  { direction: "in", id: "scan-8", source: "Door fingerprint", timestamp: combineDateTime(date, "14:02"), userId: "sample-hamza" },
-  { direction: "out", id: "scan-9", source: "Door fingerprint", timestamp: combineDateTime(date, "17:47"), userId: "sample-hamza" },
-  { direction: "in", id: "scan-10", source: "Mobile fingerprint", timestamp: combineDateTime(date, "08:55"), userId: "sample-sara" },
-  { direction: "out", id: "scan-11", source: "Door fingerprint", timestamp: combineDateTime(date, "12:30"), userId: "sample-sara" },
-  { direction: "in", id: "scan-12", source: "Door fingerprint", timestamp: combineDateTime(date, "13:05"), userId: "sample-sara" },
-];
 
 const toSourceLabel = (source = "") =>
   source
@@ -230,9 +195,9 @@ const AttendancePortal = () => {
   const [loadingRoster, setLoadingRoster] = useState(true);
   const [loadingScans, setLoadingScans] = useState(false);
   const [notice, setNotice] = useState({ message: "", type: "info" });
-  const [roster, setRoster] = useState(sampleRoster);
+  const [roster, setRoster] = useState([]);
   const [savingScan, setSavingScan] = useState(false);
-  const [scans, setScans] = useState(() => createSampleScans(today));
+  const [scans, setScans] = useState([]);
   const [moduleDefinition, setModuleDefinition] = useState(null);
   const [schedule, setSchedule] = useState({
     checkInGraceMinutes: 60,
@@ -246,7 +211,7 @@ const AttendancePortal = () => {
     direction: "in",
     scanTime: "08:10",
     source: "Door fingerprint",
-    userId: sampleRoster[0].id,
+    userId: "",
   });
   const canViewAllAttendance = ["super_admin", "admin", "hr", "accounts"].includes(user?.role);
   const canManageAttendance = ["super_admin", "admin", "hr"].includes(user?.role);
@@ -312,9 +277,10 @@ const AttendancePortal = () => {
       }
       setNotice({ message: "", type: "info" });
     } catch (error) {
+      setRoster([]);
       setNotice({
-        message: `Using sample roster until backend attendance users are connected. ${formatApiError(error)}`,
-        type: "info",
+        message: `The attendance roster could not be loaded. ${formatApiError(error)}`,
+        type: "error",
       });
     } finally {
       setLoadingRoster(false);
@@ -332,9 +298,10 @@ const AttendancePortal = () => {
       const { scans: apiScans = [] } = await api.getAttendanceScans(date);
       setScans(apiScans.map(mapApiScan));
     } catch (error) {
+      setScans([]);
       setNotice({
-        message: `Attendance scan API is unavailable, so the dashboard is showing local sample data. ${formatApiError(error)}`,
-        type: "info",
+        message: `Attendance records could not be loaded. ${formatApiError(error)}`,
+        type: "error",
       });
     } finally {
       setLoadingScans(false);
@@ -382,17 +349,33 @@ const AttendancePortal = () => {
     const member = roster.find((item) => item.id === scanForm.userId);
     if (!member) return;
 
-    const timestamp = combineDateTime(date, scanForm.scanTime);
     setSavingScan(true);
 
     try {
-      const { scan } = await api.createAttendanceScan({
-        customFields: scanForm.customFields,
-        direction: scanForm.direction,
-        scannedAt: timestamp,
-        source: scanForm.source,
-        userId: scanForm.userId,
-      });
+      let payload;
+      if (canManageAttendance) {
+        payload = {
+          customFields: scanForm.customFields,
+          direction: scanForm.direction,
+          scannedAt: combineDateTime(date, scanForm.scanTime),
+          source: scanForm.source,
+          userId: scanForm.userId,
+        };
+      } else {
+        const [{ challenge }, position] = await Promise.all([
+          api.createAttendanceChallenge(),
+          getCurrentLocation(),
+        ]);
+        payload = {
+          accuracyMeters: position.coords.accuracy,
+          challengeToken: challenge.token,
+          customFields: scanForm.customFields,
+          direction: scanForm.direction,
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+        };
+      }
+      const { scan } = await api.createAttendanceScan(payload);
       const mappedScan = mapApiScan(scan);
 
       setScans((current) => [...current.filter((item) => item.id !== mappedScan.id), mappedScan]);
@@ -401,7 +384,7 @@ const AttendancePortal = () => {
         message:
           mappedScan.accepted === false
             ? `${member.name}'s scan was recorded for audit but rejected. ${mappedScan.rejectionReason}`
-            : `${member.name} ${scanForm.direction === "in" ? "entry" : "exit"} scan recorded at ${scanForm.scanTime}.`,
+            : `${member.name} ${scanForm.direction === "in" ? "entry" : "exit"} recorded at ${formatTime(mappedScan.timestamp)}.`,
         type: mappedScan.accepted === false ? "error" : "success",
       });
     } catch (error) {
@@ -414,22 +397,10 @@ const AttendancePortal = () => {
     }
   };
 
-  const loadSampleDay = () => {
-    setRoster(sampleRoster);
-    setScanForm((current) => ({ ...current, userId: sampleRoster[0].id }));
-    setScans(createSampleScans(date));
-    setNotice({ message: "Sample fingerprint scans loaded for the selected day.", type: "success" });
-  };
-
-  const clearDayScans = () => {
-    setScans((current) => current.filter((scan) => getScanDay(scan) !== date));
-    setNotice({ message: "Selected day scans cleared locally. Stored backend scans are preserved for audit.", type: "info" });
-  };
-
   return (
     <AppShell
         title="Attendance portal"
-        subtitle="Track first check-in, late coming, latest checkout, and total office time from fingerprint scan events."
+        subtitle="Review verified attendance, exceptions, and total working time."
       >
       <div className="grid gap-6 xl:grid-cols-[0.78fr_1.22fr]">
         <section className="space-y-6">
@@ -529,13 +500,13 @@ const AttendancePortal = () => {
                   <FiShield className="h-5 w-5" />
                 </span>
                 <div>
-                  <h2 className="text-2xl font-bold text-slate-950">Fingerprint scan</h2>
-                  <p className="mt-1 text-sm text-slate-500">Record a door, mobile, or manual attendance event.</p>
+                  <h2 className="text-xl font-bold text-slate-950">{canManageAttendance ? "Manual attendance entry" : "Verified attendance"}</h2>
+                  <p className="mt-1 text-sm text-slate-500">{canManageAttendance ? "Record an authorized attendance event for a workspace member." : "Check in or out using your current office location."}</p>
                 </div>
               </div>
 
             <div className="space-y-4">
-              <label className="block">
+              {canManageAttendance && <label className="block">
                 <span className="text-sm font-semibold text-slate-700">Team member</span>
                 <select
                   className="mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-950 outline-none transition focus:border-violet-500 focus:bg-white focus:ring-4 focus:ring-violet-500/10"
@@ -550,10 +521,10 @@ const AttendancePortal = () => {
                     </option>
                   ))}
                 </select>
-              </label>
+              </label>}
 
               <div className="grid gap-4 sm:grid-cols-2">
-                <label className="block">
+                {canManageAttendance && <label className="block">
                   <span className="text-sm font-semibold text-slate-700">Scan time</span>
                   <input
                     className="mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-950 outline-none transition focus:border-violet-500 focus:bg-white focus:ring-4 focus:ring-violet-500/10"
@@ -563,7 +534,7 @@ const AttendancePortal = () => {
                     type="time"
                     value={scanForm.scanTime}
                   />
-                </label>
+                </label>}
 
                 <label className="block">
                   <span className="text-sm font-semibold text-slate-700">Scan direction</span>
@@ -579,7 +550,7 @@ const AttendancePortal = () => {
                 </label>
               </div>
 
-              {fieldVisible("source") && <label className="block">
+              {canManageAttendance && fieldVisible("source") && <label className="block">
                 <span className="text-sm font-semibold text-slate-700">Source</span>
                 <select
                   className="mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-950 outline-none transition focus:border-violet-500 focus:bg-white focus:ring-4 focus:ring-violet-500/10"
@@ -609,34 +580,18 @@ const AttendancePortal = () => {
                 type="submit"
               >
                 {scanForm.direction === "in" ? <FiLogIn className="h-4 w-4" /> : <FiLogOut className="h-4 w-4" />}
-                {savingScan ? "Saving scan..." : "Record scan"}
+                {savingScan ? (canManageAttendance ? "Saving..." : "Verifying location...") : scanForm.direction === "in" ? "Check in" : "Check out"}
               </button>
 
-              <div className="grid gap-3 sm:grid-cols-3">
+              <div>
                 <button
-                  className="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-bold text-slate-700 transition hover:bg-slate-100"
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-bold text-slate-700 transition hover:bg-slate-100"
                   disabled={loadingScans}
                   onClick={loadScans}
                   type="button"
                 >
                   <FiRefreshCw className="h-4 w-4" />
                   Refresh
-                </button>
-                <button
-                  className="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-bold text-slate-700 transition hover:bg-slate-100"
-                  onClick={loadSampleDay}
-                  type="button"
-                >
-                  <FiRefreshCw className="h-4 w-4" />
-                  Load sample
-                </button>
-                <button
-                  className="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-bold text-slate-700 transition hover:bg-slate-100"
-                  onClick={clearDayScans}
-                  type="button"
-                >
-                  <FiTrash2 className="h-4 w-4" />
-                  Clear day
                 </button>
               </div>
             </div>
@@ -734,7 +689,7 @@ const AttendancePortal = () => {
           <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
             <div className="mb-5 border-b border-slate-200 pb-5">
               <h2 className="text-2xl font-bold text-slate-950">Scan timeline</h2>
-              <p className="mt-1 text-sm text-slate-500">Every fingerprint event is preserved for audit and later device integration.</p>
+              <p className="mt-1 text-sm text-slate-500">Every accepted and rejected event is retained with its verification source.</p>
             </div>
 
             {dayScans.length === 0 ? (
@@ -785,6 +740,7 @@ const AttendancePortal = () => {
           </section>
         </section>
       </div>
+      <div className="mt-6"><AttendanceCorrections canManage={canManageAttendance} /></div>
     </AppShell>
   );
 };

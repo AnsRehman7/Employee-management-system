@@ -8,6 +8,7 @@ import {
   FiClock,
   FiEdit2,
   FiFlag,
+  FiGitBranch,
   FiRefreshCw,
   FiSave,
   FiTrash2,
@@ -21,6 +22,7 @@ import CustomFieldsForm from "../../CustomFieldsForm";
 import { api, formatApiError } from "../../../context/api";
 import { useUser } from "../../../context/UserContext";
 import WorkActivityTimeline from "./WorkActivityTimeline";
+import TaskCollaborationPanel from "./TaskCollaborationPanel";
 import {
   formatDate,
   formatDateTime,
@@ -40,10 +42,13 @@ const taskToForm = (task) => ({
   category: task.category || "",
   customFields: task.customFields || {},
   deadline: task.deadline || "",
+  dependencyIds: task.dependencyIds || [],
   description: task.description || "",
   estimatedHours: task.estimatedHours ?? "",
   priority: task.priority || "normal",
   projectId: task.projectId || "",
+  requiredSkills: (task.requiredSkills || []).join(", "),
+  riskLevel: task.riskLevel || "low",
   status: task.status || "open",
   successCriteria: task.successCriteria || "",
   title: task.title || "",
@@ -58,6 +63,7 @@ const TaskDetailPage = () => {
   const [activity, setActivity] = useState([]);
   const [employees, setEmployees] = useState([]);
   const [projects, setProjects] = useState([]);
+  const [availableTasks, setAvailableTasks] = useState([]);
   const [moduleDefinition, setModuleDefinition] = useState(null);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
@@ -119,11 +125,12 @@ const TaskDetailPage = () => {
     if (!canEditTasks) return undefined;
     let active = true;
 
-    Promise.all([api.getEmployees(), api.getProjects()])
-      .then(([{ employees: employeeList }, { projects: projectList }]) => {
+    Promise.all([api.getEmployees(), api.getProjects(), api.getTasks({ limit: 100, projectId: task?.projectId })])
+      .then(([{ employees: employeeList }, { projects: projectList }, { tasks: taskList }]) => {
         if (!active) return;
         setEmployees(employeeList);
         setProjects(projectList.filter((project) => project.status !== "archived"));
+        setAvailableTasks(taskList.filter((item) => item.id !== taskId));
       })
       .catch((requestError) => {
         if (active) setNotice({ message: formatApiError(requestError), type: "error" });
@@ -132,14 +139,14 @@ const TaskDetailPage = () => {
     return () => {
       active = false;
     };
-  }, [canEditTasks]);
+  }, [canEditTasks, task?.projectId, taskId]);
 
   const changeStatus = async (status) => {
     if (!task || status === task.status) return;
     setBusy(true);
     setNotice({ message: "", type: "info" });
     try {
-      await api.updateTaskStatus(task.id, status);
+      await api.updateTaskStatus(task.id, status, task.version);
       await loadTask();
       setNotice({ message: `Task moved to ${labelForValue(status)}.`, type: "success" });
     } catch (requestError) {
@@ -154,7 +161,11 @@ const TaskDetailPage = () => {
     setBusy(true);
     setNotice({ message: "", type: "info" });
     try {
-      await api.updateTask(task.id, editForm);
+      await api.updateTask(task.id, {
+        ...editForm,
+        expectedVersion: task.version,
+        requiredSkills: editForm.requiredSkills.split(",").map((skill) => skill.trim()).filter(Boolean),
+      });
       await loadTask();
       setEditing(false);
       setNotice({ message: "Task details updated.", type: "success" });
@@ -314,6 +325,12 @@ const TaskDetailPage = () => {
                 </select>
               </label>
               <label className="block">
+                <span className="text-sm font-bold text-slate-700">Delivery risk</span>
+                <select className={fieldClass} onChange={(event) => setEditForm((current) => ({ ...current, riskLevel: event.target.value }))} value={editForm.riskLevel}>
+                  <option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option><option value="critical">Critical</option>
+                </select>
+              </label>
+              <label className="block">
                 <span className="text-sm font-bold text-slate-700">Category</span>
                 <input className={fieldClass} onChange={(event) => setEditForm((current) => ({ ...current, category: event.target.value }))} required value={editForm.category} />
               </label>
@@ -325,6 +342,16 @@ const TaskDetailPage = () => {
                 <span className="text-sm font-bold text-slate-700">Estimated effort (hours)</span>
                 <input className={fieldClass} min="0" onChange={(event) => setEditForm((current) => ({ ...current, estimatedHours: event.target.value }))} required={fieldRequired("estimatedHours")} step="0.25" type="number" value={editForm.estimatedHours} />
               </label>}
+              <label className="block lg:col-span-2">
+                <span className="text-sm font-bold text-slate-700">Required skills</span>
+                <input className={fieldClass} maxLength="1200" onChange={(event) => setEditForm((current) => ({ ...current, requiredSkills: event.target.value }))} placeholder="React, QA, PostgreSQL" value={editForm.requiredSkills} />
+              </label>
+              <fieldset className="lg:col-span-2 xl:col-span-3">
+                <legend className="text-sm font-bold text-slate-700">Prerequisite tasks</legend>
+                <div className="mt-2 grid max-h-48 gap-2 overflow-y-auto rounded-lg border border-slate-200 bg-slate-50 p-3 md:grid-cols-2">
+                  {availableTasks.length ? availableTasks.map((candidate) => <label className="flex cursor-pointer items-start gap-2 rounded-lg bg-white px-3 py-2 ring-1 ring-slate-200" key={candidate.id}><input checked={editForm.dependencyIds.includes(candidate.id)} className="mt-0.5 h-4 w-4 accent-violet-600" onChange={(event) => setEditForm((current) => ({ ...current, dependencyIds: event.target.checked ? [...current.dependencyIds, candidate.id] : current.dependencyIds.filter((id) => id !== candidate.id) }))} type="checkbox" /><span className="min-w-0"><span className="block truncate text-xs font-bold text-slate-800">{candidate.title}</span><span className="block text-[11px] text-slate-400">{labelForValue(candidate.status)}</span></span></label>) : <p className="col-span-full py-3 text-center text-xs text-slate-400">No other project tasks are available.</p>}
+                </div>
+              </fieldset>
               <label className="block lg:col-span-2 xl:col-span-3">
                 <span className="text-sm font-bold text-slate-700">Description</span>
                 <textarea className={textareaClass} onChange={(event) => setEditForm((current) => ({ ...current, description: event.target.value }))} required rows="7" value={editForm.description} />
@@ -353,6 +380,8 @@ const TaskDetailPage = () => {
                         {labelForValue(task.status)}
                       </span>
                       <span className="text-xs font-bold text-slate-500">{labelForValue(task.priority)} priority</span>
+                      <span className={`rounded-full border px-2.5 py-1 text-xs font-bold ${task.riskLevel === "critical" || task.riskLevel === "high" ? "border-rose-200 bg-rose-50 text-rose-700" : task.riskLevel === "medium" ? "border-amber-200 bg-amber-50 text-amber-700" : "border-emerald-200 bg-emerald-50 text-emerald-700"}`}>{labelForValue(task.riskLevel)} risk</span>
+                      {task.source === "ai_plan" && <span className="rounded-full border border-violet-200 bg-violet-50 px-2.5 py-1 text-xs font-bold text-violet-700">Approved AI plan / {task.confidence || 0}% confidence</span>}
                       <span className="text-xs font-semibold text-slate-400">Updated {formatDateTime(task.updatedAt)}</span>
                     </div>
                     <h2 className={`mt-4 text-2xl font-bold sm:text-3xl ${isCompleted ? "text-slate-500 line-through decoration-slate-300" : "text-slate-950"}`}>
@@ -423,6 +452,10 @@ const TaskDetailPage = () => {
                   title="Additional information"
                   values={task.customFields || {}}
                 />
+
+                {task.dependencies?.length > 0 && <section className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm"><div className="flex items-center gap-3 border-b border-slate-200 px-5 py-4"><span className="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-100 text-amber-700"><FiGitBranch /></span><div><h2 className="text-base font-bold text-slate-950">Dependencies</h2><p className="text-sm text-slate-500">Prerequisites that must finish before this task can be completed.</p></div></div><div className="divide-y divide-slate-100">{task.dependencies.map((dependency) => <Link className="flex items-center justify-between gap-3 px-5 py-3 text-sm font-bold text-slate-700 hover:bg-slate-50 hover:text-violet-700" key={dependency.id} to={`/tasks/${dependency.id}`}><span>{dependency.title}</span><span className={`rounded-full border px-2.5 py-1 text-xs ${TASK_STATUS_STYLES[dependency.status] || TASK_STATUS_STYLES.open}`}>{labelForValue(dependency.status)}</span></Link>)}</div></section>}
+
+                <TaskCollaborationPanel canContribute={canUpdateWork} currentUserId={user?.id} members={employees} task={task} />
 
                 <section className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
                   <div className="border-b border-slate-200 px-5 py-4">

@@ -6,7 +6,10 @@ import {
   FiBriefcase,
   FiCheckCircle,
   FiClock,
+  FiDownload,
+  FiGitBranch,
   FiRefreshCw,
+  FiTarget,
   FiTrendingUp,
   FiUsers,
 } from "react-icons/fi";
@@ -35,6 +38,38 @@ const dateTimeFormatter = new Intl.DateTimeFormat("en", {
   dateStyle: "medium",
   timeStyle: "short",
 });
+
+const plannerMetric = (value, suffix = "") =>
+  value === null || value === undefined ? "-" : `${numberFormatter.format(value)}${suffix}`;
+
+const exportPlanningEvaluations = (research) => {
+  const columns = [
+    ["evaluated_at", (row) => row.evaluatedAt],
+    ["project", (row) => row.projectName],
+    ["plan_version", (row) => row.planVersion],
+    ["requirement_coverage_percent", (row) => row.metrics.requirementCoverage],
+    ["schedule_violations", (row) => row.metrics.scheduleViolations],
+    ["dependency_violations", (row) => row.metrics.dependencyViolations],
+    ["effort_mae_hours", (row) => row.metrics.effortMeanAbsoluteError],
+    ["manager_override_percent", (row) => row.metrics.managerOverrideRate],
+    ["generation_seconds", (row) => row.metrics.generationSeconds],
+    ["review_minutes", (row) => row.metrics.planningReviewMinutes],
+    ["planning_time_saved_minutes", (row) => row.metrics.planningTimeSavedMinutes],
+  ];
+  const escape = (value) => `"${String(value ?? "").replaceAll('"', '""')}"`;
+  const csv = [
+    columns.map(([header]) => escape(header)).join(","),
+    ...(research.evaluations || []).map((row) =>
+      columns.map(([, read]) => escape(read(row))).join(","),
+    ),
+  ].join("\n");
+  const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `staffflow-planner-evaluation-${new Date().toISOString().slice(0, 10)}.csv`;
+  link.click();
+  URL.revokeObjectURL(url);
+};
 
 const Panel = ({ children, className = "" }) => (
   <section className={`rounded-lg border border-slate-200 bg-white shadow-sm ${className}`}>{children}</section>
@@ -152,6 +187,10 @@ const ReportsPage = () => {
     () => (report?.projectHealth || []).map((item) => ({ ...item, color: HEALTH_COLORS[item.key] || "#94a3b8" })),
     [report],
   );
+  const planningResearch = useMemo(
+    () => ({ evaluations: [], ...(report?.planningResearch || {}) }),
+    [report],
+  );
 
   return (
     <AppShell title="Reports" subtitle="Organization delivery, capacity, attendance, and operational risk in one view.">
@@ -177,6 +216,60 @@ const ReportsPage = () => {
               <Metric helper={`${report.summary.overdueTasks} overdue tasks`} icon={<FiClock className="h-5 w-5" />} label="Open workload" tone="bg-rose-100 text-rose-700" value={report.summary.activeTasks} />
               <Metric helper={`${report.summary.activeMembers} active members`} icon={<FiUsers className="h-5 w-5" />} label="Attendance today" tone="bg-cyan-100 text-cyan-700" value={`${report.summary.attendanceToday}%`} />
             </div>
+
+            <Panel className="overflow-hidden">
+              <div className="flex flex-col gap-3 border-b border-slate-200 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <p className="text-xs font-bold uppercase text-violet-700">Explainable planner evaluation</p>
+                  <h2 className="mt-1 text-lg font-bold text-slate-950">Research evidence</h2>
+                  <p className="mt-1 text-sm text-slate-500">Measured outcomes from manager-reviewed project plans.</p>
+                </div>
+                <button
+                  className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-slate-200 px-3 text-sm font-bold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+                  disabled={!planningResearch.evaluations.length}
+                  onClick={() => exportPlanningEvaluations(planningResearch)}
+                  type="button"
+                >
+                  <FiDownload className="h-4 w-4" />Export CSV
+                </button>
+              </div>
+              <div className="grid divide-y divide-slate-200 sm:grid-cols-2 sm:divide-x sm:divide-y-0 xl:grid-cols-4">
+                {[
+                  { icon: <FiTarget className="h-4 w-4 text-violet-600" />, label: "Requirement coverage", value: plannerMetric(planningResearch.averageRequirementCoverage, "%") },
+                  { icon: <FiClock className="h-4 w-4 text-violet-600" />, label: "Planning time saved", value: plannerMetric(planningResearch.averagePlanningTimeSavedMinutes, " min") },
+                  { icon: <FiGitBranch className="h-4 w-4 text-violet-600" />, label: "Dependency violations", value: plannerMetric(planningResearch.averageDependencyViolations) },
+                  { icon: <FiActivity className="h-4 w-4 text-violet-600" />, label: "Manager override rate", value: plannerMetric(planningResearch.averageManagerOverrideRate, "%") },
+                ].map(({ icon, label, value }) => (
+                  <div className="px-5 py-4" key={label}>
+                    {icon}
+                    <p className="mt-3 text-xs font-bold uppercase text-slate-500">{label}</p>
+                    <p className="mt-1 text-2xl font-bold text-slate-950">{value}</p>
+                  </div>
+                ))}
+              </div>
+              {planningResearch.evaluations.length ? (
+                <div className="overflow-x-auto border-t border-slate-200">
+                  <table className="w-full min-w-[850px] text-left text-sm">
+                    <thead className="bg-slate-50 text-xs font-bold uppercase text-slate-500"><tr><th className="px-5 py-3">Project / plan</th><th className="px-4 py-3">Coverage</th><th className="px-4 py-3">Schedule</th><th className="px-4 py-3">Dependencies</th><th className="px-4 py-3">Effort MAE</th><th className="px-4 py-3">Overrides</th><th className="px-5 py-3">Time saved</th></tr></thead>
+                    <tbody className="divide-y divide-slate-100">
+                      {planningResearch.evaluations.map((evaluation) => (
+                        <tr key={evaluation.id}>
+                          <td className="px-5 py-3"><Link className="font-bold text-slate-900 hover:text-violet-700" to={`/projects/${evaluation.projectId}/planner`}>{evaluation.projectName}</Link><p className="mt-0.5 text-xs text-slate-500">Plan v{evaluation.planVersion}</p></td>
+                          <td className="px-4 py-3 font-bold text-slate-700">{plannerMetric(evaluation.metrics.requirementCoverage, "%")}</td>
+                          <td className="px-4 py-3 font-semibold text-slate-700">{plannerMetric(evaluation.metrics.scheduleViolations)}</td>
+                          <td className="px-4 py-3 font-semibold text-slate-700">{plannerMetric(evaluation.metrics.dependencyViolations)}</td>
+                          <td className="px-4 py-3 font-semibold text-slate-700">{plannerMetric(evaluation.metrics.effortMeanAbsoluteError, "h")}</td>
+                          <td className="px-4 py-3 font-semibold text-slate-700">{plannerMetric(evaluation.metrics.managerOverrideRate, "%")}</td>
+                          <td className="px-5 py-3 font-semibold text-slate-700">{plannerMetric(evaluation.metrics.planningTimeSavedMinutes, " min")}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <p className="border-t border-slate-200 px-5 py-8 text-center text-sm text-slate-500">Evaluate an approved plan to build the research dataset.</p>
+              )}
+            </Panel>
 
             <div className="grid gap-5 xl:grid-cols-[minmax(0,1.45fr)_minmax(340px,0.55fr)]">
               <Panel className="p-5">

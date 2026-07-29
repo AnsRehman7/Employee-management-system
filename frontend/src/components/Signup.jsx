@@ -47,8 +47,8 @@ const Signup = () => {
     setIsSubmitting(true);
     setNotice({ message: "", type: "info" });
 
-    if (formData.password.length < 6) {
-      setNotice({ type: "error", message: "Password must be at least 6 characters." });
+    if (formData.password.length < 12) {
+      setNotice({ type: "error", message: "Password must be at least 12 characters." });
       setIsSubmitting(false);
       return;
     }
@@ -195,12 +195,13 @@ const Signup = () => {
                 <div className="mt-1.5 flex min-w-0 items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 transition focus-within:border-violet-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-violet-500/10">
                   <FiLock className="h-5 w-5 text-slate-400" />
                   <input
+                    minLength={12}
                     type="password"
                     name="password"
                     required
                     value={formData.password}
                     onChange={handleChange}
-                    placeholder="Minimum 6 characters"
+                    placeholder="Minimum 12 characters"
                     className="min-w-0 flex-1 bg-transparent text-sm text-slate-950 outline-none placeholder:text-slate-400"
                   />
                 </div>
