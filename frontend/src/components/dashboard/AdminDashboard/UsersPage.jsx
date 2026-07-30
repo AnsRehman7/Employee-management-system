@@ -25,7 +25,7 @@ const allRoleOptions = [
 ];
 
 const statusStyles = {
-  active: "bg-violet-100 text-violet-700",
+  active: "bg-emerald-100 text-emerald-800",
   suspended: "bg-slate-200 text-slate-700",
 };
 
@@ -171,7 +171,7 @@ const UsersPage = () => {
         <section className="space-y-6">
           <form className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm" onSubmit={handleCreateUser}>
             <div className="mb-5 flex items-start gap-3 border-b border-slate-200 pb-5">
-              <span className="rounded-lg bg-violet-100 p-3 text-violet-700">
+              <span className="rounded-lg bg-emerald-100 p-3 text-emerald-800">
                 <FiPlusCircle className="h-5 w-5" />
               </span>
               <div>
@@ -185,7 +185,7 @@ const UsersPage = () => {
 
               <label className="block">
                 <span className="text-sm font-semibold text-slate-700">Full name</span>
-                <div className="mt-2 flex items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 transition focus-within:border-violet-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-violet-500/10">
+                <div className="mt-2 flex items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 transition focus-within:border-emerald-600 focus-within:bg-white focus-within:ring-4 focus-within:ring-emerald-600/10">
                   <FiUser className="h-5 w-5 text-slate-400" />
                   <input
                     className="w-full bg-transparent text-sm text-slate-950 outline-none placeholder:text-slate-400"
@@ -202,7 +202,7 @@ const UsersPage = () => {
               <div className="grid gap-4 sm:grid-cols-2">
                 <label className="block">
                   <span className="text-sm font-semibold text-slate-700">Email</span>
-                  <div className="mt-2 flex items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 transition focus-within:border-violet-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-violet-500/10">
+                  <div className="mt-2 flex items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 transition focus-within:border-emerald-600 focus-within:bg-white focus-within:ring-4 focus-within:ring-emerald-600/10">
                     <FiMail className="h-5 w-5 text-slate-400" />
                     <input
                       className="w-full bg-transparent text-sm text-slate-950 outline-none placeholder:text-slate-400"
@@ -218,7 +218,7 @@ const UsersPage = () => {
 
                 <label className="block">
                   <span className="text-sm font-semibold text-slate-700">Password</span>
-                  <div className="mt-2 flex items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 transition focus-within:border-violet-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-violet-500/10">
+                  <div className="mt-2 flex items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 transition focus-within:border-emerald-600 focus-within:bg-white focus-within:ring-4 focus-within:ring-emerald-600/10">
                     <FiLock className="h-5 w-5 text-slate-400" />
                     <input
                       className="w-full bg-transparent text-sm text-slate-950 outline-none placeholder:text-slate-400"
@@ -238,7 +238,7 @@ const UsersPage = () => {
                 <label className="block">
                   <span className="text-sm font-semibold text-slate-700">Role</span>
                   <select
-                    className="mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-950 outline-none transition focus:border-violet-500 focus:bg-white focus:ring-4 focus:ring-violet-500/10"
+                    className="mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-950 outline-none transition focus:border-emerald-600 focus:bg-white focus:ring-4 focus:ring-emerald-600/10"
                     name="role"
                     onChange={handleCreateChange}
                     value={formData.role}
@@ -253,7 +253,7 @@ const UsersPage = () => {
 
                 <label className="block">
                   <span className="text-sm font-semibold text-slate-700">Designation</span>
-                  <div className="mt-2 flex items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 transition focus-within:border-violet-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-violet-500/10">
+                  <div className="mt-2 flex items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 transition focus-within:border-emerald-600 focus-within:bg-white focus-within:ring-4 focus-within:ring-emerald-600/10">
                     <FiBriefcase className="h-5 w-5 text-slate-400" />
                     <input
                       className="w-full bg-transparent text-sm text-slate-950 outline-none placeholder:text-slate-400"
@@ -269,7 +269,7 @@ const UsersPage = () => {
 
               <div className="grid gap-4 sm:grid-cols-2">
                 <input
-                  className="rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-violet-500 focus:bg-white focus:ring-4 focus:ring-violet-500/10"
+                  className="rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-emerald-600 focus:bg-white focus:ring-4 focus:ring-emerald-600/10"
                   name="department"
                   onChange={handleCreateChange}
                   placeholder="Department"
@@ -277,7 +277,7 @@ const UsersPage = () => {
                   value={formData.department}
                 />
                 <input
-                  className="rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-violet-500 focus:bg-white focus:ring-4 focus:ring-violet-500/10"
+                  className="rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-emerald-600 focus:bg-white focus:ring-4 focus:ring-emerald-600/10"
                   name="contact"
                   onChange={handleCreateChange}
                   placeholder="Contact"
@@ -287,7 +287,7 @@ const UsersPage = () => {
               </div>
 
               <button
-                className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-violet-600 px-4 py-3 text-sm font-bold text-white shadow-lg shadow-violet-900/20 transition hover:bg-violet-700 disabled:cursor-not-allowed disabled:bg-slate-300"
+                className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-emerald-700 px-4 py-3 text-sm font-bold text-white shadow-lg shadow-emerald-950/20 transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:bg-slate-300"
                 disabled={creating}
                 type="submit"
               >
@@ -335,7 +335,7 @@ const UsersPage = () => {
 
           {loading ? (
             <div className="py-14 text-center">
-              <div className="mx-auto h-10 w-10 animate-spin rounded-full border-2 border-slate-200 border-t-violet-500" />
+              <div className="mx-auto h-10 w-10 animate-spin rounded-full border-2 border-slate-200 border-t-emerald-600" />
               <p className="mt-4 text-sm font-semibold text-slate-500">Loading users...</p>
             </div>
           ) : users.length === 0 ? (
@@ -369,18 +369,18 @@ const UsersPage = () => {
                             {formatRole(teamMember.role)}
                           </span>
                           {isSelf && (
-                            <span className="rounded-full bg-violet-100 px-3 py-1 text-xs font-bold text-violet-700">
+                            <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-800">
                               You
                             </span>
                           )}
                         </div>
                         <input
-                          className="mt-3 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-bold text-slate-950 outline-none transition focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10"
+                          className="mt-3 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-bold text-slate-950 outline-none transition focus:border-emerald-600 focus:ring-4 focus:ring-emerald-600/10"
                           onChange={(event) => handleDraftChange(teamMember.id, "fullName", event.target.value)}
                           value={draft.fullName || ""}
                         />
                         <input
-                          className="mt-2 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-600 outline-none transition focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10"
+                          className="mt-2 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-600 outline-none transition focus:border-emerald-600 focus:ring-4 focus:ring-emerald-600/10"
                           onChange={(event) => handleDraftChange(teamMember.id, "email", event.target.value)}
                           type="email"
                           value={draft.email || ""}
@@ -389,7 +389,7 @@ const UsersPage = () => {
 
                       <div className="grid gap-2">
                         <select
-                          className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-950 outline-none transition focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10"
+                          className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-950 outline-none transition focus:border-emerald-600 focus:ring-4 focus:ring-emerald-600/10"
                           disabled={!canEditRow}
                           onChange={(event) => handleDraftChange(teamMember.id, "role", event.target.value)}
                           value={draft.role || "employee"}
@@ -401,7 +401,7 @@ const UsersPage = () => {
                           ))}
                         </select>
                         <select
-                          className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-950 outline-none transition focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10"
+                          className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-950 outline-none transition focus:border-emerald-600 focus:ring-4 focus:ring-emerald-600/10"
                           disabled={!canEditRow || isSelf}
                           onChange={(event) => handleDraftChange(teamMember.id, "status", event.target.value)}
                           value={draft.status || "active"}
@@ -413,13 +413,13 @@ const UsersPage = () => {
 
                       <div className="grid gap-2">
                         <input
-                          className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10"
+                          className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-600/10"
                           onChange={(event) => handleDraftChange(teamMember.id, "designation", event.target.value)}
                           placeholder="Designation"
                           value={draft.designation || ""}
                         />
                         <input
-                          className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10"
+                          className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-600/10"
                           onChange={(event) => handleDraftChange(teamMember.id, "department", event.target.value)}
                           placeholder="Department"
                           value={draft.department || ""}
@@ -429,7 +429,7 @@ const UsersPage = () => {
 
                     <div className="mt-4 flex flex-wrap gap-2 border-t border-slate-200 pt-4">
                       <button
-                        className="inline-flex items-center gap-2 rounded-lg border border-violet-200 bg-violet-50 px-3 py-2 text-sm font-bold text-violet-700 transition hover:bg-violet-100 disabled:cursor-not-allowed disabled:opacity-60"
+                        className="inline-flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm font-bold text-emerald-800 transition hover:bg-emerald-100 disabled:cursor-not-allowed disabled:opacity-60"
                         disabled={busyId === teamMember.id || !canEditRow}
                         onClick={() => handleSaveUser(teamMember.id)}
                         type="button"

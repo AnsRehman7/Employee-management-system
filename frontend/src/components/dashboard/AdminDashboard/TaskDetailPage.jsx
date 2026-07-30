@@ -33,9 +33,9 @@ import {
 } from "./workUtils";
 
 const fieldClass =
-  "mt-2 h-11 w-full rounded-md border border-slate-200 bg-slate-50 px-3.5 text-sm text-slate-950 outline-none transition focus:border-violet-400 focus:bg-white focus:ring-4 focus:ring-violet-100";
+  "mt-2 h-11 w-full rounded-md border border-slate-200 bg-slate-50 px-3.5 text-sm text-slate-950 outline-none transition focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-100";
 const textareaClass =
-  "mt-2 w-full resize-y rounded-md border border-slate-200 bg-slate-50 px-3.5 py-3 text-sm leading-6 text-slate-950 outline-none transition focus:border-violet-400 focus:bg-white focus:ring-4 focus:ring-violet-100";
+  "mt-2 w-full resize-y rounded-md border border-slate-200 bg-slate-50 px-3.5 py-3 text-sm leading-6 text-slate-950 outline-none transition focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-100";
 
 const taskToForm = (task) => ({
   assignedToId: task.assignedToId || "",
@@ -208,7 +208,7 @@ const TaskDetailPage = () => {
     return (
       <AppShell title="Task detail" subtitle="Loading assignment information.">
         <div className="py-24 text-center">
-          <div className="mx-auto h-10 w-10 animate-spin rounded-full border-2 border-slate-200 border-t-violet-600" />
+          <div className="mx-auto h-10 w-10 animate-spin rounded-full border-2 border-slate-200 border-t-emerald-700" />
           <p className="mt-4 text-sm font-semibold text-slate-500">Loading task...</p>
         </div>
       </AppShell>
@@ -220,7 +220,7 @@ const TaskDetailPage = () => {
       <AppShell title="Task detail">
         <div className="rounded-lg border border-slate-200 bg-white p-10 text-center">
           <Alert message={notice.message || "Task not found."} type="error" />
-          <Link className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-violet-700" to="/tasks">
+          <Link className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-emerald-800" to="/tasks">
             <FiArrowLeft className="h-4 w-4" />
             Back to tasks
           </Link>
@@ -233,7 +233,7 @@ const TaskDetailPage = () => {
     <AppShell title="Task" subtitle="Plan the work, keep ownership clear, and record delivery decisions.">
       <div className="space-y-5">
         <div className="flex flex-col gap-3 border-b border-slate-200 pb-5 sm:flex-row sm:items-center sm:justify-between">
-          <Link className="inline-flex items-center gap-2 text-sm font-bold text-slate-600 transition hover:text-violet-700" to="/tasks">
+          <Link className="inline-flex items-center gap-2 text-sm font-bold text-slate-600 transition hover:text-emerald-800" to="/tasks">
             <FiArrowLeft className="h-4 w-4" />
             All tasks
           </Link>
@@ -287,7 +287,7 @@ const TaskDetailPage = () => {
                 <h2 className="text-base font-bold text-slate-950">Edit task</h2>
                 <p className="mt-1 text-sm text-slate-500">Every saved change is added to the task timeline.</p>
               </div>
-              <button className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-violet-600 px-4 text-sm font-bold text-white disabled:bg-slate-300" disabled={busy} type="submit">
+              <button className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-emerald-700 px-4 text-sm font-bold text-white disabled:bg-slate-300" disabled={busy} type="submit">
                 <FiSave className="h-4 w-4" />
                 {busy ? "Saving..." : "Save changes"}
               </button>
@@ -349,7 +349,7 @@ const TaskDetailPage = () => {
               <fieldset className="lg:col-span-2 xl:col-span-3">
                 <legend className="text-sm font-bold text-slate-700">Prerequisite tasks</legend>
                 <div className="mt-2 grid max-h-48 gap-2 overflow-y-auto rounded-lg border border-slate-200 bg-slate-50 p-3 md:grid-cols-2">
-                  {availableTasks.length ? availableTasks.map((candidate) => <label className="flex cursor-pointer items-start gap-2 rounded-lg bg-white px-3 py-2 ring-1 ring-slate-200" key={candidate.id}><input checked={editForm.dependencyIds.includes(candidate.id)} className="mt-0.5 h-4 w-4 accent-violet-600" onChange={(event) => setEditForm((current) => ({ ...current, dependencyIds: event.target.checked ? [...current.dependencyIds, candidate.id] : current.dependencyIds.filter((id) => id !== candidate.id) }))} type="checkbox" /><span className="min-w-0"><span className="block truncate text-xs font-bold text-slate-800">{candidate.title}</span><span className="block text-[11px] text-slate-400">{labelForValue(candidate.status)}</span></span></label>) : <p className="col-span-full py-3 text-center text-xs text-slate-400">No other project tasks are available.</p>}
+                  {availableTasks.length ? availableTasks.map((candidate) => <label className="flex cursor-pointer items-start gap-2 rounded-lg bg-white px-3 py-2 ring-1 ring-slate-200" key={candidate.id}><input checked={editForm.dependencyIds.includes(candidate.id)} className="mt-0.5 h-4 w-4 accent-emerald-700" onChange={(event) => setEditForm((current) => ({ ...current, dependencyIds: event.target.checked ? [...current.dependencyIds, candidate.id] : current.dependencyIds.filter((id) => id !== candidate.id) }))} type="checkbox" /><span className="min-w-0"><span className="block truncate text-xs font-bold text-slate-800">{candidate.title}</span><span className="block text-[11px] text-slate-400">{labelForValue(candidate.status)}</span></span></label>) : <p className="col-span-full py-3 text-center text-xs text-slate-400">No other project tasks are available.</p>}
                 </div>
               </fieldset>
               <label className="block lg:col-span-2 xl:col-span-3">
@@ -381,7 +381,7 @@ const TaskDetailPage = () => {
                       </span>
                       <span className="text-xs font-bold text-slate-500">{labelForValue(task.priority)} priority</span>
                       <span className={`rounded-full border px-2.5 py-1 text-xs font-bold ${task.riskLevel === "critical" || task.riskLevel === "high" ? "border-rose-200 bg-rose-50 text-rose-700" : task.riskLevel === "medium" ? "border-amber-200 bg-amber-50 text-amber-700" : "border-emerald-200 bg-emerald-50 text-emerald-700"}`}>{labelForValue(task.riskLevel)} risk</span>
-                      {task.source === "ai_plan" && <span className="rounded-full border border-violet-200 bg-violet-50 px-2.5 py-1 text-xs font-bold text-violet-700">Approved AI plan / {task.confidence || 0}% confidence</span>}
+                      {task.source === "ai_plan" && <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-800">Approved AI plan / {task.confidence || 0}% confidence</span>}
                       <span className="text-xs font-semibold text-slate-400">Updated {formatDateTime(task.updatedAt)}</span>
                     </div>
                     <h2 className={`mt-4 text-2xl font-bold sm:text-3xl ${isCompleted ? "text-slate-500 line-through decoration-slate-300" : "text-slate-950"}`}>
@@ -395,10 +395,10 @@ const TaskDetailPage = () => {
                         <p className="text-xs font-bold uppercase text-slate-400">Delivery progress</p>
                         <p className="mt-1 text-3xl font-bold text-slate-950">{task.aiProgress || 0}%</p>
                       </div>
-                      {isCompleted ? <FiCheckCircle className="h-7 w-7 text-emerald-500" /> : <FiClock className="h-6 w-6 text-violet-600" />}
+                      {isCompleted ? <FiCheckCircle className="h-7 w-7 text-emerald-500" /> : <FiClock className="h-6 w-6 text-emerald-700" />}
                     </div>
                     <div className="mt-4 h-2 overflow-hidden rounded-full bg-slate-100">
-                      <div className={`h-full rounded-full ${isCompleted ? "bg-emerald-500" : "bg-violet-600"}`} style={{ width: `${task.aiProgress || 0}%` }} />
+                      <div className={`h-full rounded-full ${isCompleted ? "bg-emerald-500" : "bg-emerald-700"}`} style={{ width: `${task.aiProgress || 0}%` }} />
                     </div>
                     <p className="mt-3 text-xs leading-5 text-slate-500">
                       {task.aiSummary || `${task.totalLoggedHours.toFixed(2)} of ${task.estimatedHours || "unestimated"} hours logged.`}
@@ -453,7 +453,7 @@ const TaskDetailPage = () => {
                   values={task.customFields || {}}
                 />
 
-                {task.dependencies?.length > 0 && <section className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm"><div className="flex items-center gap-3 border-b border-slate-200 px-5 py-4"><span className="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-100 text-amber-700"><FiGitBranch /></span><div><h2 className="text-base font-bold text-slate-950">Dependencies</h2><p className="text-sm text-slate-500">Prerequisites that must finish before this task can be completed.</p></div></div><div className="divide-y divide-slate-100">{task.dependencies.map((dependency) => <Link className="flex items-center justify-between gap-3 px-5 py-3 text-sm font-bold text-slate-700 hover:bg-slate-50 hover:text-violet-700" key={dependency.id} to={`/tasks/${dependency.id}`}><span>{dependency.title}</span><span className={`rounded-full border px-2.5 py-1 text-xs ${TASK_STATUS_STYLES[dependency.status] || TASK_STATUS_STYLES.open}`}>{labelForValue(dependency.status)}</span></Link>)}</div></section>}
+                {task.dependencies?.length > 0 && <section className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm"><div className="flex items-center gap-3 border-b border-slate-200 px-5 py-4"><span className="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-100 text-amber-700"><FiGitBranch /></span><div><h2 className="text-base font-bold text-slate-950">Dependencies</h2><p className="text-sm text-slate-500">Prerequisites that must finish before this task can be completed.</p></div></div><div className="divide-y divide-slate-100">{task.dependencies.map((dependency) => <Link className="flex items-center justify-between gap-3 px-5 py-3 text-sm font-bold text-slate-700 hover:bg-slate-50 hover:text-emerald-800" key={dependency.id} to={`/tasks/${dependency.id}`}><span>{dependency.title}</span><span className={`rounded-full border px-2.5 py-1 text-xs ${TASK_STATUS_STYLES[dependency.status] || TASK_STATUS_STYLES.open}`}>{labelForValue(dependency.status)}</span></Link>)}</div></section>}
 
                 <TaskCollaborationPanel canContribute={canUpdateWork} currentUserId={user?.id} members={employees} task={task} />
 
@@ -514,7 +514,7 @@ const TaskDetailPage = () => {
                     <div className="py-3">
                       <dt className="text-xs font-bold text-slate-400">Assignee</dt>
                       <dd className="mt-2 flex items-center gap-2">
-                        <span className="flex h-8 w-8 items-center justify-center rounded-md bg-cyan-100 text-[10px] font-bold text-cyan-800">{initialsFor(task.assignedToName)}</span>
+                        <span className="flex h-8 w-8 items-center justify-center rounded-md bg-teal-100 text-[10px] font-bold text-teal-900">{initialsFor(task.assignedToName)}</span>
                         <span className="min-w-0">
                           <span className="block truncate text-sm font-bold text-slate-800">{task.assignedToName}</span>
                           <span className="block truncate text-xs text-slate-500">{task.assignedToEmail || "Awaiting assignment"}</span>
@@ -539,7 +539,7 @@ const TaskDetailPage = () => {
                           <span>{effortProgress}%</span>
                         </div>
                         <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-slate-100">
-                          <div className="h-full rounded-full bg-cyan-500" style={{ width: `${effortProgress}%` }} />
+                          <div className="h-full rounded-full bg-teal-600" style={{ width: `${effortProgress}%` }} />
                         </div>
                       </dd>
                     </div>

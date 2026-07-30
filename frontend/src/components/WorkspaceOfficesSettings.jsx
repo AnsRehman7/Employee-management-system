@@ -4,7 +4,7 @@ import Alert from "./Alert";
 import { api, formatApiError } from "../context/api";
 
 const fieldClass =
-  "mt-2 h-10 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 text-sm text-slate-950 outline-none transition focus:border-violet-400 focus:bg-white focus:ring-4 focus:ring-violet-100";
+  "mt-2 h-10 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 text-sm text-slate-950 outline-none transition focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-100";
 const emptyOffice = {
   address: "",
   isActive: true,
@@ -106,8 +106,8 @@ const WorkspaceOfficesSettings = ({ initialOffices = [] }) => {
           <label className="block"><span className="text-xs font-bold text-slate-600">Address</span><input className={fieldClass} maxLength="240" name="address" onChange={change} value={form.address} /></label>
           <div className="grid grid-cols-2 gap-3"><label><span className="text-xs font-bold text-slate-600">Latitude</span><input className={fieldClass} max="90" min="-90" name="latitude" onChange={change} required step="any" type="number" value={form.latitude} /></label><label><span className="text-xs font-bold text-slate-600">Longitude</span><input className={fieldClass} max="180" min="-180" name="longitude" onChange={change} required step="any" type="number" value={form.longitude} /></label></div>
           <div className="grid grid-cols-2 gap-3"><label><span className="text-xs font-bold text-slate-600">Radius (m)</span><input className={fieldClass} max="10000" min="20" name="radiusMeters" onChange={change} required type="number" value={form.radiusMeters} /></label><label><span className="text-xs font-bold text-slate-600">Max accuracy (m)</span><input className={fieldClass} max="5000" min="10" name="maxAccuracyMeters" onChange={change} required type="number" value={form.maxAccuracyMeters} /></label></div>
-          <label className="flex cursor-pointer items-center gap-3 border-y border-slate-200 py-3"><input checked={form.isActive} className="h-4 w-4 accent-violet-600" name="isActive" onChange={change} type="checkbox" /><span className="text-sm font-bold text-slate-700">Active check-in location</span></label>
-          <button className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-violet-600 px-4 text-sm font-bold text-white hover:bg-violet-700 disabled:opacity-50" disabled={busy} type="submit">{editingId ? <FiSave /> : <FiPlus />}{busy ? "Saving..." : editingId ? "Save office" : "Add office"}</button>
+          <label className="flex cursor-pointer items-center gap-3 border-y border-slate-200 py-3"><input checked={form.isActive} className="h-4 w-4 accent-emerald-700" name="isActive" onChange={change} type="checkbox" /><span className="text-sm font-bold text-slate-700">Active check-in location</span></label>
+          <button className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-emerald-700 px-4 text-sm font-bold text-white hover:bg-emerald-800 disabled:opacity-50" disabled={busy} type="submit">{editingId ? <FiSave /> : <FiPlus />}{busy ? "Saving..." : editingId ? "Save office" : "Add office"}</button>
         </form>
       </div>
     </section>

@@ -51,7 +51,7 @@ const ChangeValue = ({ value }) => {
 
   return (
     <details className="group">
-      <summary className="cursor-pointer list-none text-xs font-semibold text-violet-700">
+      <summary className="cursor-pointer list-none text-xs font-semibold text-emerald-800">
         View text
       </summary>
       <p className="mt-2 max-h-36 overflow-y-auto whitespace-pre-wrap break-words rounded-md bg-slate-50 p-2 text-xs leading-5 text-slate-600">
@@ -86,7 +86,7 @@ const WorkActivityTimeline = ({ activity = [], emptyMessage = "No activity has b
               <div className="min-w-0 flex-1">
                 <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between">
                   <div className="flex min-w-0 items-center gap-2">
-                    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-violet-100 text-[10px] font-bold text-violet-800">
+                    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-emerald-100 text-[10px] font-bold text-emerald-900">
                       {initialsFor(entry.actor?.name || "StaffFlow")}
                     </span>
                     <p className="min-w-0 text-sm text-slate-700">

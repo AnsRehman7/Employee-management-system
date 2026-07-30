@@ -32,27 +32,27 @@ const PricingPage = () => {
   const navigate = useNavigate();
 
   return (
-    <main className="min-h-screen bg-[#f4f5fb] text-slate-950">
+    <main className="min-h-screen bg-[#f7f8f5] text-slate-950">
       <nav className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5">
         <button className="flex items-center gap-3 text-left" onClick={() => navigate("/")} type="button">
-          <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-violet-600 text-white shadow-lg shadow-violet-200">
+          <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-700 text-white shadow-lg shadow-emerald-200">
             <FiLayers className="h-5 w-5" />
           </span>
           <span>
-            <span className="block text-lg font-bold tracking-tight">StaffFlow</span>
+            <span className="block text-lg font-bold tracking-normal">StaffFlow</span>
             <span className="block text-xs font-semibold uppercase text-slate-500">Work intelligence</span>
           </span>
         </button>
         <div className="flex items-center gap-3">
           <button
-            className="rounded-lg px-4 py-2 text-sm font-bold text-slate-600 transition hover:bg-white hover:text-violet-700"
+            className="rounded-lg px-4 py-2 text-sm font-bold text-slate-600 transition hover:bg-white hover:text-emerald-800"
             onClick={() => navigate("/login")}
             type="button"
           >
             Login
           </button>
           <button
-            className="rounded-lg bg-violet-600 px-4 py-2 text-sm font-bold text-white shadow-lg shadow-violet-200 transition hover:bg-violet-700"
+            className="rounded-lg bg-emerald-700 px-4 py-2 text-sm font-bold text-white shadow-lg shadow-emerald-200 transition hover:bg-emerald-800"
             onClick={() => navigate("/signup")}
             type="button"
           >
@@ -63,8 +63,8 @@ const PricingPage = () => {
 
       <section className="mx-auto max-w-7xl px-6 pb-20 pt-10">
         <div className="max-w-3xl">
-          <p className="text-sm font-bold uppercase tracking-wide text-violet-600">Pricing</p>
-          <h1 className="mt-4 text-5xl font-bold tracking-tight text-slate-950 sm:text-6xl">
+          <p className="text-sm font-bold uppercase tracking-normal text-emerald-700">Pricing</p>
+          <h1 className="mt-4 text-5xl font-bold tracking-normal text-slate-950 sm:text-6xl">
             Start lean. Add structure as the company grows.
           </h1>
           <p className="mt-6 text-lg leading-8 text-slate-600">
@@ -77,7 +77,7 @@ const PricingPage = () => {
           {plans.map((plan) => (
             <article
               className={`rounded-lg border p-6 shadow-sm shadow-slate-200/70 ${
-                plan.featured ? "border-violet-300 bg-white text-slate-950" : "border-slate-200 bg-white text-slate-950"
+                plan.featured ? "border-emerald-300 bg-white text-slate-950" : "border-slate-200 bg-white text-slate-950"
               }`}
               key={plan.name}
             >
@@ -89,7 +89,7 @@ const PricingPage = () => {
                   </p>
                 </div>
                 {plan.featured && (
-                  <span className="rounded-full bg-violet-100 px-3 py-1 text-xs font-bold text-violet-700">
+                  <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-800">
                     Best start
                   </span>
                 )}
@@ -103,7 +103,7 @@ const PricingPage = () => {
               <ul className="mt-8 space-y-3">
                 {plan.features.map((feature) => (
                   <li className="flex gap-3 text-sm font-semibold" key={feature}>
-                    <FiCheckCircle className={plan.featured ? "mt-0.5 h-4 w-4 text-violet-600" : "mt-0.5 h-4 w-4 text-cyan-500"} />
+                    <FiCheckCircle className={plan.featured ? "mt-0.5 h-4 w-4 text-emerald-700" : "mt-0.5 h-4 w-4 text-teal-600"} />
                     <span>{feature}</span>
                   </li>
                 ))}
@@ -112,8 +112,8 @@ const PricingPage = () => {
               <button
                 className={`mt-8 inline-flex w-full items-center justify-center gap-2 rounded-lg px-4 py-3 text-sm font-bold transition ${
                   plan.featured
-                    ? "bg-violet-600 text-white shadow-lg shadow-violet-200 hover:bg-violet-700"
-                    : "border border-slate-200 bg-slate-50 text-slate-700 hover:border-violet-200 hover:text-violet-700"
+                    ? "bg-emerald-700 text-white shadow-lg shadow-emerald-200 hover:bg-emerald-800"
+                    : "border border-slate-200 bg-slate-50 text-slate-700 hover:border-emerald-200 hover:text-emerald-800"
                 }`}
                 onClick={() => navigate("/signup")}
                 type="button"

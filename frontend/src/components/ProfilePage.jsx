@@ -23,7 +23,7 @@ import { useUser } from "../context/UserContext";
 import { useFirebase } from "../context/firebase";
 
 const fieldClass =
-  "mt-2 h-11 w-full rounded-lg border border-slate-200 bg-slate-50 px-3.5 text-sm text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-violet-400 focus:bg-white focus:ring-4 focus:ring-violet-100 disabled:cursor-not-allowed disabled:text-slate-400";
+  "mt-2 h-11 w-full rounded-lg border border-slate-200 bg-slate-50 px-3.5 text-sm text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-100 disabled:cursor-not-allowed disabled:text-slate-400";
 
 const formatRole = (role = "employee") =>
   role
@@ -232,11 +232,11 @@ const ProfilePage = () => {
 
         <div className="grid items-start gap-5 xl:grid-cols-[320px_minmax(0,1fr)]">
           <aside className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-            {user?.avatarUrl ? <img alt="" className="h-16 w-16 rounded-lg object-cover ring-1 ring-slate-200" src={user.avatarUrl} /> : <span className="flex h-16 w-16 items-center justify-center rounded-lg bg-violet-100 text-xl font-bold text-violet-700">{initialsFor(user?.name)}</span>}
+            {user?.avatarUrl ? <img alt="" className="h-16 w-16 rounded-lg object-cover ring-1 ring-slate-200" src={user.avatarUrl} /> : <span className="flex h-16 w-16 items-center justify-center rounded-lg bg-emerald-100 text-xl font-bold text-emerald-800">{initialsFor(user?.name)}</span>}
             <h2 className="mt-4 text-xl font-bold text-slate-950">{user?.name}</h2>
             <p className="mt-1 break-all text-sm text-slate-500">{user?.email}</p>
             <div className="mt-4 flex flex-wrap gap-2">
-              <span className="rounded-full border border-violet-200 bg-violet-50 px-2.5 py-1 text-xs font-bold text-violet-700">{formatRole(user?.role)}</span>
+              <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-800">{formatRole(user?.role)}</span>
               <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-700">{formatRole(user?.status)}</span>
             </div>
             <dl className="mt-5 space-y-4 border-t border-slate-200 pt-5">
@@ -247,8 +247,8 @@ const ProfilePage = () => {
 
           <form className="rounded-lg border border-slate-200 bg-white shadow-sm" onSubmit={handleProfileSave}>
             <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4">
-              <div className="flex items-center gap-3"><span className="flex h-9 w-9 items-center justify-center rounded-lg bg-cyan-100 text-cyan-700"><FiUser className="h-4 w-4" /></span><div><h2 className="text-base font-bold text-slate-950">Personal information</h2><p className="text-sm text-slate-500">Details displayed across projects, tasks, and attendance.</p></div></div>
-              <button className="inline-flex h-10 items-center gap-2 rounded-lg bg-violet-600 px-4 text-sm font-bold text-white transition hover:bg-violet-700 disabled:bg-slate-300" disabled={profileBusy} type="submit"><FiSave className="h-4 w-4" />{profileBusy ? "Saving..." : "Save profile"}</button>
+              <div className="flex items-center gap-3"><span className="flex h-9 w-9 items-center justify-center rounded-lg bg-teal-100 text-teal-800"><FiUser className="h-4 w-4" /></span><div><h2 className="text-base font-bold text-slate-950">Personal information</h2><p className="text-sm text-slate-500">Details displayed across projects, tasks, and attendance.</p></div></div>
+              <button className="inline-flex h-10 items-center gap-2 rounded-lg bg-emerald-700 px-4 text-sm font-bold text-white transition hover:bg-emerald-800 disabled:bg-slate-300" disabled={profileBusy} type="submit"><FiSave className="h-4 w-4" />{profileBusy ? "Saving..." : "Save profile"}</button>
             </div>
             <div className="grid gap-5 p-5 md:grid-cols-2">
               <label className="block md:col-span-2"><span className="flex items-center gap-2 text-sm font-bold text-slate-700"><FiUser className="h-4 w-4 text-slate-400" />Full name</span><input className={fieldClass} maxLength="120" name="fullName" onChange={handleProfileChange} required value={profileForm.fullName} /></label>
@@ -280,7 +280,7 @@ const ProfilePage = () => {
         {canManageAccess && (
           <section className="scroll-mt-28 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm" id="access-control">
             <div className="flex flex-col gap-3 border-b border-slate-200 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
-              <div className="flex items-center gap-3"><span className="flex h-9 w-9 items-center justify-center rounded-lg bg-violet-100 text-violet-700"><FiShield className="h-4 w-4" /></span><div><h2 className="text-base font-bold text-slate-950">Access control</h2><p className="text-sm text-slate-500">Role defaults with account-specific overrides.</p></div></div>
+              <div className="flex items-center gap-3"><span className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-100 text-emerald-800"><FiShield className="h-4 w-4" /></span><div><h2 className="text-base font-bold text-slate-950">Access control</h2><p className="text-sm text-slate-500">Role defaults with account-specific overrides.</p></div></div>
               <button aria-label="Refresh access control" className="flex h-10 w-10 items-center justify-center rounded-lg border border-slate-200 text-slate-600 transition hover:bg-slate-50" onClick={loadAccessControl} title="Refresh access control" type="button"><FiRefreshCw className={`h-4 w-4 ${loadingAccess ? "animate-spin" : ""}`} /></button>
             </div>
 
@@ -293,7 +293,7 @@ const ProfilePage = () => {
                   <div className="max-h-[620px] overflow-y-auto p-2">
                     {members.map((member) => (
                       <button className={`flex w-full items-center gap-3 rounded-lg px-3 py-3 text-left transition ${selectedId === member.id ? "bg-white text-slate-950 shadow-sm ring-1 ring-slate-200" : "text-slate-600 hover:bg-white"}`} key={member.id} onClick={() => chooseMember(member)} type="button">
-                        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-cyan-100 text-xs font-bold text-cyan-800">{initialsFor(member.name)}</span>
+                        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-teal-100 text-xs font-bold text-teal-900">{initialsFor(member.name)}</span>
                         <span className="min-w-0 flex-1"><span className="block truncate text-sm font-bold">{member.name}</span><span className="mt-0.5 block text-xs text-slate-500">{formatRole(member.role)} / {member.permissions?.usesRoleDefaults ? "Default" : "Custom"}</span></span>
                         <FiChevronRight className="h-4 w-4 shrink-0 text-slate-400" />
                       </button>
@@ -304,8 +304,8 @@ const ProfilePage = () => {
                 {selectedMember && (
                   <div>
                     <div className="flex flex-col gap-3 border-b border-slate-200 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
-                      <div><div className="flex flex-wrap items-center gap-2"><h3 className="text-lg font-bold text-slate-950">{selectedMember.name}</h3><span className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-bold text-slate-600">{formatRole(selectedMember.role)}</span><span className={`rounded-full border px-2.5 py-1 text-xs font-bold ${useRoleDefaults ? "border-emerald-200 bg-emerald-50 text-emerald-700" : "border-violet-200 bg-violet-50 text-violet-700"}`}>{useRoleDefaults ? "Role defaults" : "Custom access"}</span></div><p className="mt-1 text-sm text-slate-500">{selectedMember.email}</p></div>
-                      <div className="flex gap-2"><button className="inline-flex h-10 items-center gap-2 rounded-lg border border-slate-200 px-3 text-sm font-bold text-slate-700 transition hover:bg-slate-50 disabled:opacity-50" disabled={hierarchyBlocked} onClick={restoreRoleDefaults} type="button"><FiRefreshCw className="h-4 w-4" />Use role defaults</button><button className="inline-flex h-10 items-center gap-2 rounded-lg bg-violet-600 px-4 text-sm font-bold text-white transition hover:bg-violet-700 disabled:bg-slate-300" disabled={accessBusy || hierarchyBlocked || (editingSelf && !useRoleDefaults)} onClick={savePermissions} type="button"><FiSave className="h-4 w-4" />{accessBusy ? "Saving..." : "Save access"}</button></div>
+                      <div><div className="flex flex-wrap items-center gap-2"><h3 className="text-lg font-bold text-slate-950">{selectedMember.name}</h3><span className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-bold text-slate-600">{formatRole(selectedMember.role)}</span><span className={`rounded-full border px-2.5 py-1 text-xs font-bold ${useRoleDefaults ? "border-emerald-200 bg-emerald-50 text-emerald-700" : "border-emerald-200 bg-emerald-50 text-emerald-800"}`}>{useRoleDefaults ? "Role defaults" : "Custom access"}</span></div><p className="mt-1 text-sm text-slate-500">{selectedMember.email}</p></div>
+                      <div className="flex gap-2"><button className="inline-flex h-10 items-center gap-2 rounded-lg border border-slate-200 px-3 text-sm font-bold text-slate-700 transition hover:bg-slate-50 disabled:opacity-50" disabled={hierarchyBlocked} onClick={restoreRoleDefaults} type="button"><FiRefreshCw className="h-4 w-4" />Use role defaults</button><button className="inline-flex h-10 items-center gap-2 rounded-lg bg-emerald-700 px-4 text-sm font-bold text-white transition hover:bg-emerald-800 disabled:bg-slate-300" disabled={accessBusy || hierarchyBlocked || (editingSelf && !useRoleDefaults)} onClick={savePermissions} type="button"><FiSave className="h-4 w-4" />{accessBusy ? "Saving..." : "Save access"}</button></div>
                     </div>
 
                     {(hierarchyBlocked || editingSelf) && <div className="border-b border-amber-200 bg-amber-50 px-5 py-3 text-sm font-semibold text-amber-800">{hierarchyBlocked ? "Only a super admin can modify this account." : "Your own account can use role defaults; custom self-editing is locked to prevent accidental loss of access."}</div>}
@@ -323,7 +323,7 @@ const ProfilePage = () => {
                               const permissionEditable = canCustomizeSelected && roleAllowed;
                               return (
                                 <label className={`flex items-start gap-3 py-3 ${permissionEditable ? "cursor-pointer" : "cursor-not-allowed opacity-60"}`} key={permission.key}>
-                                  <button aria-pressed={checked} className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded border transition ${checked ? "border-violet-600 bg-violet-600 text-white" : "border-slate-300 bg-white"}`} disabled={!permissionEditable} onClick={() => togglePermission(permission.key)} type="button">{checked && <FiCheck className="h-3.5 w-3.5" />}</button>
+                                  <button aria-pressed={checked} className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded border transition ${checked ? "border-emerald-700 bg-emerald-700 text-white" : "border-slate-300 bg-white"}`} disabled={!permissionEditable} onClick={() => togglePermission(permission.key)} type="button">{checked && <FiCheck className="h-3.5 w-3.5" />}</button>
                                   <span><span className="block text-sm font-bold text-slate-800">{permission.label}</span><span className="mt-1 block text-xs leading-5 text-slate-500">{permission.description}</span></span>
                                 </label>
                               );

@@ -31,14 +31,14 @@ const actionAppearance = (action) => {
   const appearances = {
     archived: { icon: FiSlash, tone: "bg-slate-100 text-slate-600" },
     completed: { icon: FiCheckCircle, tone: "bg-emerald-100 text-emerald-700" },
-    created: { icon: FiPlusCircle, tone: "bg-cyan-100 text-cyan-700" },
+    created: { icon: FiPlusCircle, tone: "bg-teal-100 text-teal-800" },
     deleted: { icon: FiTrash2, tone: "bg-rose-100 text-rose-700" },
-    permissions_changed: { icon: FiShield, tone: "bg-violet-100 text-violet-700" },
+    permissions_changed: { icon: FiShield, tone: "bg-emerald-100 text-emerald-800" },
     recorded: { icon: FiClock, tone: "bg-emerald-100 text-emerald-700" },
     rejected: { icon: FiSlash, tone: "bg-rose-100 text-rose-700" },
     suspended: { icon: FiSlash, tone: "bg-amber-100 text-amber-700" },
-    time_logged: { icon: FiClock, tone: "bg-cyan-100 text-cyan-700" },
-    updated: { icon: FiEdit3, tone: "bg-violet-100 text-violet-700" },
+    time_logged: { icon: FiClock, tone: "bg-teal-100 text-teal-800" },
+    updated: { icon: FiEdit3, tone: "bg-emerald-100 text-emerald-800" },
   };
   return appearances[action] || { icon: FiActivity, tone: "bg-slate-100 text-slate-600" };
 };
@@ -89,16 +89,16 @@ const AuditLogPage = () => {
 
         <section className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
           <div className="flex flex-col gap-4 border-b border-slate-200 px-5 py-4 lg:flex-row lg:items-end lg:justify-between">
-            <div className="flex items-center gap-3"><span className="flex h-9 w-9 items-center justify-center rounded-lg bg-violet-100 text-violet-700"><FiFileText className="h-4 w-4" /></span><div><h2 className="text-base font-bold text-slate-950">Workspace history</h2><p className="text-sm text-slate-500">Server-recorded changes scoped to this organization.</p></div></div>
+            <div className="flex items-center gap-3"><span className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-100 text-emerald-800"><FiFileText className="h-4 w-4" /></span><div><h2 className="text-base font-bold text-slate-950">Workspace history</h2><p className="text-sm text-slate-500">Server-recorded changes scoped to this organization.</p></div></div>
             <div className="grid gap-3 sm:grid-cols-[180px_180px_40px]">
-              <label><span className="text-xs font-bold uppercase text-slate-500">Entity</span><select className="mt-1.5 h-10 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 text-sm font-semibold text-slate-700 outline-none transition focus:border-violet-400 focus:bg-white focus:ring-4 focus:ring-violet-100" onChange={(event) => setFilters((current) => ({ ...current, entityType: event.target.value }))} value={filters.entityType}>{ENTITY_OPTIONS.map((value) => <option key={value || "all"} value={value}>{value ? labelFor(value) : "All entities"}</option>)}</select></label>
-              <label><span className="text-xs font-bold uppercase text-slate-500">Action</span><select className="mt-1.5 h-10 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 text-sm font-semibold text-slate-700 outline-none transition focus:border-violet-400 focus:bg-white focus:ring-4 focus:ring-violet-100" onChange={(event) => setFilters((current) => ({ ...current, action: event.target.value }))} value={filters.action}>{ACTION_OPTIONS.map((value) => <option key={value || "all"} value={value}>{value ? labelFor(value) : "All actions"}</option>)}</select></label>
+              <label><span className="text-xs font-bold uppercase text-slate-500">Entity</span><select className="mt-1.5 h-10 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 text-sm font-semibold text-slate-700 outline-none transition focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-100" onChange={(event) => setFilters((current) => ({ ...current, entityType: event.target.value }))} value={filters.entityType}>{ENTITY_OPTIONS.map((value) => <option key={value || "all"} value={value}>{value ? labelFor(value) : "All entities"}</option>)}</select></label>
+              <label><span className="text-xs font-bold uppercase text-slate-500">Action</span><select className="mt-1.5 h-10 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 text-sm font-semibold text-slate-700 outline-none transition focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-100" onChange={(event) => setFilters((current) => ({ ...current, action: event.target.value }))} value={filters.action}>{ACTION_OPTIONS.map((value) => <option key={value || "all"} value={value}>{value ? labelFor(value) : "All actions"}</option>)}</select></label>
               <button aria-label="Refresh audit log" className="mt-auto flex h-10 w-10 items-center justify-center rounded-lg border border-slate-200 text-slate-600 transition hover:bg-slate-50" onClick={loadEntries} title="Refresh audit log" type="button"><FiRefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} /></button>
             </div>
           </div>
 
           {loading && !entries.length ? (
-            <div className="py-24 text-center"><div className="mx-auto h-10 w-10 animate-spin rounded-full border-2 border-slate-200 border-t-violet-600" /><p className="mt-4 text-sm font-semibold text-slate-500">Loading audit events...</p></div>
+            <div className="py-24 text-center"><div className="mx-auto h-10 w-10 animate-spin rounded-full border-2 border-slate-200 border-t-emerald-700" /><p className="mt-4 text-sm font-semibold text-slate-500">Loading audit events...</p></div>
           ) : entries.length ? (
             <div className="divide-y divide-slate-100">
               {entries.map((entry) => {

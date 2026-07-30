@@ -19,9 +19,9 @@ import SettingsNavigation from "./SettingsNavigation";
 import { api, formatApiError } from "../context/api";
 
 const inputClass =
-  "mt-2 h-11 w-full rounded-lg border border-slate-200 bg-slate-50 px-3.5 text-sm text-slate-950 outline-none transition focus:border-violet-400 focus:bg-white focus:ring-4 focus:ring-violet-100";
+  "mt-2 h-11 w-full rounded-lg border border-slate-200 bg-slate-50 px-3.5 text-sm text-slate-950 outline-none transition focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-100";
 const textareaClass =
-  "mt-2 min-h-24 w-full resize-y rounded-lg border border-slate-200 bg-slate-50 px-3.5 py-3 text-sm leading-6 text-slate-950 outline-none transition focus:border-violet-400 focus:bg-white focus:ring-4 focus:ring-violet-100";
+  "mt-2 min-h-24 w-full resize-y rounded-lg border border-slate-200 bg-slate-50 px-3.5 py-3 text-sm leading-6 text-slate-950 outline-none transition focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-100";
 const ROLES = [
   { label: "Super admin", value: "super_admin" },
   { label: "Admin", value: "admin" },
@@ -187,13 +187,13 @@ const FieldDialog = ({ field, module, onClose, onSaved }) => {
             </div>
           )}
           <div className="grid gap-3 sm:grid-cols-2">
-            <label className={`flex items-center justify-between rounded-lg border p-4 ${locked ? "cursor-not-allowed bg-slate-100" : "cursor-pointer bg-slate-50"}`}><span><span className="block text-sm font-bold text-slate-800">Mandatory</span><span className="mt-1 block text-xs text-slate-500">Reject records without a value.</span></span><input checked={form.isRequired} className="h-4 w-4 accent-violet-600" disabled={locked} onChange={(event) => change("isRequired", event.target.checked)} type="checkbox" /></label>
-            <label className={`flex items-center justify-between rounded-lg border p-4 ${locked ? "cursor-not-allowed bg-slate-100" : "cursor-pointer bg-slate-50"}`}><span><span className="block text-sm font-bold text-slate-800">Visible</span><span className="mt-1 block text-xs text-slate-500">Show this field on record forms.</span></span><input checked={form.isVisible} className="h-4 w-4 accent-violet-600" disabled={locked} onChange={(event) => change("isVisible", event.target.checked)} type="checkbox" /></label>
+            <label className={`flex items-center justify-between rounded-lg border p-4 ${locked ? "cursor-not-allowed bg-slate-100" : "cursor-pointer bg-slate-50"}`}><span><span className="block text-sm font-bold text-slate-800">Mandatory</span><span className="mt-1 block text-xs text-slate-500">Reject records without a value.</span></span><input checked={form.isRequired} className="h-4 w-4 accent-emerald-700" disabled={locked} onChange={(event) => change("isRequired", event.target.checked)} type="checkbox" /></label>
+            <label className={`flex items-center justify-between rounded-lg border p-4 ${locked ? "cursor-not-allowed bg-slate-100" : "cursor-pointer bg-slate-50"}`}><span><span className="block text-sm font-bold text-slate-800">Visible</span><span className="mt-1 block text-xs text-slate-500">Show this field on record forms.</span></span><input checked={form.isVisible} className="h-4 w-4 accent-emerald-700" disabled={locked} onChange={(event) => change("isVisible", event.target.checked)} type="checkbox" /></label>
           </div>
         </div>
         <div className="sticky bottom-0 flex justify-end gap-2 border-t border-slate-200 bg-white px-5 py-4">
           <button className="h-10 rounded-lg border border-slate-200 px-4 text-sm font-bold text-slate-700 hover:bg-slate-50" onClick={onClose} type="button">Cancel</button>
-          <button className="inline-flex h-10 items-center gap-2 rounded-lg bg-violet-600 px-4 text-sm font-bold text-white hover:bg-violet-700 disabled:bg-slate-300" disabled={saving} type="submit"><FiSave />{saving ? "Saving..." : "Save field"}</button>
+          <button className="inline-flex h-10 items-center gap-2 rounded-lg bg-emerald-700 px-4 text-sm font-bold text-white hover:bg-emerald-800 disabled:bg-slate-300" disabled={saving} type="submit"><FiSave />{saving ? "Saving..." : "Save field"}</button>
         </div>
       </form>
     </div>
@@ -251,7 +251,7 @@ const CreateModuleDialog = ({ onClose, onCreated }) => {
           </div>
           <label><span className="text-sm font-bold text-slate-700">Description</span><textarea className={textareaClass} maxLength="500" onChange={(event) => change("description", event.target.value)} placeholder="What this module tracks." value={form.description} /></label>
         </div>
-        <div className="flex justify-end gap-2 border-t border-slate-200 px-5 py-4"><button className="h-10 rounded-lg border border-slate-200 px-4 text-sm font-bold text-slate-700" onClick={onClose} type="button">Cancel</button><button className="inline-flex h-10 items-center gap-2 rounded-lg bg-violet-600 px-4 text-sm font-bold text-white disabled:bg-slate-300" disabled={saving} type="submit"><FiPlus />{saving ? "Creating..." : "Create module"}</button></div>
+        <div className="flex justify-end gap-2 border-t border-slate-200 px-5 py-4"><button className="h-10 rounded-lg border border-slate-200 px-4 text-sm font-bold text-slate-700" onClick={onClose} type="button">Cancel</button><button className="inline-flex h-10 items-center gap-2 rounded-lg bg-emerald-700 px-4 text-sm font-bold text-white disabled:bg-slate-300" disabled={saving} type="submit"><FiPlus />{saving ? "Creating..." : "Create module"}</button></div>
       </form>
     </div>
   );
@@ -348,8 +348,8 @@ const CustomizationPage = () => {
         <SettingsNavigation />
         <div className="space-y-5">
           <div className="flex flex-col gap-3 border-b border-slate-200 pb-5 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-center gap-3"><span className="flex h-10 w-10 items-center justify-center rounded-lg bg-violet-100 text-violet-700"><FiSliders /></span><div><p className="text-sm font-bold text-slate-900">Module designer</p><p className="text-xs text-slate-500">Definitions and values are stored in PostgreSQL.</p></div></div>
-            <div className="flex gap-2"><button aria-label="Refresh modules" className="flex h-10 w-10 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50" onClick={() => loadModules(selected?.id)} title="Refresh modules" type="button"><FiRefreshCw className={loading ? "animate-spin" : ""} /></button><button className="inline-flex h-10 items-center gap-2 rounded-lg bg-violet-600 px-4 text-sm font-bold text-white hover:bg-violet-700" onClick={() => setCreatingModule(true)} type="button"><FiPlus />New module</button></div>
+            <div className="flex items-center gap-3"><span className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-100 text-emerald-800"><FiSliders /></span><div><p className="text-sm font-bold text-slate-900">Module designer</p><p className="text-xs text-slate-500">Definitions and values are stored in PostgreSQL.</p></div></div>
+            <div className="flex gap-2"><button aria-label="Refresh modules" className="flex h-10 w-10 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50" onClick={() => loadModules(selected?.id)} title="Refresh modules" type="button"><FiRefreshCw className={loading ? "animate-spin" : ""} /></button><button className="inline-flex h-10 items-center gap-2 rounded-lg bg-emerald-700 px-4 text-sm font-bold text-white hover:bg-emerald-800" onClick={() => setCreatingModule(true)} type="button"><FiPlus />New module</button></div>
           </div>
           <Alert message={notice.message} type={notice.type} />
           <div className="grid min-h-[620px] overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm xl:grid-cols-[260px_minmax(0,1fr)]">
@@ -357,8 +357,8 @@ const CustomizationPage = () => {
               <p className="px-2 py-2 text-[11px] font-bold uppercase text-slate-400">Modules</p>
               <div className="space-y-1">
                 {modules.map((module) => (
-                  <button className={`flex w-full items-center gap-3 rounded-lg px-3 py-3 text-left transition ${selected?.id === module.id ? "bg-white text-violet-700 shadow-sm ring-1 ring-slate-200" : "text-slate-600 hover:bg-white"}`} key={module.id} onClick={() => setSelectedId(module.id)} type="button">
-                    <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${module.kind === "system" ? "bg-cyan-100 text-cyan-700" : "bg-violet-100 text-violet-700"}`}>{module.kind === "system" ? <FiGrid /> : <FiDatabase />}</span>
+                  <button className={`flex w-full items-center gap-3 rounded-lg px-3 py-3 text-left transition ${selected?.id === module.id ? "bg-white text-emerald-800 shadow-sm ring-1 ring-slate-200" : "text-slate-600 hover:bg-white"}`} key={module.id} onClick={() => setSelectedId(module.id)} type="button">
+                    <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${module.kind === "system" ? "bg-teal-100 text-teal-800" : "bg-emerald-100 text-emerald-800"}`}>{module.kind === "system" ? <FiGrid /> : <FiDatabase />}</span>
                     <span className="min-w-0"><span className="block truncate text-sm font-bold">{module.pluralName}</span><span className="mt-0.5 block text-[11px] font-semibold uppercase text-slate-400">{module.status === "archived" ? "Archived" : module.kind}</span></span>
                   </button>
                 ))}
@@ -368,7 +368,7 @@ const CustomizationPage = () => {
             {selected && moduleForm ? (
               <div className="min-w-0">
                 <div className="flex flex-col gap-3 border-b border-slate-200 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
-                  <div><div className="flex items-center gap-2"><h2 className="text-xl font-bold text-slate-950">{selected.pluralName}</h2>{selected.kind === "system" && <span className="inline-flex items-center gap-1 rounded-full bg-cyan-50 px-2 py-1 text-[11px] font-bold uppercase text-cyan-700"><FiLock />Core</span>}</div><p className="mt-1 text-sm text-slate-500">{activeFields.length} active fields</p></div>
+                  <div><div className="flex items-center gap-2"><h2 className="text-xl font-bold text-slate-950">{selected.pluralName}</h2>{selected.kind === "system" && <span className="inline-flex items-center gap-1 rounded-full bg-teal-50 px-2 py-1 text-[11px] font-bold uppercase text-teal-800"><FiLock />Core</span>}</div><p className="mt-1 text-sm text-slate-500">{activeFields.length} active fields</p></div>
                   <button className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-slate-950 px-4 text-sm font-bold text-white hover:bg-slate-800 disabled:bg-slate-300" disabled={saving} onClick={saveModule} type="button"><FiSave />{saving ? "Saving..." : "Save module"}</button>
                 </div>
 
@@ -385,7 +385,7 @@ const CustomizationPage = () => {
                   </section>
 
                   <section className="border-t border-slate-200 pt-6">
-                    <div className="flex items-center justify-between"><div><h3 className="text-sm font-bold text-slate-950">Fields</h3><p className="mt-1 text-xs text-slate-500">Core fields marked with a lock protect system workflows.</p></div><button className="inline-flex h-9 items-center gap-2 rounded-lg border border-violet-200 bg-violet-50 px-3 text-sm font-bold text-violet-700 hover:bg-violet-100" onClick={() => setFieldDialog({})} type="button"><FiPlus />Add field</button></div>
+                    <div className="flex items-center justify-between"><div><h3 className="text-sm font-bold text-slate-950">Fields</h3><p className="mt-1 text-xs text-slate-500">Core fields marked with a lock protect system workflows.</p></div><button className="inline-flex h-9 items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-3 text-sm font-bold text-emerald-800 hover:bg-emerald-100" onClick={() => setFieldDialog({})} type="button"><FiPlus />Add field</button></div>
                     <div className="mt-4 overflow-x-auto rounded-lg border border-slate-200">
                       <table className="w-full min-w-[720px] text-left">
                         <thead className="bg-slate-50 text-xs font-bold uppercase text-slate-500"><tr><th className="px-4 py-3">Field</th><th className="px-4 py-3">Type</th><th className="px-4 py-3">Required</th><th className="px-4 py-3">Visible</th><th className="w-28 px-4 py-3 text-right">Actions</th></tr></thead>
@@ -396,7 +396,7 @@ const CustomizationPage = () => {
                               <td className="px-4 py-3 text-sm font-semibold capitalize text-slate-600">{field.type.replace("_", " ")}</td>
                               <td className="px-4 py-3">{field.isRequired ? <FiCheck className="text-emerald-600" /> : <span className="text-slate-300">-</span>}</td>
                               <td className="px-4 py-3">{field.isVisible ? <FiCheck className="text-emerald-600" /> : <span className="text-slate-300">-</span>}</td>
-                              <td className="px-4 py-3"><div className="flex justify-end gap-1"><button aria-label={`Edit ${field.label}`} className="flex h-8 w-8 items-center justify-center rounded-md text-slate-500 hover:bg-violet-50 hover:text-violet-700" onClick={() => setFieldDialog({ field })} title={`Edit ${field.label}`} type="button"><FiEdit2 /></button>{!field.isLocked && <button aria-label={`${field.archived ? "Restore" : "Remove"} ${field.label}`} className={`flex h-8 w-8 items-center justify-center rounded-md ${field.archived ? "text-emerald-600 hover:bg-emerald-50" : "text-slate-500 hover:bg-rose-50 hover:text-rose-600"}`} onClick={() => toggleArchiveField(field)} title={`${field.archived ? "Restore" : "Remove"} ${field.label}`} type="button">{field.archived ? <FiRefreshCw /> : <FiTrash2 />}</button>}</div></td>
+                              <td className="px-4 py-3"><div className="flex justify-end gap-1"><button aria-label={`Edit ${field.label}`} className="flex h-8 w-8 items-center justify-center rounded-md text-slate-500 hover:bg-emerald-50 hover:text-emerald-800" onClick={() => setFieldDialog({ field })} title={`Edit ${field.label}`} type="button"><FiEdit2 /></button>{!field.isLocked && <button aria-label={`${field.archived ? "Restore" : "Remove"} ${field.label}`} className={`flex h-8 w-8 items-center justify-center rounded-md ${field.archived ? "text-emerald-600 hover:bg-emerald-50" : "text-slate-500 hover:bg-rose-50 hover:text-rose-600"}`} onClick={() => toggleArchiveField(field)} title={`${field.archived ? "Restore" : "Remove"} ${field.label}`} type="button">{field.archived ? <FiRefreshCw /> : <FiTrash2 />}</button>}</div></td>
                             </tr>
                           ))}
                         </tbody>
@@ -407,7 +407,7 @@ const CustomizationPage = () => {
                   <section className="border-t border-slate-200 pt-6">
                     <h3 className="text-sm font-bold text-slate-950">Role access</h3>
                     <div className="mt-4 overflow-x-auto rounded-lg border border-slate-200">
-                      <table className="w-full min-w-[640px] text-left"><thead className="bg-slate-50 text-xs font-bold uppercase text-slate-500"><tr><th className="px-4 py-3">Role</th>{["View", "Create", "Edit", "Delete"].map((action) => <th className="px-4 py-3 text-center" key={action}>{action}</th>)}</tr></thead><tbody className="divide-y divide-slate-100">{ROLES.map((role) => <tr key={role.value}><td className="px-4 py-3 text-sm font-bold text-slate-800">{role.label}</td>{["view", "create", "edit", "delete"].map((action) => <td className="px-4 py-3 text-center" key={action}><input checked={moduleForm[`${action}Roles`].includes(role.value)} className="h-4 w-4 accent-violet-600" onChange={(event) => updateRole(action, role.value, event.target.checked)} type="checkbox" /></td>)}</tr>)}</tbody></table>
+                      <table className="w-full min-w-[640px] text-left"><thead className="bg-slate-50 text-xs font-bold uppercase text-slate-500"><tr><th className="px-4 py-3">Role</th>{["View", "Create", "Edit", "Delete"].map((action) => <th className="px-4 py-3 text-center" key={action}>{action}</th>)}</tr></thead><tbody className="divide-y divide-slate-100">{ROLES.map((role) => <tr key={role.value}><td className="px-4 py-3 text-sm font-bold text-slate-800">{role.label}</td>{["view", "create", "edit", "delete"].map((action) => <td className="px-4 py-3 text-center" key={action}><input checked={moduleForm[`${action}Roles`].includes(role.value)} className="h-4 w-4 accent-emerald-700" onChange={(event) => updateRole(action, role.value, event.target.checked)} type="checkbox" /></td>)}</tr>)}</tbody></table>
                     </div>
                   </section>
 

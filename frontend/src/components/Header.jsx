@@ -39,10 +39,10 @@ const Header = ({ subtitle = "", title = "Workspace" }) => {
     <header className="border-b border-slate-200 bg-white/90 backdrop-blur">
       <nav className="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-5 sm:flex-row sm:items-center sm:justify-between lg:px-6">
         <div>
-          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-violet-600">
+          <p className="text-sm font-semibold uppercase tracking-normal text-emerald-700">
             StaffFlow
           </p>
-          <h1 className="mt-1 text-2xl font-bold tracking-tight text-slate-950">{title}</h1>
+          <h1 className="mt-1 text-2xl font-bold tracking-normal text-slate-950">{title}</h1>
           {subtitle && <p className="mt-1 text-sm text-slate-500">{subtitle}</p>}
         </div>
 
@@ -53,7 +53,7 @@ const Header = ({ subtitle = "", title = "Workspace" }) => {
                 <NavLink
                   className={({ isActive }) =>
                     `inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm font-bold transition ${
-                      isActive ? "bg-violet-600 text-white shadow-sm shadow-violet-200" : "text-slate-500 hover:text-slate-950"
+                      isActive ? "bg-emerald-700 text-white shadow-sm shadow-emerald-200" : "text-slate-500 hover:text-slate-950"
                     }`
                   }
                   key={to}
@@ -67,7 +67,7 @@ const Header = ({ subtitle = "", title = "Workspace" }) => {
           )}
 
           <div className="hidden items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 sm:flex">
-            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-violet-600 text-white">
+            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-700 text-white">
               <FiUser className="h-4 w-4" />
             </span>
             <div>
@@ -79,7 +79,7 @@ const Header = ({ subtitle = "", title = "Workspace" }) => {
           <button
             onClick={handleLogout}
             disabled={isSigningOut}
-            className="inline-flex items-center justify-center gap-2 rounded-lg bg-violet-600 px-4 py-3 text-sm font-bold text-white shadow-lg shadow-violet-200 transition hover:bg-violet-700 disabled:cursor-not-allowed disabled:bg-slate-300"
+            className="inline-flex items-center justify-center gap-2 rounded-lg bg-emerald-700 px-4 py-3 text-sm font-bold text-white shadow-lg shadow-emerald-200 transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:bg-slate-300"
           >
             <FiLogOut className="h-4 w-4" />
             {isSigningOut ? "Signing out..." : "Sign out"}

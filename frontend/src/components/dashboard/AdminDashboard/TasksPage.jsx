@@ -175,8 +175,8 @@ const TasksPage = () => {
           <div className="grid flex-1 grid-cols-2 gap-px overflow-hidden rounded-lg border border-slate-200 bg-slate-200 lg:grid-cols-5">
             {[
               ["Open", metrics.open, FiCheckSquare, "text-amber-700"],
-              ["In motion", metrics.active, FiClock, "text-indigo-700"],
-              ["Unassigned", metrics.unassigned, FiUserX, "text-violet-700"],
+              ["In motion", metrics.active, FiClock, "text-teal-800"],
+              ["Unassigned", metrics.unassigned, FiUserX, "text-emerald-800"],
               ["Overdue", metrics.overdue, FiAlertCircle, "text-rose-700"],
               ["Completed", metrics.completed, FiCheckCircle, "text-emerald-700"],
             ].map(([label, value, Icon, tone]) => (
@@ -190,7 +190,7 @@ const TasksPage = () => {
             ))}
           </div>
           {canCreateTasks && (
-            <Link className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-lg bg-violet-600 px-4 text-sm font-bold text-white shadow-sm shadow-violet-200 transition hover:bg-violet-700" to="/tasks/new">
+            <Link className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-lg bg-emerald-700 px-4 text-sm font-bold text-white shadow-sm shadow-emerald-200 transition hover:bg-emerald-800" to="/tasks/new">
               <FiPlus className="h-4 w-4" />
               Create task
             </Link>
@@ -205,13 +205,13 @@ const TasksPage = () => {
             </div>
             <div className="flex flex-wrap items-center gap-2">
               {filters.search && (
-                <span className="inline-flex h-9 max-w-full items-center gap-2 rounded-lg border border-violet-200 bg-violet-50 px-3 text-xs font-bold text-violet-700">
+                <span className="inline-flex h-9 max-w-full items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-3 text-xs font-bold text-emerald-800">
                   <span className="max-w-56 truncate">Search: {filters.search}</span>
-                  <button aria-label="Clear task search" className="text-violet-500 hover:text-violet-900" onClick={clearSearch} title="Clear search" type="button"><FiX className="h-3.5 w-3.5" /></button>
+                  <button aria-label="Clear task search" className="text-emerald-600 hover:text-emerald-950" onClick={clearSearch} title="Clear search" type="button"><FiX className="h-3.5 w-3.5" /></button>
                 </span>
               )}
               {activeFilterCount > 0 && (
-                <button className="inline-flex h-9 items-center gap-2 rounded-lg px-2.5 text-xs font-bold text-violet-700 transition hover:bg-violet-50" onClick={clearFilters} type="button">
+                <button className="inline-flex h-9 items-center gap-2 rounded-lg px-2.5 text-xs font-bold text-emerald-800 transition hover:bg-emerald-50" onClick={clearFilters} type="button">
                   <FiX className="h-4 w-4" />
                   Clear filters
                 </button>
@@ -262,7 +262,7 @@ const TasksPage = () => {
 
           {loading ? (
             <div className="py-20 text-center">
-              <div className="mx-auto h-9 w-9 animate-spin rounded-full border-2 border-slate-200 border-t-violet-600" />
+              <div className="mx-auto h-9 w-9 animate-spin rounded-full border-2 border-slate-200 border-t-emerald-700" />
               <p className="mt-4 text-sm font-semibold text-slate-500">Loading tasks...</p>
             </div>
           ) : filteredTasks.length === 0 ? (
@@ -288,13 +288,13 @@ const TasksPage = () => {
                   </thead>
                   <tbody className="divide-y divide-slate-100">
                     {filteredTasks.map((task) => (
-                      <tr className="group transition hover:bg-violet-50/40" key={task.id}>
+                      <tr className="group transition hover:bg-emerald-50/40" key={task.id}>
                         <td className="px-4 py-4 align-top">
                           <Link className="block min-w-0" to={`/tasks/${task.id}`}>
                             <div className="flex items-start gap-3">
                               <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-xs font-bold text-slate-600">{task.category?.slice(0, 2).toUpperCase() || "TS"}</span>
                               <div className="min-w-0">
-                                <p className="truncate text-sm font-bold text-slate-950 group-hover:text-violet-700">{task.title}</p>
+                                <p className="truncate text-sm font-bold text-slate-950 group-hover:text-emerald-800">{task.title}</p>
                                 <p className="mt-1 truncate text-xs text-slate-500">{task.category} / {labelForValue(task.priority)} priority</p>
                               </div>
                             </div>
@@ -303,14 +303,14 @@ const TasksPage = () => {
                         <td className="px-3 py-4 align-top"><span className={`inline-flex rounded-full border px-2.5 py-1 text-xs font-bold ${TASK_STATUS_STYLES[task.status] || TASK_STATUS_STYLES.open}`}>{labelForValue(task.status)}</span></td>
                         <td className="px-3 py-4 align-top">
                           <div className="flex min-w-0 items-center gap-2">
-                            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-cyan-100 text-[10px] font-bold text-cyan-800">{initialsFor(task.assignedToName)}</span>
+                            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-teal-100 text-[10px] font-bold text-teal-900">{initialsFor(task.assignedToName)}</span>
                             <span className="truncate text-sm font-semibold text-slate-700">{task.assignedToName}</span>
                           </div>
                         </td>
                         <td className="truncate px-3 py-4 text-sm text-slate-600 align-top">{task.createdByName}</td>
                         <td className={`px-3 py-4 text-sm font-semibold align-top ${isOverdue(task.deadline, task.status) ? "text-rose-700" : "text-slate-600"}`}>{formatDate(task.deadline, "No due date")}</td>
                         <td className="truncate px-3 py-4 text-sm text-slate-600 align-top">{task.projectName}</td>
-                        <td className="px-2 py-4 align-top"><Link aria-label={`Open ${task.title}`} className="text-slate-400 group-hover:text-violet-700" to={`/tasks/${task.id}`}><FiChevronRight className="h-4 w-4" /></Link></td>
+                        <td className="px-2 py-4 align-top"><Link aria-label={`Open ${task.title}`} className="text-slate-400 group-hover:text-emerald-800" to={`/tasks/${task.id}`}><FiChevronRight className="h-4 w-4" /></Link></td>
                       </tr>
                     ))}
                   </tbody>
@@ -319,7 +319,7 @@ const TasksPage = () => {
 
               <div className="divide-y divide-slate-100 lg:hidden">
                 {filteredTasks.map((task) => (
-                  <Link className="block p-4 transition hover:bg-violet-50/40" key={task.id} to={`/tasks/${task.id}`}>
+                  <Link className="block p-4 transition hover:bg-emerald-50/40" key={task.id} to={`/tasks/${task.id}`}>
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0"><p className="text-sm font-bold text-slate-950">{task.title}</p><p className="mt-1 truncate text-xs text-slate-500">{task.projectName} / {task.category}</p></div>
                       <FiChevronRight className="mt-1 h-4 w-4 shrink-0 text-slate-400" />

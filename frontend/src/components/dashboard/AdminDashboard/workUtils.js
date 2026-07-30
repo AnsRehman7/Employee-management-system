@@ -7,10 +7,10 @@ export const TASK_STATUS_OPTIONS = [
 ];
 
 export const TASK_STATUS_STYLES = {
-  active: "border-cyan-200 bg-cyan-50 text-cyan-800",
+  active: "border-teal-200 bg-teal-50 text-teal-900",
   blocked: "border-rose-200 bg-rose-50 text-rose-800",
   completed: "border-emerald-200 bg-emerald-50 text-emerald-800",
-  in_progress: "border-indigo-200 bg-indigo-50 text-indigo-800",
+  in_progress: "border-teal-200 bg-teal-50 text-teal-900",
   open: "border-amber-200 bg-amber-50 text-amber-800",
 };
 
@@ -22,17 +22,17 @@ export const PROJECT_STATUS_OPTIONS = [
 ];
 
 export const PROJECT_STATUS_STYLES = {
-  active: "border-cyan-200 bg-cyan-50 text-cyan-800",
+  active: "border-teal-200 bg-teal-50 text-teal-900",
   archived: "border-slate-200 bg-slate-100 text-slate-700",
   completed: "border-emerald-200 bg-emerald-50 text-emerald-800",
-  planned: "border-violet-200 bg-violet-50 text-violet-800",
+  planned: "border-emerald-200 bg-emerald-50 text-emerald-900",
 };
 
 export const PROJECT_HEALTH_STYLES = {
   archived: "text-slate-600",
   complete: "text-emerald-700",
   "due-soon": "text-amber-700",
-  "on-track": "text-cyan-700",
+  "on-track": "text-teal-800",
   overdue: "text-rose-700",
 };
 

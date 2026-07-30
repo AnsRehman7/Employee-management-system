@@ -129,7 +129,7 @@ const NotificationCenter = () => {
 
   return (
     <div className="relative" ref={panelRef}>
-      <button aria-label="Notifications" className="relative flex h-10 w-10 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 transition hover:bg-violet-50 hover:text-violet-700" onClick={() => setOpen((current) => !current)} title="Notifications" type="button">
+      <button aria-label="Notifications" className="relative flex h-10 w-10 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 transition hover:bg-emerald-50 hover:text-emerald-800" onClick={() => setOpen((current) => !current)} title="Notifications" type="button">
         <FiBell className="h-4 w-4" />
         {unreadCount > 0 && <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-rose-500 px-1 text-[10px] font-bold text-white ring-2 ring-white">{unreadCount > 99 ? "99+" : unreadCount}</span>}
       </button>
@@ -138,11 +138,11 @@ const NotificationCenter = () => {
         <div className="absolute right-0 top-12 z-50 w-[min(390px,calc(100vw-2rem))] overflow-hidden rounded-lg border border-slate-200 bg-white shadow-2xl shadow-slate-300/50">
           <div className="flex items-center justify-between border-b border-slate-200 px-4 py-3">
             <div><h2 className="text-sm font-bold text-slate-950">Notifications</h2><p className="mt-0.5 text-xs text-slate-500">{unreadCount} unread</p></div>
-            {unreadCount > 0 && <button className="inline-flex items-center gap-1.5 text-xs font-bold text-violet-700 hover:text-violet-800" onClick={markAllRead} type="button"><FiCheck className="h-3.5 w-3.5" />Mark all read</button>}
+            {unreadCount > 0 && <button className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-800 hover:text-emerald-900" onClick={markAllRead} type="button"><FiCheck className="h-3.5 w-3.5" />Mark all read</button>}
           </div>
 
           {desktopPermission === "default" && (
-            <button className="flex w-full items-center gap-3 border-b border-violet-100 bg-violet-50 px-4 py-3 text-left transition hover:bg-violet-100" onClick={enableDesktopNotifications} type="button"><span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white text-violet-700 ring-1 ring-violet-200"><FiBell className="h-4 w-4" /></span><span><span className="block text-xs font-bold text-violet-900">Enable desktop alerts</span><span className="mt-0.5 block text-xs text-violet-700">Show new StaffFlow activity in Windows.</span></span></button>
+            <button className="flex w-full items-center gap-3 border-b border-emerald-100 bg-emerald-50 px-4 py-3 text-left transition hover:bg-emerald-100" onClick={enableDesktopNotifications} type="button"><span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white text-emerald-800 ring-1 ring-emerald-200"><FiBell className="h-4 w-4" /></span><span><span className="block text-xs font-bold text-emerald-950">Enable desktop alerts</span><span className="mt-0.5 block text-xs text-emerald-800">Show new StaffFlow activity in Windows.</span></span></button>
           )}
 
           {error && <p aria-live="polite" className="border-b border-rose-100 bg-rose-50 px-4 py-2 text-xs font-semibold text-rose-700">{error}</p>}
@@ -152,8 +152,8 @@ const NotificationCenter = () => {
               <div className="px-5 py-12 text-center"><FiCheckCircle className="mx-auto h-7 w-7 text-emerald-500" /><p className="mt-3 text-sm font-bold text-slate-700">You are all caught up</p><p className="mt-1 text-xs text-slate-500">New assignments and workspace updates will appear here.</p></div>
             ) : (
               notifications.map((notification) => (
-                <button className={`flex w-full gap-3 border-b border-slate-100 px-4 py-3 text-left transition last:border-b-0 hover:bg-slate-50 ${notification.isRead ? "bg-white" : "bg-violet-50/50"}`} key={notification.id} onClick={() => openNotification(notification)} type="button">
-                  <span className={`mt-1 h-2 w-2 shrink-0 rounded-full ${notification.isRead ? "bg-slate-200" : "bg-violet-600"}`} />
+                <button className={`flex w-full gap-3 border-b border-slate-100 px-4 py-3 text-left transition last:border-b-0 hover:bg-slate-50 ${notification.isRead ? "bg-white" : "bg-emerald-50/50"}`} key={notification.id} onClick={() => openNotification(notification)} type="button">
+                  <span className={`mt-1 h-2 w-2 shrink-0 rounded-full ${notification.isRead ? "bg-slate-200" : "bg-emerald-700"}`} />
                   <span className="min-w-0 flex-1"><span className="flex items-start justify-between gap-3"><span className="text-sm font-bold text-slate-900">{notification.title}</span><span className="shrink-0 text-[11px] font-semibold text-slate-400">{formatRelativeTime(notification.createdAt)}</span></span><span className="mt-1 block text-xs leading-5 text-slate-600">{notification.message}</span></span>
                 </button>
               ))

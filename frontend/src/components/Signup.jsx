@@ -103,12 +103,12 @@ const Signup = () => {
   };
 
   return (
-    <main className="min-h-screen max-w-full overflow-x-hidden bg-[#f5f7fb] text-slate-950 lg:h-screen lg:overflow-hidden">
+    <main className="min-h-screen max-w-full overflow-x-hidden bg-[#f7f8f5] text-slate-950 lg:h-screen lg:overflow-hidden">
       <div className="grid min-h-screen min-w-0 lg:grid-cols-[0.9fr_1.1fr]">
         <section className="hidden flex-col justify-between border-r border-slate-200 bg-white p-10 text-slate-950 lg:flex">
           <div>
-            <p className="text-sm font-bold uppercase tracking-wide text-violet-600">StaffFlow</p>
-            <h1 className="mt-5 max-w-xl text-5xl font-bold tracking-tight">
+            <p className="text-sm font-bold uppercase tracking-normal text-emerald-700">StaffFlow</p>
+            <h1 className="mt-5 max-w-xl text-5xl font-bold tracking-normal">
               Start a workspace that already knows who can do what.
             </h1>
             <p className="mt-5 max-w-lg text-base leading-7 text-slate-600">
@@ -122,7 +122,7 @@ const Signup = () => {
               ["Private work", "Employees only see assignments connected to their account."],
               ["Operations view", "Projects, attendance, and task progress stay in one workspace."],
             ].map(([title, text]) => (
-              <div className="rounded-lg border border-slate-200 bg-[#f8f8ff] p-4" key={title}>
+              <div className="rounded-lg border border-slate-200 bg-[#f4f7f4] p-4" key={title}>
                 <p className="text-sm font-bold text-slate-950">{title}</p>
                 <p className="mt-1 text-sm leading-6 text-slate-600">{text}</p>
               </div>
@@ -131,10 +131,10 @@ const Signup = () => {
         </section>
 
         <section className="flex min-h-screen min-w-0 items-center justify-center px-4 py-4 sm:px-6">
-          <div className="w-[calc(100vw-2rem)] min-w-0 max-w-xl rounded-lg border border-slate-200 bg-white p-5 shadow-xl shadow-slate-200/70 sm:p-6">
+          <div className="w-full min-w-0 max-w-xl rounded-lg border border-slate-200 bg-white p-5 shadow-xl shadow-slate-200/70 sm:p-6">
             <div className="mb-4">
-              <p className="text-xs font-bold uppercase tracking-wide text-violet-700">Free trial</p>
-              <h2 className="mt-2 text-3xl font-bold tracking-tight text-slate-950">Create workspace</h2>
+              <p className="text-xs font-bold uppercase tracking-normal text-emerald-800">Free trial</p>
+              <h2 className="mt-2 text-3xl font-bold tracking-normal text-slate-950">Create workspace</h2>
               <p className="mt-1 text-sm text-slate-500">Start a 14-day trial and become the workspace super admin.</p>
             </div>
 
@@ -144,7 +144,7 @@ const Signup = () => {
             <div className="grid min-w-0 gap-3 sm:grid-cols-2">
               <label className="block">
                 <span className="text-xs font-bold uppercase text-slate-600">Company name</span>
-                <div className="mt-1.5 flex min-w-0 items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 transition focus-within:border-violet-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-violet-500/10">
+                <div className="mt-1.5 flex min-w-0 items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 transition focus-within:border-emerald-600 focus-within:bg-white focus-within:ring-4 focus-within:ring-emerald-600/10">
                   <FiBriefcase className="h-5 w-5 text-slate-400" />
                   <input
                     type="text"
@@ -160,7 +160,7 @@ const Signup = () => {
 
               <label className="block">
                 <span className="text-xs font-bold uppercase text-slate-600">Full name</span>
-                <div className="mt-1.5 flex min-w-0 items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 transition focus-within:border-violet-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-violet-500/10">
+                <div className="mt-1.5 flex min-w-0 items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 transition focus-within:border-emerald-600 focus-within:bg-white focus-within:ring-4 focus-within:ring-emerald-600/10">
                   <FiUser className="h-5 w-5 text-slate-400" />
                   <input
                     type="text"
@@ -176,7 +176,7 @@ const Signup = () => {
 
               <label className="block">
                 <span className="text-xs font-bold uppercase text-slate-600">Email</span>
-                <div className="mt-1.5 flex min-w-0 items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 transition focus-within:border-violet-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-violet-500/10">
+                <div className="mt-1.5 flex min-w-0 items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 transition focus-within:border-emerald-600 focus-within:bg-white focus-within:ring-4 focus-within:ring-emerald-600/10">
                   <FiMail className="h-5 w-5 text-slate-400" />
                   <input
                     type="email"
@@ -192,7 +192,7 @@ const Signup = () => {
 
               <label className="block">
                 <span className="text-xs font-bold uppercase text-slate-600">Password</span>
-                <div className="mt-1.5 flex min-w-0 items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 transition focus-within:border-violet-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-violet-500/10">
+                <div className="mt-1.5 flex min-w-0 items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 transition focus-within:border-emerald-600 focus-within:bg-white focus-within:ring-4 focus-within:ring-emerald-600/10">
                   <FiLock className="h-5 w-5 text-slate-400" />
                   <input
                     minLength={12}
@@ -209,7 +209,7 @@ const Signup = () => {
 
               <label className="block">
                 <span className="text-xs font-bold uppercase text-slate-600">Contact</span>
-                <div className="mt-1.5 flex min-w-0 items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 transition focus-within:border-violet-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-violet-500/10">
+                <div className="mt-1.5 flex min-w-0 items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 transition focus-within:border-emerald-600 focus-within:bg-white focus-within:ring-4 focus-within:ring-emerald-600/10">
                   <FiPhone className="h-5 w-5 text-slate-400" />
                   <input
                     type="text"
@@ -224,7 +224,7 @@ const Signup = () => {
 
               <label className="block">
                 <span className="text-xs font-bold uppercase text-slate-600">Designation</span>
-                <div className="mt-1.5 flex min-w-0 items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 transition focus-within:border-violet-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-violet-500/10">
+                <div className="mt-1.5 flex min-w-0 items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 transition focus-within:border-emerald-600 focus-within:bg-white focus-within:ring-4 focus-within:ring-emerald-600/10">
                   <FiBriefcase className="h-5 w-5 text-slate-400" />
                   <input
                     type="text"
@@ -241,7 +241,7 @@ const Signup = () => {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-violet-600 px-4 py-2.5 text-sm font-bold text-white shadow-lg shadow-violet-200 transition hover:bg-violet-700 disabled:cursor-not-allowed disabled:bg-slate-300"
+              className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-emerald-700 px-4 py-2.5 text-sm font-bold text-white shadow-lg shadow-emerald-200 transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:bg-slate-300"
             >
               {isSubmitting ? "Creating workspace..." : "Start free trial"}
               {!isSubmitting && <FiArrowRight className="h-4 w-4" />}
@@ -259,7 +259,7 @@ const Signup = () => {
 
             <p className="text-center text-sm text-slate-500">
               Already have an account?{" "}
-              <NavLink to="/login" className="font-bold text-violet-700 hover:text-violet-800">
+              <NavLink to="/login" className="font-bold text-emerald-800 hover:text-emerald-900">
                 Sign in
               </NavLink>
             </p>

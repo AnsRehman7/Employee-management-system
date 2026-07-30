@@ -3,9 +3,9 @@ import { FiCheck, FiSliders, FiUser } from "react-icons/fi";
 import { api } from "../context/api";
 
 const inputClass =
-  "mt-2 h-11 w-full rounded-lg border border-slate-200 bg-slate-50 px-3.5 text-sm text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-violet-400 focus:bg-white focus:ring-4 focus:ring-violet-100";
+  "mt-2 h-11 w-full rounded-lg border border-slate-200 bg-slate-50 px-3.5 text-sm text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-100";
 const textareaClass =
-  "mt-2 min-h-28 w-full resize-y rounded-lg border border-slate-200 bg-slate-50 px-3.5 py-3 text-sm leading-6 text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-violet-400 focus:bg-white focus:ring-4 focus:ring-violet-100";
+  "mt-2 min-h-28 w-full resize-y rounded-lg border border-slate-200 bg-slate-50 px-3.5 py-3 text-sm leading-6 text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-100";
 
 const inputTypeFor = (type) =>
   ({
@@ -75,7 +75,7 @@ const CustomFieldsForm = ({
     <section className={embedded ? "border-t border-slate-200 pt-5 md:col-span-2 xl:col-span-4" : "rounded-lg border border-slate-200 bg-white shadow-sm"}>
       <div className={embedded ? "mb-4" : "border-b border-slate-200 px-5 py-4"}>
         <div className="flex items-center gap-3">
-          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-cyan-100 text-cyan-700">
+          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-teal-100 text-teal-800">
             <FiSliders className="h-4 w-4" />
           </span>
           <div>
@@ -115,7 +115,7 @@ const CustomFieldsForm = ({
                   <span className="text-sm font-semibold text-slate-600">{value ? "Yes" : "No"}</span>
                   <input
                     checked={Boolean(value)}
-                    className="h-4 w-4 accent-violet-600"
+                    className="h-4 w-4 accent-emerald-700"
                     disabled={disabled}
                     onChange={(event) => setValue(field, event.target.checked)}
                     type="checkbox"
@@ -144,8 +144,8 @@ const CustomFieldsForm = ({
                       <button
                         className={`flex h-10 items-center justify-between rounded-md border px-3 text-left text-sm font-semibold transition ${
                           selected
-                            ? "border-violet-300 bg-violet-50 text-violet-800"
-                            : "border-slate-200 bg-white text-slate-600 hover:border-violet-200"
+                            ? "border-emerald-300 bg-emerald-50 text-emerald-900"
+                            : "border-slate-200 bg-white text-slate-600 hover:border-emerald-200"
                         }`}
                         disabled={disabled}
                         key={option.value}

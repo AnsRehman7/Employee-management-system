@@ -22,7 +22,7 @@ const TaskNumber = ({ error = "", tasks = [] }) => {
       value: taskStats.total,
       helper: "All tasks linked to you",
       icon: <FiList className="h-5 w-5" />,
-      tone: "border-violet-200 bg-violet-600 text-white shadow-violet-200",
+      tone: "border-emerald-200 bg-emerald-700 text-white shadow-emerald-200",
     },
     {
       label: "Active",
@@ -36,7 +36,7 @@ const TaskNumber = ({ error = "", tasks = [] }) => {
       value: taskStats.projectCount,
       helper: "Work streams",
       icon: <FiBriefcase className="h-5 w-5" />,
-      tone: "border-cyan-200 bg-cyan-50 text-slate-950",
+      tone: "border-teal-200 bg-teal-50 text-slate-950",
     },
     {
       label: "Logged",

@@ -28,7 +28,7 @@ import {
 } from "./userUtils";
 
 const fieldClass =
-  "mt-2 h-11 w-full rounded-lg border border-slate-200 bg-slate-50 px-3.5 text-sm text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-violet-400 focus:bg-white focus:ring-4 focus:ring-violet-100 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-500";
+  "mt-2 h-11 w-full rounded-lg border border-slate-200 bg-slate-50 px-3.5 text-sm text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-100 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-500";
 
 const formFromUser = (member) => ({
   avatarUrl: member?.avatarUrl || "",
@@ -142,21 +142,21 @@ const UserDetailPage = () => {
   };
 
   if (loading) {
-    return <AppShell title="User details" subtitle="Loading workspace account information."><div className="py-24 text-center"><div className="mx-auto h-10 w-10 animate-spin rounded-full border-2 border-slate-200 border-t-violet-600" /><p className="mt-4 text-sm font-semibold text-slate-500">Loading user...</p></div></AppShell>;
+    return <AppShell title="User details" subtitle="Loading workspace account information."><div className="py-24 text-center"><div className="mx-auto h-10 w-10 animate-spin rounded-full border-2 border-slate-200 border-t-emerald-700" /><p className="mt-4 text-sm font-semibold text-slate-500">Loading user...</p></div></AppShell>;
   }
 
   if (!member) {
-    return <AppShell title="User details"><div className="rounded-lg border border-slate-200 bg-white p-6"><Alert message={error || "User not found."} type="error" /><Link className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-violet-700" to="/users"><FiArrowLeft className="h-4 w-4" />Back to users</Link></div></AppShell>;
+    return <AppShell title="User details"><div className="rounded-lg border border-slate-200 bg-white p-6"><Alert message={error || "User not found."} type="error" /><Link className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-emerald-800" to="/users"><FiArrowLeft className="h-4 w-4" />Back to users</Link></div></AppShell>;
   }
 
   return (
     <AppShell title={member.name} subtitle="Review profile information, workspace access, and account status.">
       <form className="space-y-5" onSubmit={handleSave}>
         <div className="flex flex-col gap-3 border-b border-slate-200 pb-5 sm:flex-row sm:items-center sm:justify-between">
-          <Link className="inline-flex items-center gap-2 text-sm font-bold text-slate-600 transition hover:text-violet-700" to="/users"><FiArrowLeft className="h-4 w-4" />Back to users</Link>
+          <Link className="inline-flex items-center gap-2 text-sm font-bold text-slate-600 transition hover:text-emerald-800" to="/users"><FiArrowLeft className="h-4 w-4" />Back to users</Link>
           <div className="flex gap-2">
             <button aria-label="Refresh user" className="flex h-10 w-10 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 transition hover:bg-slate-50" onClick={() => loadMember({ showLoading: true })} title="Refresh user" type="button"><FiRefreshCw className="h-4 w-4" /></button>
-            {canEdit && <button className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-violet-600 px-4 text-sm font-bold text-white shadow-sm shadow-violet-200 transition hover:bg-violet-700 disabled:bg-slate-300" disabled={saving} type="submit"><FiSave className="h-4 w-4" />{saving ? "Saving..." : "Save changes"}</button>}
+            {canEdit && <button className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-emerald-700 px-4 text-sm font-bold text-white shadow-sm shadow-emerald-200 transition hover:bg-emerald-800 disabled:bg-slate-300" disabled={saving} type="submit"><FiSave className="h-4 w-4" />{saving ? "Saving..." : "Save changes"}</button>}
           </div>
         </div>
 
@@ -167,7 +167,7 @@ const UserDetailPage = () => {
         <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_380px]">
           <div className="space-y-5">
             <section className="rounded-lg border border-slate-200 bg-white shadow-sm">
-            <div className="border-b border-slate-200 px-5 py-4"><div className="flex items-center gap-3"><span className="flex h-9 w-9 items-center justify-center rounded-lg bg-cyan-100 text-cyan-700"><FiUser className="h-4 w-4" /></span><div><h2 className="text-base font-bold text-slate-950">Profile information</h2><p className="text-sm text-slate-500">Identity and team details used throughout StaffFlow.</p></div></div></div>
+            <div className="border-b border-slate-200 px-5 py-4"><div className="flex items-center gap-3"><span className="flex h-9 w-9 items-center justify-center rounded-lg bg-teal-100 text-teal-800"><FiUser className="h-4 w-4" /></span><div><h2 className="text-base font-bold text-slate-950">Profile information</h2><p className="text-sm text-slate-500">Identity and team details used throughout StaffFlow.</p></div></div></div>
             <div className="space-y-5 p-5">
               <label className="block"><span className="flex items-center gap-2 text-sm font-bold text-slate-700"><FiUser className="h-4 w-4 text-slate-400" />Full name</span><input className={fieldClass} disabled={!canEdit} maxLength="120" name="fullName" onChange={handleChange} required value={formData.fullName} /></label>
               <label className="block"><span className="text-sm font-bold text-slate-700">Avatar URL</span><input className={fieldClass} disabled={!canEdit} maxLength="2048" name="avatarUrl" onChange={handleChange} placeholder="https://..." type="url" value={formData.avatarUrl} /></label>
@@ -196,8 +196,8 @@ const UserDetailPage = () => {
 
           <aside className="space-y-5">
             <section className="rounded-lg border border-slate-200 bg-white shadow-sm">
-              <div className="p-5 text-center">{member.avatarUrl ? <img alt="" className="mx-auto h-16 w-16 rounded-lg object-cover ring-1 ring-slate-200" src={member.avatarUrl} /> : <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-lg bg-cyan-100 text-lg font-bold text-cyan-800">{initialsFor(member.name)}</span>}<h2 className="mt-3 text-lg font-bold text-slate-950">{member.name}</h2><p className="mt-1 truncate text-sm text-slate-500">{member.email}</p><div className="mt-3 flex flex-wrap justify-center gap-2"><span className="rounded-full border border-violet-200 bg-violet-50 px-2.5 py-1 text-xs font-bold text-violet-800">{labelForValue(member.role)}</span><span className={`rounded-full border px-2.5 py-1 text-xs font-bold ${USER_STATUS_STYLES[member.status] || USER_STATUS_STYLES.active}`}>{labelForValue(member.status)}</span>{isSelf && <span className="rounded-full border border-cyan-200 bg-cyan-50 px-2.5 py-1 text-xs font-bold text-cyan-800">Your account</span>}</div></div>
-              <div className="border-t border-slate-200 p-5"><label className="block"><span className="flex items-center gap-2 text-sm font-bold text-slate-700"><FiShield className="h-4 w-4 text-violet-600" />Workspace role</span><select className={fieldClass} disabled={!canEdit} name="role" onChange={handleChange} value={formData.role}>{roleOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select></label></div>
+              <div className="p-5 text-center">{member.avatarUrl ? <img alt="" className="mx-auto h-16 w-16 rounded-lg object-cover ring-1 ring-slate-200" src={member.avatarUrl} /> : <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-lg bg-teal-100 text-lg font-bold text-teal-900">{initialsFor(member.name)}</span>}<h2 className="mt-3 text-lg font-bold text-slate-950">{member.name}</h2><p className="mt-1 truncate text-sm text-slate-500">{member.email}</p><div className="mt-3 flex flex-wrap justify-center gap-2"><span className="rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-900">{labelForValue(member.role)}</span><span className={`rounded-full border px-2.5 py-1 text-xs font-bold ${USER_STATUS_STYLES[member.status] || USER_STATUS_STYLES.active}`}>{labelForValue(member.status)}</span>{isSelf && <span className="rounded-full border border-teal-200 bg-teal-50 px-2.5 py-1 text-xs font-bold text-teal-900">Your account</span>}</div></div>
+              <div className="border-t border-slate-200 p-5"><label className="block"><span className="flex items-center gap-2 text-sm font-bold text-slate-700"><FiShield className="h-4 w-4 text-emerald-700" />Workspace role</span><select className={fieldClass} disabled={!canEdit} name="role" onChange={handleChange} value={formData.role}>{roleOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select></label></div>
             </section>
 
             <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">

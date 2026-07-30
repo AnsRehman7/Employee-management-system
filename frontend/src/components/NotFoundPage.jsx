@@ -16,7 +16,7 @@ const NotFoundPage = () => {
   return (
     <main className="grid min-h-screen place-items-center bg-slate-50 px-5 py-12">
       <section className="w-full max-w-lg rounded-lg border border-slate-200 bg-white p-7 shadow-sm">
-        <p className="text-xs font-bold uppercase text-violet-700">404 / Page not found</p>
+        <p className="text-xs font-bold uppercase text-emerald-800">404 / Page not found</p>
         <h1 className="mt-2 text-3xl font-extrabold text-slate-950">This page is not available</h1>
         <p className="mt-3 text-sm leading-6 text-slate-600">
           The address may be outdated, or your account may not have access to this workspace view.
@@ -32,7 +32,7 @@ const NotFoundPage = () => {
           </button>
           <Link
             to={destinationFor(user)}
-            className="inline-flex items-center gap-2 rounded-lg bg-violet-700 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-violet-800"
+            className="inline-flex items-center gap-2 rounded-lg bg-emerald-800 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-emerald-900"
           >
             <FiHome className="h-4 w-4" />
             {user ? "Open workspace" : "Go home"}

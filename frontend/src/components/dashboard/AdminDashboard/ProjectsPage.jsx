@@ -34,7 +34,7 @@ const formatDate = (date) => {
 
 const healthStyles = {
   archived: "bg-slate-200 text-slate-700",
-  complete: "bg-violet-100 text-violet-700",
+  complete: "bg-emerald-100 text-emerald-800",
   "due-soon": "bg-amber-100 text-amber-800",
   "on-track": "bg-sky-100 text-sky-700",
   overdue: "bg-rose-100 text-rose-700",
@@ -43,12 +43,12 @@ const healthStyles = {
 const statusStyles = {
   active: "bg-sky-100 text-sky-700",
   archived: "bg-slate-200 text-slate-700",
-  completed: "bg-violet-100 text-violet-700",
-  planned: "bg-violet-100 text-violet-700",
+  completed: "bg-emerald-100 text-emerald-800",
+  planned: "bg-emerald-100 text-emerald-800",
 };
 
 const taskStatusStyles = {
-  completed: "bg-violet-100 text-violet-700",
+  completed: "bg-emerald-100 text-emerald-800",
   new: "bg-sky-100 text-sky-700",
 };
 
@@ -176,7 +176,7 @@ const ProjectsPage = () => {
           {canManageWork && (
             <form className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm" onSubmit={handleCreateProject}>
               <div className="mb-5 flex items-start gap-3 border-b border-slate-200 pb-5">
-                <span className="rounded-lg bg-violet-100 p-3 text-violet-700">
+                <span className="rounded-lg bg-emerald-100 p-3 text-emerald-800">
                   <FiPlusCircle className="h-5 w-5" />
                 </span>
                 <div>
@@ -190,7 +190,7 @@ const ProjectsPage = () => {
 
               <label className="block">
                 <span className="text-sm font-semibold text-slate-700">Project name</span>
-                <div className="mt-2 flex items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 transition focus-within:border-violet-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-violet-500/10">
+                <div className="mt-2 flex items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 transition focus-within:border-emerald-600 focus-within:bg-white focus-within:ring-4 focus-within:ring-emerald-600/10">
                   <FiBriefcase className="h-5 w-5 text-slate-400" />
                   <input
                     className="w-full bg-transparent text-sm text-slate-950 outline-none placeholder:text-slate-400"
@@ -207,7 +207,7 @@ const ProjectsPage = () => {
               <div className="grid gap-4 sm:grid-cols-2">
                 <label className="block">
                   <span className="text-sm font-semibold text-slate-700">Start date</span>
-                  <div className="mt-2 flex items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 transition focus-within:border-violet-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-violet-500/10">
+                  <div className="mt-2 flex items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 transition focus-within:border-emerald-600 focus-within:bg-white focus-within:ring-4 focus-within:ring-emerald-600/10">
                     <FiCalendar className="h-5 w-5 text-slate-400" />
                     <input
                       className="w-full bg-transparent text-sm font-semibold text-slate-950 outline-none"
@@ -221,7 +221,7 @@ const ProjectsPage = () => {
 
                 <label className="block">
                   <span className="text-sm font-semibold text-slate-700">Due date</span>
-                  <div className="mt-2 flex items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 transition focus-within:border-violet-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-violet-500/10">
+                  <div className="mt-2 flex items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 transition focus-within:border-emerald-600 focus-within:bg-white focus-within:ring-4 focus-within:ring-emerald-600/10">
                     <FiFlag className="h-5 w-5 text-slate-400" />
                     <input
                       className="w-full bg-transparent text-sm font-semibold text-slate-950 outline-none"
@@ -237,7 +237,7 @@ const ProjectsPage = () => {
               <label className="block">
                 <span className="text-sm font-semibold text-slate-700">Description</span>
                 <textarea
-                  className="mt-2 w-full resize-none rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm leading-6 text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-violet-500 focus:bg-white focus:ring-4 focus:ring-violet-500/10"
+                  className="mt-2 w-full resize-none rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm leading-6 text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-emerald-600 focus:bg-white focus:ring-4 focus:ring-emerald-600/10"
                   name="description"
                   onChange={handleChange}
                   placeholder="Scope, client context, delivery notes, or internal objective."
@@ -247,7 +247,7 @@ const ProjectsPage = () => {
               </label>
 
               <button
-                className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-violet-600 px-4 py-3 text-sm font-bold text-white shadow-lg shadow-violet-900/20 transition hover:bg-violet-700 disabled:cursor-not-allowed disabled:bg-slate-300"
+                className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-emerald-700 px-4 py-3 text-sm font-bold text-white shadow-lg shadow-emerald-950/20 transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:bg-slate-300"
                 disabled={creating}
                 type="submit"
               >
@@ -301,7 +301,7 @@ const ProjectsPage = () => {
 
             {loading ? (
               <div className="py-14 text-center">
-                <div className="mx-auto h-10 w-10 animate-spin rounded-full border-2 border-slate-200 border-t-violet-500" />
+                <div className="mx-auto h-10 w-10 animate-spin rounded-full border-2 border-slate-200 border-t-emerald-600" />
                 <p className="mt-4 text-sm font-semibold text-slate-500">Loading projects...</p>
               </div>
             ) : projects.length === 0 ? (
@@ -318,7 +318,7 @@ const ProjectsPage = () => {
                   <article
                     className={`rounded-lg border p-4 transition hover:shadow-md ${
                       selectedProjectId === project.id
-                        ? "border-violet-300 bg-violet-50/40"
+                        ? "border-emerald-300 bg-emerald-50/40"
                         : "border-slate-200 bg-slate-50 hover:border-slate-300 hover:bg-white"
                     }`}
                     key={project.id}
@@ -359,7 +359,7 @@ const ProjectsPage = () => {
                           <p className="text-right text-sm font-bold text-slate-950">{project.progress}%</p>
                           <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-200">
                             <div
-                              className="h-full rounded-full bg-violet-500 transition-all duration-500"
+                              className="h-full rounded-full bg-emerald-600 transition-all duration-500"
                               style={{ width: `${project.progress}%` }}
                             />
                           </div>
@@ -376,7 +376,7 @@ const ProjectsPage = () => {
                           <button
                             className={`rounded-lg px-3 py-2 text-xs font-bold transition ${
                               project.status === value
-                                ? "bg-violet-600 text-white shadow-sm shadow-violet-200"
+                                ? "bg-emerald-700 text-white shadow-sm shadow-emerald-200"
                                 : "bg-white text-slate-600 ring-1 ring-slate-200 hover:text-slate-950"
                             }`}
                             disabled={busyId === project.id}
@@ -398,14 +398,14 @@ const ProjectsPage = () => {
           <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
             {detailLoading ? (
               <div className="py-12 text-center">
-                <div className="mx-auto h-10 w-10 animate-spin rounded-full border-2 border-slate-200 border-t-violet-500" />
+                <div className="mx-auto h-10 w-10 animate-spin rounded-full border-2 border-slate-200 border-t-emerald-600" />
                 <p className="mt-4 text-sm font-semibold text-slate-500">Loading project detail...</p>
               </div>
             ) : projectDetail ? (
               <>
                 <div className="mb-5 flex flex-col gap-4 border-b border-slate-200 pb-5 lg:flex-row lg:items-start lg:justify-between">
                   <div>
-                    <p className="text-sm font-bold uppercase tracking-[0.2em] text-violet-600">Selected project</p>
+                    <p className="text-sm font-bold uppercase tracking-normal text-emerald-700">Selected project</p>
                     <h2 className="mt-1 text-2xl font-bold text-slate-950">{projectDetail.name}</h2>
                     <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">
                       {projectDetail.description || "No description provided."}
@@ -436,7 +436,7 @@ const ProjectsPage = () => {
 
                 <div className="mt-5 h-2 overflow-hidden rounded-full bg-slate-200">
                   <div
-                    className="h-full rounded-full bg-violet-500 transition-all duration-500"
+                    className="h-full rounded-full bg-emerald-600 transition-all duration-500"
                     style={{ width: `${projectDetail.progress}%` }}
                   />
                 </div>
@@ -488,7 +488,7 @@ const ProjectsPage = () => {
                               </div>
                               <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-200">
                                 <div
-                                  className="h-full rounded-full bg-violet-500 transition-all duration-500"
+                                  className="h-full rounded-full bg-emerald-600 transition-all duration-500"
                                   style={{ width: `${task.aiProgress || 0}%` }}
                                 />
                               </div>

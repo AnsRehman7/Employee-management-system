@@ -98,18 +98,18 @@ const formatDistance = (meters) => {
 
 const statusStyles = {
   absent: "bg-slate-200 text-slate-700",
-  checked_out: "bg-violet-100 text-violet-700",
+  checked_out: "bg-emerald-100 text-emerald-800",
   in_office: "bg-sky-100 text-sky-700",
   late: "bg-amber-100 text-amber-800",
 };
 
 const directionStyles = {
-  in: "bg-violet-100 text-violet-700",
+  in: "bg-emerald-100 text-emerald-800",
   out: "bg-slate-200 text-slate-700",
 };
 
 const acceptanceStyles = {
-  accepted: "bg-violet-100 text-violet-700",
+  accepted: "bg-emerald-100 text-emerald-800",
   rejected: "bg-rose-100 text-rose-700",
 };
 
@@ -406,7 +406,7 @@ const AttendancePortal = () => {
         <section className="space-y-6">
           <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
             <div className="mb-5 flex items-start gap-3 border-b border-slate-200 pb-5">
-              <span className="rounded-lg bg-violet-100 p-3 text-violet-700">
+              <span className="rounded-lg bg-emerald-100 p-3 text-emerald-800">
                 <FiSliders className="h-5 w-5" />
               </span>
               <div>
@@ -424,7 +424,7 @@ const AttendancePortal = () => {
               <label className="block">
                 <span className="text-sm font-semibold text-slate-700">Attendance date</span>
                 <input
-                  className="mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-950 outline-none transition focus:border-violet-500 focus:bg-white focus:ring-4 focus:ring-violet-500/10"
+                  className="mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-950 outline-none transition focus:border-emerald-600 focus:bg-white focus:ring-4 focus:ring-emerald-600/10"
                   onChange={(event) => setDate(event.target.value)}
                   type="date"
                   value={date}
@@ -435,7 +435,7 @@ const AttendancePortal = () => {
                 <label className="block">
                   <span className="text-sm font-semibold text-slate-700">Office start</span>
                   <input
-                    className="mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-950 outline-none transition focus:border-violet-500 focus:bg-white focus:ring-4 focus:ring-violet-500/10"
+                    className="mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-950 outline-none transition focus:border-emerald-600 focus:bg-white focus:ring-4 focus:ring-emerald-600/10"
                     name="officeStart"
                     onChange={handleScheduleChange}
                     type="time"
@@ -446,7 +446,7 @@ const AttendancePortal = () => {
                 <label className="block">
                   <span className="text-sm font-semibold text-slate-700">Grace minutes</span>
                   <input
-                    className="mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-950 outline-none transition focus:border-violet-500 focus:bg-white focus:ring-4 focus:ring-violet-500/10"
+                    className="mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-950 outline-none transition focus:border-emerald-600 focus:bg-white focus:ring-4 focus:ring-emerald-600/10"
                     min="0"
                     name="checkInGraceMinutes"
                     onChange={handleScheduleChange}
@@ -460,7 +460,7 @@ const AttendancePortal = () => {
                 <label className="block">
                   <span className="text-sm font-semibold text-slate-700">Office end</span>
                   <input
-                    className="mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-950 outline-none transition focus:border-violet-500 focus:bg-white focus:ring-4 focus:ring-violet-500/10"
+                    className="mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-950 outline-none transition focus:border-emerald-600 focus:bg-white focus:ring-4 focus:ring-emerald-600/10"
                     name="officeEnd"
                     onChange={handleScheduleChange}
                     type="time"
@@ -471,7 +471,7 @@ const AttendancePortal = () => {
                 <label className="block">
                   <span className="text-sm font-semibold text-slate-700">Checkout from</span>
                   <input
-                    className="mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-950 outline-none transition focus:border-violet-500 focus:bg-white focus:ring-4 focus:ring-violet-500/10"
+                    className="mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-950 outline-none transition focus:border-emerald-600 focus:bg-white focus:ring-4 focus:ring-emerald-600/10"
                     name="checkoutStart"
                     onChange={handleScheduleChange}
                     type="time"
@@ -482,7 +482,7 @@ const AttendancePortal = () => {
                 <label className="block">
                   <span className="text-sm font-semibold text-slate-700">Checkout until</span>
                   <input
-                    className="mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-950 outline-none transition focus:border-violet-500 focus:bg-white focus:ring-4 focus:ring-violet-500/10"
+                    className="mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-950 outline-none transition focus:border-emerald-600 focus:bg-white focus:ring-4 focus:ring-emerald-600/10"
                     name="checkoutEnd"
                     onChange={handleScheduleChange}
                     type="time"
@@ -496,7 +496,7 @@ const AttendancePortal = () => {
           {canRecordAttendance ? (
             <form className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm" onSubmit={handleAddScan}>
               <div className="mb-5 flex items-start gap-3 border-b border-slate-200 pb-5">
-                <span className="rounded-lg bg-violet-600 p-3 text-white">
+                <span className="rounded-lg bg-emerald-700 p-3 text-white">
                   <FiShield className="h-5 w-5" />
                 </span>
                 <div>
@@ -509,7 +509,7 @@ const AttendancePortal = () => {
               {canManageAttendance && <label className="block">
                 <span className="text-sm font-semibold text-slate-700">Team member</span>
                 <select
-                  className="mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-950 outline-none transition focus:border-violet-500 focus:bg-white focus:ring-4 focus:ring-violet-500/10"
+                  className="mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-950 outline-none transition focus:border-emerald-600 focus:bg-white focus:ring-4 focus:ring-emerald-600/10"
                   disabled={loadingRoster}
                   name="userId"
                   onChange={handleScanFormChange}
@@ -527,7 +527,7 @@ const AttendancePortal = () => {
                 {canManageAttendance && <label className="block">
                   <span className="text-sm font-semibold text-slate-700">Scan time</span>
                   <input
-                    className="mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-950 outline-none transition focus:border-violet-500 focus:bg-white focus:ring-4 focus:ring-violet-500/10"
+                    className="mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-950 outline-none transition focus:border-emerald-600 focus:bg-white focus:ring-4 focus:ring-emerald-600/10"
                     name="scanTime"
                     onChange={handleScanFormChange}
                     required
@@ -539,7 +539,7 @@ const AttendancePortal = () => {
                 <label className="block">
                   <span className="text-sm font-semibold text-slate-700">Scan direction</span>
                   <select
-                    className="mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-950 outline-none transition focus:border-violet-500 focus:bg-white focus:ring-4 focus:ring-violet-500/10"
+                    className="mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-950 outline-none transition focus:border-emerald-600 focus:bg-white focus:ring-4 focus:ring-emerald-600/10"
                     name="direction"
                     onChange={handleScanFormChange}
                     value={scanForm.direction}
@@ -553,7 +553,7 @@ const AttendancePortal = () => {
               {canManageAttendance && fieldVisible("source") && <label className="block">
                 <span className="text-sm font-semibold text-slate-700">Source</span>
                 <select
-                  className="mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-950 outline-none transition focus:border-violet-500 focus:bg-white focus:ring-4 focus:ring-violet-500/10"
+                  className="mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-950 outline-none transition focus:border-emerald-600 focus:bg-white focus:ring-4 focus:ring-emerald-600/10"
                   name="source"
                   onChange={handleScanFormChange}
                   required={fieldRequired("source")}
@@ -575,7 +575,7 @@ const AttendancePortal = () => {
               />
 
               <button
-                className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-violet-600 px-4 py-3 text-sm font-bold text-white shadow-lg shadow-violet-900/20 transition hover:bg-violet-700 disabled:cursor-not-allowed disabled:bg-slate-300"
+                className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-emerald-700 px-4 py-3 text-sm font-bold text-white shadow-lg shadow-emerald-950/20 transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:bg-slate-300"
                 disabled={loadingRoster || savingScan}
                 type="submit"
               >
@@ -599,7 +599,7 @@ const AttendancePortal = () => {
           ) : (
             <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
               <div className="flex items-start gap-3">
-                <span className="rounded-lg bg-violet-50 p-3 text-violet-700">
+                <span className="rounded-lg bg-emerald-50 p-3 text-emerald-800">
                   <FiShield className="h-5 w-5" />
                 </span>
                 <div>

@@ -3,6 +3,8 @@ import {
   FiBriefcase,
   FiBarChart2,
   FiCheckSquare,
+  FiChevronsLeft,
+  FiChevronsRight,
   FiClock,
   FiDatabase,
   FiGrid,
@@ -50,6 +52,14 @@ const AppShell = ({ children, subtitle = "", title = "Workspace" }) => {
   const [error, setError] = useState("");
   const [globalSearch, setGlobalSearch] = useState("");
   const [customModules, setCustomModules] = useState([]);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return window.localStorage.getItem("staffflow.sidebar-collapsed") === "true";
+  });
+
+  useEffect(() => {
+    window.localStorage.setItem("staffflow.sidebar-collapsed", String(sidebarCollapsed));
+  }, [sidebarCollapsed]);
 
   useEffect(() => {
     if (!user?.id) {
@@ -158,53 +168,68 @@ const AppShell = ({ children, subtitle = "", title = "Workspace" }) => {
     location.pathname === "/users" ||
     location.pathname.startsWith("/users/");
 
-  const renderNavLink = ({ icon, label, to }, compact = false) => (
+  const renderNavLink = ({ icon, label, to }, iconOnly = false) => (
     <NavLink
+      aria-label={iconOnly ? label : undefined}
       className={({ isActive }) =>
-        `flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold transition ${
+        `flex items-center rounded-md py-2.5 text-sm font-semibold transition ${
           isActive
-            ? "bg-violet-600 text-white shadow-sm shadow-violet-200"
-            : "text-slate-600 hover:bg-violet-50 hover:text-violet-700"
-        } ${compact ? "shrink-0" : ""}`
+            ? "bg-emerald-700 text-white shadow-sm shadow-emerald-200"
+            : "text-slate-600 hover:bg-emerald-50 hover:text-emerald-800"
+        } ${iconOnly ? "justify-center px-2" : "gap-3 px-3"}`
       }
       key={to}
+      title={iconOnly ? label : undefined}
       to={to}
     >
       {icon}
-      {label}
+      {!iconOnly && <span className="truncate">{label}</span>}
     </NavLink>
   );
 
   return (
-    <div className="min-h-screen bg-[#f4f5fb] text-slate-950">
-      <aside className="fixed inset-y-0 left-0 z-40 hidden w-72 flex-col border-r border-slate-200 bg-[#fbfbff] lg:flex">
-        <div className="border-b border-slate-200 p-5">
-          <NavLink className="flex items-center gap-3" to={homePath}>
-            <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-violet-600 text-sm font-bold text-white shadow-lg shadow-violet-200">
-              SF
-            </span>
-            <div>
-              <p className="text-base font-bold tracking-tight text-slate-950">StaffFlow</p>
-              <p className="text-xs font-semibold uppercase text-slate-500">Work intelligence</p>
-            </div>
-          </NavLink>
+    <div className="min-h-screen bg-[#f7f8f5] text-slate-950">
+      <aside className={`fixed inset-y-0 left-0 z-40 hidden flex-col border-r border-slate-200 bg-[#fcfdfb] transition-[width] duration-200 lg:flex ${sidebarCollapsed ? "w-20" : "w-72"}`}>
+        <div className={`border-b border-slate-200 ${sidebarCollapsed ? "p-2" : "p-4"}`}>
+          <div className="flex items-center justify-between">
+            <NavLink className={`flex min-w-0 items-center ${sidebarCollapsed ? "" : "gap-3"}`} title={sidebarCollapsed ? "StaffFlow" : undefined} to={homePath}>
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-emerald-700 text-sm font-bold text-white shadow-sm shadow-emerald-200">
+                SF
+              </span>
+              {!sidebarCollapsed && (
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-bold text-slate-950">StaffFlow</p>
+                  <p className="mt-0.5 text-[10px] font-semibold uppercase text-slate-500">Work intelligence</p>
+                </div>
+              )}
+            </NavLink>
+            <button
+              aria-label={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-slate-500 transition hover:bg-emerald-50 hover:text-emerald-800"
+              onClick={() => setSidebarCollapsed((current) => !current)}
+              title={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+              type="button"
+            >
+              {sidebarCollapsed ? <FiChevronsRight className="h-4 w-4" /> : <FiChevronsLeft className="h-4 w-4" />}
+            </button>
+          </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-3 py-4">
-          <nav className="space-y-5">
+        <div className={`flex-1 overflow-y-auto ${sidebarCollapsed ? "px-2 py-3" : "px-3 py-4"}`}>
+          <nav className={sidebarCollapsed ? "space-y-2" : "space-y-5"}>
             {Object.entries(navGroups).map(([section, items]) => (
               <div key={section}>
-                <p className="px-3 text-[11px] font-bold uppercase text-slate-400">{section}</p>
-                <div className="mt-2 space-y-1">{items.map((item) => renderNavLink(item))}</div>
+                {!sidebarCollapsed && <p className="px-3 text-[10px] font-bold uppercase text-slate-400">{section}</p>}
+                <div className={`${sidebarCollapsed ? "space-y-1" : "mt-2 space-y-1"}`}>{items.map((item) => renderNavLink(item, sidebarCollapsed))}</div>
               </div>
             ))}
           </nav>
         </div>
 
-        <div className="space-y-3 border-t border-slate-200 p-4">
-          <div className="rounded-lg border border-violet-100 bg-violet-50 p-4">
+        <div className={`${sidebarCollapsed ? "space-y-2 p-2" : "space-y-3 p-4"} border-t border-slate-200`}>
+          {!sidebarCollapsed && <div className="rounded-md border border-emerald-100 bg-emerald-50 p-3">
             <div className="flex items-start gap-3">
-              <span className="rounded-lg bg-white p-2 text-violet-700 ring-1 ring-violet-100">
+              <span className="rounded-md bg-white p-2 text-emerald-800 ring-1 ring-emerald-100">
                 <FiShield className="h-4 w-4" />
               </span>
               <div className="min-w-0">
@@ -214,53 +239,55 @@ const AppShell = ({ children, subtitle = "", title = "Workspace" }) => {
                 </p>
               </div>
             </div>
-          </div>
+          </div>}
 
           <button
-            className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm font-bold text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-60"
+            aria-label="Sign out"
+            className={`inline-flex w-full items-center justify-center rounded-md border border-slate-200 bg-white text-sm font-bold text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-60 ${sidebarCollapsed ? "h-10" : "gap-2 px-4 py-3"}`}
             disabled={isSigningOut}
             onClick={handleLogout}
+            title={sidebarCollapsed ? "Sign out" : undefined}
             type="button"
           >
             <FiLogOut className="h-4 w-4" />
-            {isSigningOut ? "Signing out..." : "Sign out"}
+            {!sidebarCollapsed && (isSigningOut ? "Signing out..." : "Sign out")}
           </button>
         </div>
       </aside>
 
-      <div className="lg:pl-72">
-        <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/85 backdrop-blur-xl">
+      <div className={`transition-[padding] duration-200 ${sidebarCollapsed ? "lg:pl-20" : "lg:pl-72"}`}>
+        <header className="sticky top-0 z-30 border-b border-slate-200 bg-[#fcfdfb]/95 backdrop-blur-xl">
           <div className="mx-auto max-w-[1540px] px-4 py-4 sm:px-6 lg:px-8">
             <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
               <div className="min-w-0">
                 <div className="mb-2 flex items-center gap-2 lg:hidden">
-                  <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-violet-600 text-xs font-bold text-white">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-md bg-emerald-700 text-xs font-bold text-white">
                     SF
                   </span>
                   <span className="text-sm font-bold text-slate-950">StaffFlow</span>
                 </div>
-                <p className="text-xs font-bold uppercase tracking-wide text-violet-600">{workspaceName}</p>
-                <h1 className="mt-1 text-2xl font-bold tracking-tight text-slate-950 sm:text-3xl">{title}</h1>
+                <p className="text-xs font-bold uppercase text-emerald-700">{workspaceName}</p>
+                <h1 className="mt-1 text-xl font-bold text-slate-950 sm:text-2xl">{title}</h1>
                 {subtitle && <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-500">{subtitle}</p>}
               </div>
 
               <div className="flex min-w-0 items-center gap-3">
-                <form className="hidden h-10 w-[360px] items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 px-3 text-sm text-slate-500 focus-within:border-violet-300 focus-within:bg-white focus-within:ring-4 focus-within:ring-violet-100 xl:flex" onSubmit={handleGlobalSearch}>
+                <form className="hidden h-10 w-[360px] items-center gap-3 rounded-md border border-slate-200 bg-[#f7f8f5] px-3 text-sm text-slate-500 focus-within:border-emerald-300 focus-within:bg-white focus-within:ring-4 focus-within:ring-emerald-100 xl:flex" onSubmit={handleGlobalSearch}>
                   <FiSearch className="h-4 w-4 shrink-0" />
                   <input className="w-full bg-transparent text-sm text-slate-700 outline-none placeholder:text-slate-400" onChange={(event) => setGlobalSearch(event.target.value)} placeholder="Search tasks..." type="search" value={globalSearch} />
                 </form>
                 {user?.permissions?.canCreateTasks && (
-                  <button aria-label="Create task" className="hidden h-10 w-10 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 transition hover:bg-violet-50 hover:text-violet-700 xl:flex" onClick={() => navigate("/tasks/new")} title="Create task" type="button">
+                  <button aria-label="Create task" className="hidden h-10 w-10 items-center justify-center rounded-md border border-slate-200 bg-white text-slate-600 transition hover:bg-emerald-50 hover:text-emerald-800 xl:flex" onClick={() => navigate("/tasks/new")} title="Create task" type="button">
                     <FiPlus className="h-4 w-4" />
                   </button>
                 )}
                 <NavLink
                   aria-label="Settings"
                   className={({ isActive }) =>
-                    `flex h-10 w-10 items-center justify-center rounded-lg border transition ${
+                    `flex h-10 w-10 items-center justify-center rounded-md border transition ${
                       isActive || settingsAreaActive
-                        ? "border-violet-200 bg-violet-50 text-violet-700"
-                        : "border-slate-200 bg-white text-slate-600 hover:bg-violet-50 hover:text-violet-700"
+                        ? "border-emerald-200 bg-emerald-50 text-emerald-800"
+                        : "border-slate-200 bg-white text-slate-600 hover:bg-emerald-50 hover:text-emerald-800"
                     }`
                   }
                   title="Settings"
@@ -272,10 +299,10 @@ const AppShell = ({ children, subtitle = "", title = "Workspace" }) => {
                 <NavLink
                   aria-label="Profile"
                   className={({ isActive }) =>
-                    `flex h-10 w-10 items-center justify-center rounded-lg border text-xs font-bold transition ${
+                    `flex h-10 w-10 items-center justify-center rounded-full border text-xs font-bold transition ${
                       isActive
-                        ? "border-violet-300 bg-violet-600 text-white"
-                        : "border-cyan-200 bg-cyan-50 text-cyan-800 hover:border-violet-300 hover:bg-violet-50 hover:text-violet-700"
+                        ? "border-emerald-300 bg-emerald-700 text-white"
+                        : "border-teal-200 bg-teal-50 text-teal-900 hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-800"
                     }`
                   }
                   title={`${userName} / ${formatRole(user?.role)}`}
@@ -288,7 +315,7 @@ const AppShell = ({ children, subtitle = "", title = "Workspace" }) => {
 
             {navItems.length > 0 && (
               <nav className="mt-4 flex gap-2 overflow-x-auto pb-1 lg:hidden">
-                {navItems.map((item) => renderNavLink(item, true))}
+                {navItems.map((item) => renderNavLink(item))}
               </nav>
             )}
 

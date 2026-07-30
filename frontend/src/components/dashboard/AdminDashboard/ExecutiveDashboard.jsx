@@ -43,12 +43,12 @@ const Card = ({ children, className = "" }) => (
   </section>
 );
 
-const StatCard = ({ accent = "bg-violet-500", helper, icon, label, value }) => (
-  <Card className="p-4">
+const StatCard = ({ accent = "bg-emerald-700", helper, icon, label, surface = "bg-white", value }) => (
+  <Card className={`p-4 ${surface}`}>
     <div className="flex items-start justify-between gap-3">
       <div className="min-w-0">
-        <p className="truncate text-xs font-bold uppercase tracking-wide text-slate-500">{label}</p>
-        <p className="mt-3 text-3xl font-bold tracking-tight text-slate-950">{value}</p>
+        <p className="truncate text-xs font-bold uppercase tracking-normal text-slate-500">{label}</p>
+        <p className="mt-3 text-2xl font-bold tracking-normal text-slate-950">{value}</p>
         <p className="mt-1 text-sm font-semibold text-slate-500">{helper}</p>
       </div>
       <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-white ${accent}`}>
@@ -124,14 +124,14 @@ const TrendChart = ({ points }) => {
       <svg className="h-64 w-full" preserveAspectRatio="none" viewBox="0 0 100 100">
         <defs>
           <linearGradient id="trendFill" x1="0" x2="0" y1="0" y2="1">
-            <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.25" />
-            <stop offset="100%" stopColor="#8b5cf6" stopOpacity="0" />
+            <stop offset="0%" stopColor="#15803d" stopOpacity="0.22" />
+            <stop offset="100%" stopColor="#15803d" stopOpacity="0" />
           </linearGradient>
         </defs>
         <path d={fillPath} fill="url(#trendFill)" />
-        <path d={path} fill="none" stroke="#7c3aed" strokeLinecap="round" strokeWidth="2.5" />
+        <path d={path} fill="none" stroke="#15803d" strokeLinecap="round" strokeWidth="2.5" />
         {coordinates.map((point) => (
-          <circle cx={point.x} cy={point.y} fill="#fff" key={point.label} r="2.6" stroke="#7c3aed" strokeWidth="2" />
+          <circle cx={point.x} cy={point.y} fill="#fff" key={point.label} r="2.6" stroke="#15803d" strokeWidth="2" />
         ))}
       </svg>
       <div className="grid grid-cols-7 gap-2 text-center text-xs font-bold text-slate-400">
@@ -155,7 +155,7 @@ const WorkloadBars = ({ items }) => (
             <span className="font-bold text-slate-950">{item.value}</span>
           </div>
           <div className="h-2 overflow-hidden rounded-full bg-slate-100">
-            <div className="h-full rounded-full bg-cyan-500" style={{ width: `${item.percent}%` }} />
+            <div className="h-full rounded-full bg-teal-600" style={{ width: `${item.percent}%` }} />
           </div>
         </div>
       ))
@@ -278,10 +278,10 @@ const ExecutiveDashboard = () => {
       .slice(0, 5);
 
     const healthSegments = [
-      { color: "#06b6d4", label: "On track", value: data.projects.filter((project) => project.health === "on-track").length },
+      { color: "#0f766e", label: "On track", value: data.projects.filter((project) => project.health === "on-track").length },
       { color: "#f59e0b", label: "Due soon", value: data.projects.filter((project) => project.health === "due-soon").length },
       { color: "#f43f5e", label: "Overdue", value: data.projects.filter((project) => project.health === "overdue").length },
-      { color: "#7c3aed", label: "Complete", value: data.projects.filter((project) => project.health === "complete").length },
+      { color: "#15803d", label: "Complete", value: data.projects.filter((project) => project.health === "complete").length },
     ];
 
     const recentTasks = [...data.tasks]
@@ -309,7 +309,7 @@ const ExecutiveDashboard = () => {
   if (loading) {
     return (
       <Card className="p-10 text-center">
-        <div className="mx-auto h-10 w-10 animate-spin rounded-full border-2 border-slate-200 border-t-violet-500" />
+        <div className="mx-auto h-10 w-10 animate-spin rounded-full border-2 border-slate-200 border-t-emerald-600" />
         <p className="mt-4 text-sm font-semibold text-slate-500">Loading executive dashboard...</p>
       </Card>
     );
@@ -321,10 +321,10 @@ const ExecutiveDashboard = () => {
 
       <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <p className="text-xs font-bold uppercase tracking-wide text-violet-600">
+          <p className="text-xs font-bold uppercase tracking-normal text-emerald-700">
             {dayFormatter.format(new Date())} / Workforce intelligence
           </p>
-          <h2 className="mt-2 text-4xl font-bold tracking-tight text-slate-950">
+          <h2 className="mt-2 text-2xl font-bold tracking-normal text-slate-950">
             {getGreeting()}, {user?.name?.split(" ")[0] || "there"}
           </h2>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
@@ -341,7 +341,7 @@ const ExecutiveDashboard = () => {
             Refresh
           </button>
           <NavLink
-            className="inline-flex items-center justify-center gap-2 rounded-lg bg-violet-600 px-4 py-2.5 text-sm font-bold text-white shadow-lg shadow-violet-200 transition hover:bg-violet-700"
+            className="inline-flex items-center justify-center gap-2 rounded-lg bg-emerald-700 px-4 py-2.5 text-sm font-bold text-white shadow-lg shadow-emerald-200 transition hover:bg-emerald-800"
             to="/projects"
           >
             <FiArrowUpRight className="h-4 w-4" />
@@ -352,31 +352,35 @@ const ExecutiveDashboard = () => {
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <StatCard
-          accent="bg-violet-600"
+          accent="bg-emerald-700"
           helper={`${dashboard.projectAtRisk.length} need attention`}
           icon={<FiBriefcase className="h-5 w-5" />}
           label="Active projects"
+          surface="bg-emerald-50/60"
           value={dashboard.activeProjects.length}
         />
         <StatCard
-          accent="bg-cyan-500"
+          accent="bg-teal-600"
           helper={`${dashboard.completedTasks.length} completed`}
           icon={<FiCheckCircle className="h-5 w-5" />}
           label="Completion rate"
+          surface="bg-teal-50/60"
           value={`${dashboard.completionRate}%`}
         />
         <StatCard
-          accent="bg-rose-500"
+          accent="bg-amber-500"
           helper={`${dashboard.overdueTasks.length} overdue active`}
           icon={<FiClock className="h-5 w-5" />}
           label="Active tasks"
+          surface="bg-amber-50/60"
           value={dashboard.activeTasks.length}
         />
         <StatCard
-          accent="bg-violet-500"
+          accent="bg-emerald-600"
           helper={`${dashboard.attendanceUsers.size} checked in today`}
           icon={<FiUsers className="h-5 w-5" />}
           label="Attendance today"
+          surface="bg-emerald-50/60"
           value={`${dashboard.attendanceRate}%`}
         />
       </div>
@@ -385,11 +389,11 @@ const ExecutiveDashboard = () => {
         <Card className="p-5">
           <div className="mb-5 flex flex-col gap-3 border-b border-slate-200 pb-5 sm:flex-row sm:items-start sm:justify-between">
             <div>
-              <p className="text-xs font-bold uppercase tracking-wide text-slate-500">Performance</p>
+              <p className="text-xs font-bold uppercase tracking-normal text-slate-500">Performance</p>
               <h3 className="mt-1 text-2xl font-bold text-slate-950">Work completion trend</h3>
               <p className="mt-1 text-sm text-slate-500">Completed task movement across the last seven months.</p>
             </div>
-            <span className="rounded-full bg-violet-50 px-3 py-1 text-xs font-bold text-violet-700">
+            <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-800">
               {dashboard.completedTasks.length} completed
             </span>
           </div>
@@ -397,7 +401,7 @@ const ExecutiveDashboard = () => {
         </Card>
 
         <Card className="overflow-hidden">
-          <div className="bg-violet-600 p-5 text-white">
+          <div className="bg-emerald-700 p-5 text-white">
             <div className="flex items-center justify-between gap-3">
               <span className="rounded-lg bg-white/15 p-3">
                 <FiActivity className="h-5 w-5" />
@@ -405,7 +409,7 @@ const ExecutiveDashboard = () => {
               <span className="rounded-full bg-white/15 px-3 py-1 text-xs font-bold">Live</span>
             </div>
             <h3 className="mt-6 text-2xl font-bold">Executive insight</h3>
-            <p className="mt-2 text-sm leading-6 text-violet-100">
+            <p className="mt-2 text-sm leading-6 text-emerald-100">
               {dashboard.completionRate >= 75
                 ? "Delivery is healthy. Keep an eye on workload balance and overdue tasks."
                 : "Delivery needs attention. Prioritize at-risk projects and remove blockers before adding new tasks."}
@@ -427,7 +431,7 @@ const ExecutiveDashboard = () => {
       <div className="grid gap-6 xl:grid-cols-3">
         <Card className="p-5">
           <div className="mb-5">
-            <p className="text-xs font-bold uppercase tracking-wide text-slate-500">Portfolio</p>
+            <p className="text-xs font-bold uppercase tracking-normal text-slate-500">Portfolio</p>
             <h3 className="mt-1 text-xl font-bold text-slate-950">Project health</h3>
           </div>
           <DonutChart
@@ -440,10 +444,10 @@ const ExecutiveDashboard = () => {
         <Card className="p-5">
           <div className="mb-5 flex items-start justify-between gap-3">
             <div>
-              <p className="text-xs font-bold uppercase tracking-wide text-slate-500">Capacity</p>
+              <p className="text-xs font-bold uppercase tracking-normal text-slate-500">Capacity</p>
               <h3 className="mt-1 text-xl font-bold text-slate-950">Team workload</h3>
             </div>
-            <FiBarChart2 className="h-5 w-5 text-cyan-500" />
+            <FiBarChart2 className="h-5 w-5 text-teal-600" />
           </div>
           <WorkloadBars items={dashboard.workload} />
         </Card>
@@ -451,10 +455,10 @@ const ExecutiveDashboard = () => {
         <Card className="p-5">
           <div className="mb-5 flex items-start justify-between gap-3">
             <div>
-              <p className="text-xs font-bold uppercase tracking-wide text-slate-500">Live feed</p>
+              <p className="text-xs font-bold uppercase tracking-normal text-slate-500">Live feed</p>
               <h3 className="mt-1 text-xl font-bold text-slate-950">Recent activity</h3>
             </div>
-            <FiTrendingUp className="h-5 w-5 text-violet-500" />
+            <FiTrendingUp className="h-5 w-5 text-emerald-600" />
           </div>
           <div className="space-y-3">
             {dashboard.recentTasks.length === 0 ? (

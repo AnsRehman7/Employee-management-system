@@ -88,7 +88,7 @@ const BrowserNotificationSettings = () => {
   return (
     <section className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm" id="notifications">
       <div className="flex items-center gap-3 border-b border-slate-200 px-5 py-4">
-        <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-cyan-100 text-cyan-700">
+        <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-teal-100 text-teal-800">
           <FiBell className="h-4 w-4" />
         </span>
         <div>
@@ -106,7 +106,7 @@ const BrowserNotificationSettings = () => {
         </div>
         <div className="flex shrink-0 flex-wrap gap-2">
           {permission === "default" && (
-            <button className="inline-flex h-10 items-center gap-2 rounded-md bg-violet-600 px-4 text-sm font-bold text-white transition hover:bg-violet-700 disabled:opacity-60" disabled={Boolean(busy)} onClick={enableNotifications} type="button">
+            <button className="inline-flex h-10 items-center gap-2 rounded-md bg-emerald-700 px-4 text-sm font-bold text-white transition hover:bg-emerald-800 disabled:opacity-60" disabled={Boolean(busy)} onClick={enableNotifications} type="button">
               <FiBell className="h-4 w-4" />
               {busy === "enable" ? "Enabling..." : "Enable alerts"}
             </button>

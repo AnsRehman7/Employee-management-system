@@ -87,7 +87,7 @@ const SettingsNavigation = () => {
                   <Link
                     className={`flex items-center gap-3 rounded-md px-2.5 py-2 text-sm font-semibold transition ${
                       active
-                        ? "bg-violet-50 text-violet-700"
+                        ? "bg-emerald-50 text-emerald-800"
                         : "text-slate-600 hover:bg-slate-50 hover:text-slate-950"
                     }`}
                     key={to}

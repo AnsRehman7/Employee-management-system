@@ -102,7 +102,7 @@ const UsersIndexPage = () => {
             {[
               ["All users", metrics.total, FiUsers, "text-slate-700"],
               ["Active", metrics.active, FiCheckCircle, "text-emerald-700"],
-              ["Leadership", metrics.leadership, FiShield, "text-violet-700"],
+              ["Leadership", metrics.leadership, FiShield, "text-emerald-800"],
               ["Suspended", metrics.suspended, FiSlash, "text-rose-700"],
             ].map(([label, value, Icon, tone]) => (
               <div className="flex min-h-20 items-center gap-3 bg-white px-4 py-3" key={label}>
@@ -111,7 +111,7 @@ const UsersIndexPage = () => {
               </div>
             ))}
           </div>
-          <Link className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-lg bg-violet-600 px-4 text-sm font-bold text-white shadow-sm shadow-violet-200 transition hover:bg-violet-700" to="/users/new">
+          <Link className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-lg bg-emerald-700 px-4 text-sm font-bold text-white shadow-sm shadow-emerald-200 transition hover:bg-emerald-800" to="/users/new">
             <FiPlus className="h-4 w-4" />Add user
           </Link>
         </section>
@@ -123,7 +123,7 @@ const UsersIndexPage = () => {
               <p className="mt-0.5 text-xs text-slate-500">{filteredUsers.length} of {users.length} accounts in this view</p>
             </div>
             <div className="flex items-center gap-2">
-              {activeFilterCount > 0 && <button className="inline-flex h-9 items-center gap-2 rounded-lg px-2.5 text-xs font-bold text-violet-700 transition hover:bg-violet-50" onClick={() => setFilters(emptyFilters)} type="button"><FiX className="h-4 w-4" />Clear filters</button>}
+              {activeFilterCount > 0 && <button className="inline-flex h-9 items-center gap-2 rounded-lg px-2.5 text-xs font-bold text-emerald-800 transition hover:bg-emerald-50" onClick={() => setFilters(emptyFilters)} type="button"><FiX className="h-4 w-4" />Clear filters</button>}
               <button aria-label="Refresh users" className="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:border-slate-300 hover:bg-slate-50" onClick={() => loadUsers({ showLoading: true })} title="Refresh users" type="button"><FiRefreshCw className="h-4 w-4" /></button>
             </div>
           </div>
@@ -156,7 +156,7 @@ const UsersIndexPage = () => {
           <div className="px-4 pt-4"><Alert message={error} type="error" /></div>
 
           {loading ? (
-            <div className="py-20 text-center"><div className="mx-auto h-9 w-9 animate-spin rounded-full border-2 border-slate-200 border-t-violet-600" /><p className="mt-4 text-sm font-semibold text-slate-500">Loading users...</p></div>
+            <div className="py-20 text-center"><div className="mx-auto h-9 w-9 animate-spin rounded-full border-2 border-slate-200 border-t-emerald-700" /><p className="mt-4 text-sm font-semibold text-slate-500">Loading users...</p></div>
           ) : filteredUsers.length === 0 ? (
             <div className="py-20 text-center"><FiUser className="mx-auto h-8 w-8 text-slate-400" /><h2 className="mt-4 text-base font-bold text-slate-950">No users match this view</h2><p className="mt-1 text-sm text-slate-500">Change or clear the filters to see more accounts.</p></div>
           ) : (
@@ -169,7 +169,7 @@ const UsersIndexPage = () => {
                   <tbody className="divide-y divide-slate-100">
                     {filteredUsers.map((member) => (
                       <tr
-                        className="group cursor-pointer transition hover:bg-violet-50/40 focus-within:bg-violet-50/40"
+                        className="group cursor-pointer transition hover:bg-emerald-50/40 focus-within:bg-emerald-50/40"
                         key={member.id}
                         onClick={() => openMember(member.id)}
                         onKeyDown={(event) => {
@@ -178,13 +178,13 @@ const UsersIndexPage = () => {
                         role="link"
                         tabIndex="0"
                       >
-                        <td className="px-4 py-4 align-top"><div className="flex min-w-0 items-center gap-3"><span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-cyan-100 text-xs font-bold text-cyan-800">{initialsFor(member.name)}</span><div className="min-w-0"><div className="flex items-center gap-2"><p className="truncate text-sm font-bold text-slate-950 group-hover:text-violet-700">{member.name}</p>{currentUser?.id === member.id && <span className="rounded-full bg-violet-100 px-2 py-0.5 text-[10px] font-bold text-violet-700">You</span>}</div><p className="mt-1 truncate text-xs text-slate-500">{member.email}</p></div></div></td>
+                        <td className="px-4 py-4 align-top"><div className="flex min-w-0 items-center gap-3"><span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-teal-100 text-xs font-bold text-teal-900">{initialsFor(member.name)}</span><div className="min-w-0"><div className="flex items-center gap-2"><p className="truncate text-sm font-bold text-slate-950 group-hover:text-emerald-800">{member.name}</p>{currentUser?.id === member.id && <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-800">You</span>}</div><p className="mt-1 truncate text-xs text-slate-500">{member.email}</p></div></div></td>
                         <td className="px-3 py-4 text-sm font-semibold text-slate-700 align-top">{labelForValue(member.role)}</td>
                         <td className="truncate px-3 py-4 text-sm text-slate-600 align-top">{member.department || "Not assigned"}</td>
                         <td className="truncate px-3 py-4 text-sm text-slate-600 align-top">{member.designation || "Not assigned"}</td>
                         <td className="px-3 py-4 align-top"><span className={`inline-flex rounded-full border px-2.5 py-1 text-xs font-bold ${USER_STATUS_STYLES[member.status] || USER_STATUS_STYLES.active}`}>{labelForValue(member.status)}</span></td>
                         <td className="truncate px-3 py-4 text-sm text-slate-600 align-top">{member.contact || "Not provided"}</td>
-                        <td className="px-2 py-4 align-top"><FiChevronRight className="h-4 w-4 text-slate-400 group-hover:text-violet-700" /></td>
+                        <td className="px-2 py-4 align-top"><FiChevronRight className="h-4 w-4 text-slate-400 group-hover:text-emerald-800" /></td>
                       </tr>
                     ))}
                   </tbody>
@@ -193,8 +193,8 @@ const UsersIndexPage = () => {
 
               <div className="divide-y divide-slate-100 lg:hidden">
                 {filteredUsers.map((member) => (
-                  <Link className="block p-4 transition hover:bg-violet-50/40" key={member.id} to={`/users/${member.id}`}>
-                    <div className="flex items-start gap-3"><span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-cyan-100 text-xs font-bold text-cyan-800">{initialsFor(member.name)}</span><div className="min-w-0 flex-1"><div className="flex items-start justify-between gap-3"><div className="min-w-0"><p className="truncate text-sm font-bold text-slate-950">{member.name}</p><p className="mt-1 truncate text-xs text-slate-500">{member.email}</p></div><FiChevronRight className="mt-1 h-4 w-4 shrink-0 text-slate-400" /></div><div className="mt-3 flex flex-wrap items-center gap-2"><span className={`rounded-full border px-2.5 py-1 text-xs font-bold ${USER_STATUS_STYLES[member.status] || USER_STATUS_STYLES.active}`}>{labelForValue(member.status)}</span><span className="text-xs font-semibold text-slate-500">{labelForValue(member.role)}</span><span className="text-xs text-slate-400">{member.department || "No department"}</span></div></div></div>
+                  <Link className="block p-4 transition hover:bg-emerald-50/40" key={member.id} to={`/users/${member.id}`}>
+                    <div className="flex items-start gap-3"><span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-teal-100 text-xs font-bold text-teal-900">{initialsFor(member.name)}</span><div className="min-w-0 flex-1"><div className="flex items-start justify-between gap-3"><div className="min-w-0"><p className="truncate text-sm font-bold text-slate-950">{member.name}</p><p className="mt-1 truncate text-xs text-slate-500">{member.email}</p></div><FiChevronRight className="mt-1 h-4 w-4 shrink-0 text-slate-400" /></div><div className="mt-3 flex flex-wrap items-center gap-2"><span className={`rounded-full border px-2.5 py-1 text-xs font-bold ${USER_STATUS_STYLES[member.status] || USER_STATUS_STYLES.active}`}>{labelForValue(member.status)}</span><span className="text-xs font-semibold text-slate-500">{labelForValue(member.role)}</span><span className="text-xs text-slate-400">{member.department || "No department"}</span></div></div></div>
                   </Link>
                 ))}
               </div>

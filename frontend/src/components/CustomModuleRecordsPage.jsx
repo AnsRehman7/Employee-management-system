@@ -82,7 +82,7 @@ const CustomModuleRecordsPage = () => {
       <div className="space-y-5">
         <div className="flex flex-col gap-3 border-b border-slate-200 pb-5 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-3">
-            <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-violet-100 text-violet-700">
+            <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-100 text-emerald-800">
               <FiDatabase />
             </span>
             <div>
@@ -93,7 +93,7 @@ const CustomModuleRecordsPage = () => {
           <div className="flex gap-2">
             <button aria-label="Refresh records" className="flex h-10 w-10 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50" onClick={load} title="Refresh records" type="button"><FiRefreshCw className={loading ? "animate-spin" : ""} /></button>
             {module?.access.canCreate && (
-              <Link className="inline-flex h-10 items-center gap-2 rounded-lg bg-violet-600 px-4 text-sm font-bold text-white hover:bg-violet-700" to={`/modules/${moduleKey}/new`}>
+              <Link className="inline-flex h-10 items-center gap-2 rounded-lg bg-emerald-700 px-4 text-sm font-bold text-white hover:bg-emerald-800" to={`/modules/${moduleKey}/new`}>
                 <FiPlus />
                 New {module.singularName}
               </Link>
@@ -103,7 +103,7 @@ const CustomModuleRecordsPage = () => {
         <Alert message={error} type="error" />
         <section className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
           <div className="border-b border-slate-200 p-4">
-            <label className="flex h-11 max-w-xl items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 px-3.5 focus-within:border-violet-300 focus-within:bg-white focus-within:ring-4 focus-within:ring-violet-100">
+            <label className="flex h-11 max-w-xl items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 px-3.5 focus-within:border-emerald-300 focus-within:bg-white focus-within:ring-4 focus-within:ring-emerald-100">
               <FiSearch className="shrink-0 text-slate-400" />
               <input className="w-full bg-transparent text-sm outline-none placeholder:text-slate-400" onChange={(event) => setSearch(event.target.value)} placeholder={`Search ${module?.pluralName?.toLowerCase() || "records"}`} type="search" value={search} />
             </label>
@@ -126,7 +126,7 @@ const CustomModuleRecordsPage = () => {
                       </td>
                     ))}
                     <td className="whitespace-nowrap px-5 py-4 text-sm text-slate-500">{new Date(record.updatedAt).toLocaleDateString()}</td>
-                    <td className="px-5 py-4"><Link aria-label={`Open ${record.displayName}`} className="flex h-8 w-8 items-center justify-center rounded-md text-slate-400 transition group-hover:bg-white group-hover:text-violet-700" title={`Open ${record.displayName}`} to={`/modules/${moduleKey}/${record.id}`}><FiArrowRight /></Link></td>
+                    <td className="px-5 py-4"><Link aria-label={`Open ${record.displayName}`} className="flex h-8 w-8 items-center justify-center rounded-md text-slate-400 transition group-hover:bg-white group-hover:text-emerald-800" title={`Open ${record.displayName}`} to={`/modules/${moduleKey}/${record.id}`}><FiArrowRight /></Link></td>
                   </tr>
                 ))}
               </tbody>

@@ -21,16 +21,16 @@ import { labelForValue } from "./workUtils";
 
 const PERIODS = [7, 30, 90];
 const STATUS_COLORS = {
-  active: "#06b6d4",
-  completed: "#10b981",
-  in_progress: "#8b5cf6",
+  active: "#0f766e",
+  completed: "#047857",
+  in_progress: "#0f766e",
   open: "#94a3b8",
 };
 const HEALTH_COLORS = {
   archived: "#94a3b8",
   at_risk: "#f43f5e",
-  completed: "#10b981",
-  on_track: "#06b6d4",
+  completed: "#047857",
+  on_track: "#0f766e",
 };
 
 const numberFormatter = new Intl.NumberFormat("en", { maximumFractionDigits: 1 });
@@ -104,13 +104,13 @@ const TrendChart = ({ points }) => {
   return (
     <div>
       <div className="mb-4 flex flex-wrap gap-4 text-xs font-bold text-slate-600">
-        <span className="flex items-center gap-2"><span className="h-2.5 w-2.5 rounded-full bg-violet-600" />Created</span>
-        <span className="flex items-center gap-2"><span className="h-2.5 w-2.5 rounded-full bg-emerald-500" />Completed</span>
+        <span className="flex items-center gap-2"><span className="h-2.5 w-2.5 rounded-full bg-emerald-700" />Created</span>
+        <span className="flex items-center gap-2"><span className="h-2.5 w-2.5 rounded-full bg-teal-700" />Completed</span>
       </div>
       <svg aria-label="Tasks created and completed over time" className="h-64 w-full" preserveAspectRatio="none" role="img" viewBox="0 0 100 100">
         {[18, 40, 62, 84].map((y) => <line key={y} stroke="#e2e8f0" strokeWidth="0.5" x1="5" x2="95" y1={y} y2={y} />)}
-        <path d={pathFor("created")} fill="none" stroke="#7c3aed" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.2" />
-        <path d={pathFor("completed")} fill="none" stroke="#10b981" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.2" />
+        <path d={pathFor("created")} fill="none" stroke="#047857" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.2" />
+        <path d={pathFor("completed")} fill="none" stroke="#0f766e" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.2" />
       </svg>
       <div className="flex justify-between gap-2 text-[11px] font-semibold text-slate-400">
         {chartPoints.map((point, index) => (
@@ -198,7 +198,7 @@ const ReportsPage = () => {
         <div className="flex flex-col gap-3 border-b border-slate-200 pb-5 sm:flex-row sm:items-center sm:justify-between">
           <div className="inline-flex w-fit rounded-lg border border-slate-200 bg-white p-1">
             {PERIODS.map((period) => (
-              <button className={`h-8 rounded-md px-3 text-xs font-bold transition ${days === period ? "bg-violet-600 text-white" : "text-slate-600 hover:bg-slate-100"}`} key={period} onClick={() => setDays(period)} type="button">{period} days</button>
+              <button className={`h-8 rounded-md px-3 text-xs font-bold transition ${days === period ? "bg-emerald-700 text-white" : "text-slate-600 hover:bg-slate-100"}`} key={period} onClick={() => setDays(period)} type="button">{period} days</button>
             ))}
           </div>
           <button aria-label="Refresh report" className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-3 text-sm font-bold text-slate-700 transition hover:bg-slate-50" onClick={loadReport} title="Refresh report" type="button"><FiRefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />Refresh</button>
@@ -207,20 +207,20 @@ const ReportsPage = () => {
         <Alert message={error} type="error" />
 
         {loading && !report ? (
-          <Panel className="py-24 text-center"><div className="mx-auto h-10 w-10 animate-spin rounded-full border-2 border-slate-200 border-t-violet-600" /><p className="mt-4 text-sm font-semibold text-slate-500">Preparing organization report...</p></Panel>
+          <Panel className="py-24 text-center"><div className="mx-auto h-10 w-10 animate-spin rounded-full border-2 border-slate-200 border-t-emerald-700" /><p className="mt-4 text-sm font-semibold text-slate-500">Preparing organization report...</p></Panel>
         ) : report ? (
           <>
             <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
               <Metric helper={`${report.summary.completedTasks} completed overall`} icon={<FiCheckCircle className="h-5 w-5" />} label="Task completion" tone="bg-emerald-100 text-emerald-700" value={`${report.summary.completionRate}%`} />
-              <Metric helper={`${report.summary.projectsAtRisk} projects need attention`} icon={<FiBriefcase className="h-5 w-5" />} label="Active projects" tone="bg-violet-100 text-violet-700" value={report.summary.activeProjects} />
+              <Metric helper={`${report.summary.projectsAtRisk} projects need attention`} icon={<FiBriefcase className="h-5 w-5" />} label="Active projects" tone="bg-emerald-100 text-emerald-800" value={report.summary.activeProjects} />
               <Metric helper={`${report.summary.overdueTasks} overdue tasks`} icon={<FiClock className="h-5 w-5" />} label="Open workload" tone="bg-rose-100 text-rose-700" value={report.summary.activeTasks} />
-              <Metric helper={`${report.summary.activeMembers} active members`} icon={<FiUsers className="h-5 w-5" />} label="Attendance today" tone="bg-cyan-100 text-cyan-700" value={`${report.summary.attendanceToday}%`} />
+              <Metric helper={`${report.summary.activeMembers} active members`} icon={<FiUsers className="h-5 w-5" />} label="Attendance today" tone="bg-teal-100 text-teal-800" value={`${report.summary.attendanceToday}%`} />
             </div>
 
             <Panel className="overflow-hidden">
               <div className="flex flex-col gap-3 border-b border-slate-200 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                  <p className="text-xs font-bold uppercase text-violet-700">Explainable planner evaluation</p>
+                  <p className="text-xs font-bold uppercase text-emerald-800">Explainable planner evaluation</p>
                   <h2 className="mt-1 text-lg font-bold text-slate-950">Research evidence</h2>
                   <p className="mt-1 text-sm text-slate-500">Measured outcomes from manager-reviewed project plans.</p>
                 </div>
@@ -235,10 +235,10 @@ const ReportsPage = () => {
               </div>
               <div className="grid divide-y divide-slate-200 sm:grid-cols-2 sm:divide-x sm:divide-y-0 xl:grid-cols-4">
                 {[
-                  { icon: <FiTarget className="h-4 w-4 text-violet-600" />, label: "Requirement coverage", value: plannerMetric(planningResearch.averageRequirementCoverage, "%") },
-                  { icon: <FiClock className="h-4 w-4 text-violet-600" />, label: "Planning time saved", value: plannerMetric(planningResearch.averagePlanningTimeSavedMinutes, " min") },
-                  { icon: <FiGitBranch className="h-4 w-4 text-violet-600" />, label: "Dependency violations", value: plannerMetric(planningResearch.averageDependencyViolations) },
-                  { icon: <FiActivity className="h-4 w-4 text-violet-600" />, label: "Manager override rate", value: plannerMetric(planningResearch.averageManagerOverrideRate, "%") },
+                  { icon: <FiTarget className="h-4 w-4 text-emerald-700" />, label: "Requirement coverage", value: plannerMetric(planningResearch.averageRequirementCoverage, "%") },
+                  { icon: <FiClock className="h-4 w-4 text-emerald-700" />, label: "Planning time saved", value: plannerMetric(planningResearch.averagePlanningTimeSavedMinutes, " min") },
+                  { icon: <FiGitBranch className="h-4 w-4 text-emerald-700" />, label: "Dependency violations", value: plannerMetric(planningResearch.averageDependencyViolations) },
+                  { icon: <FiActivity className="h-4 w-4 text-emerald-700" />, label: "Manager override rate", value: plannerMetric(planningResearch.averageManagerOverrideRate, "%") },
                 ].map(({ icon, label, value }) => (
                   <div className="px-5 py-4" key={label}>
                     {icon}
@@ -254,7 +254,7 @@ const ReportsPage = () => {
                     <tbody className="divide-y divide-slate-100">
                       {planningResearch.evaluations.map((evaluation) => (
                         <tr key={evaluation.id}>
-                          <td className="px-5 py-3"><Link className="font-bold text-slate-900 hover:text-violet-700" to={`/projects/${evaluation.projectId}/planner`}>{evaluation.projectName}</Link><p className="mt-0.5 text-xs text-slate-500">Plan v{evaluation.planVersion}</p></td>
+                          <td className="px-5 py-3"><Link className="font-bold text-slate-900 hover:text-emerald-800" to={`/projects/${evaluation.projectId}/planner`}>{evaluation.projectName}</Link><p className="mt-0.5 text-xs text-slate-500">Plan v{evaluation.planVersion}</p></td>
                           <td className="px-4 py-3 font-bold text-slate-700">{plannerMetric(evaluation.metrics.requirementCoverage, "%")}</td>
                           <td className="px-4 py-3 font-semibold text-slate-700">{plannerMetric(evaluation.metrics.scheduleViolations)}</td>
                           <td className="px-4 py-3 font-semibold text-slate-700">{plannerMetric(evaluation.metrics.dependencyViolations)}</td>
@@ -273,7 +273,7 @@ const ReportsPage = () => {
 
             <div className="grid gap-5 xl:grid-cols-[minmax(0,1.45fr)_minmax(340px,0.55fr)]">
               <Panel className="p-5">
-                <div className="mb-5 flex items-start justify-between gap-3 border-b border-slate-200 pb-4"><div><p className="text-xs font-bold uppercase text-slate-400">Delivery velocity</p><h2 className="mt-1 text-lg font-bold text-slate-950">Task movement</h2></div><FiTrendingUp className="h-5 w-5 text-violet-600" /></div>
+                <div className="mb-5 flex items-start justify-between gap-3 border-b border-slate-200 pb-4"><div><p className="text-xs font-bold uppercase text-slate-400">Delivery velocity</p><h2 className="mt-1 text-lg font-bold text-slate-950">Task movement</h2></div><FiTrendingUp className="h-5 w-5 text-emerald-700" /></div>
                 <TrendChart points={report.timeline} />
               </Panel>
               <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-1">
@@ -284,13 +284,13 @@ const ReportsPage = () => {
 
             <div className="grid gap-5 xl:grid-cols-[minmax(0,1.3fr)_minmax(340px,0.7fr)]">
               <Panel className="overflow-hidden">
-                <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4"><div><p className="text-xs font-bold uppercase text-slate-400">Capacity</p><h2 className="mt-1 text-lg font-bold text-slate-950">Team workload</h2></div><FiBarChart2 className="h-5 w-5 text-cyan-600" /></div>
+                <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4"><div><p className="text-xs font-bold uppercase text-slate-400">Capacity</p><h2 className="mt-1 text-lg font-bold text-slate-950">Team workload</h2></div><FiBarChart2 className="h-5 w-5 text-teal-700" /></div>
                 <div className="overflow-x-auto">
                   <table className="min-w-full text-left text-sm">
                     <thead className="bg-slate-50 text-xs font-bold uppercase text-slate-500"><tr><th className="px-5 py-3">Member</th><th className="px-4 py-3">Active</th><th className="px-4 py-3">Overdue</th><th className="px-4 py-3">Planned</th><th className="px-5 py-3">Load</th></tr></thead>
                     <tbody className="divide-y divide-slate-100">
                       {report.workload.map((member) => (
-                        <tr key={member.id}><td className="px-5 py-3"><p className="font-bold text-slate-900">{member.name}</p><p className="mt-0.5 text-xs text-slate-500">{member.department}</p></td><td className="px-4 py-3 font-semibold text-slate-700">{member.activeTasks}</td><td className={`px-4 py-3 font-bold ${member.overdueTasks ? "text-rose-600" : "text-slate-500"}`}>{member.overdueTasks}</td><td className="px-4 py-3 font-semibold text-slate-700">{numberFormatter.format(member.plannedHours)}h</td><td className="min-w-40 px-5 py-3"><div className="mb-1 flex justify-between text-xs font-bold text-slate-500"><span>Weekly</span><span>{member.utilization}%</span></div><div className="h-2 overflow-hidden rounded-full bg-slate-100"><div className={`h-full rounded-full ${member.utilization >= 90 ? "bg-rose-500" : member.utilization >= 70 ? "bg-amber-500" : "bg-cyan-500"}`} style={{ width: `${member.utilization}%` }} /></div></td></tr>
+                        <tr key={member.id}><td className="px-5 py-3"><p className="font-bold text-slate-900">{member.name}</p><p className="mt-0.5 text-xs text-slate-500">{member.department}</p></td><td className="px-4 py-3 font-semibold text-slate-700">{member.activeTasks}</td><td className={`px-4 py-3 font-bold ${member.overdueTasks ? "text-rose-600" : "text-slate-500"}`}>{member.overdueTasks}</td><td className="px-4 py-3 font-semibold text-slate-700">{numberFormatter.format(member.plannedHours)}h</td><td className="min-w-40 px-5 py-3"><div className="mb-1 flex justify-between text-xs font-bold text-slate-500"><span>Weekly</span><span>{member.utilization}%</span></div><div className="h-2 overflow-hidden rounded-full bg-slate-100"><div className={`h-full rounded-full ${member.utilization >= 90 ? "bg-rose-500" : member.utilization >= 70 ? "bg-amber-500" : "bg-teal-600"}`} style={{ width: `${member.utilization}%` }} /></div></td></tr>
                       ))}
                     </tbody>
                   </table>
@@ -309,8 +309,8 @@ const ReportsPage = () => {
             </div>
 
             <div className="grid gap-5 xl:grid-cols-2">
-              <Panel className="overflow-hidden"><div className="border-b border-slate-200 px-5 py-4"><p className="text-xs font-bold uppercase text-slate-400">Organization</p><h2 className="mt-1 text-lg font-bold text-slate-950">Department performance</h2></div><div className="divide-y divide-slate-100">{report.departments.map((department) => <div className="grid grid-cols-[minmax(0,1fr)_80px_100px] items-center gap-3 px-5 py-3" key={department.name}><div><p className="font-bold text-slate-900">{department.name}</p><p className="mt-0.5 text-xs text-slate-500">{department.members} members / {department.activeTasks} active tasks</p></div><span className="text-right text-sm font-bold text-slate-700">{department.completionRate}%</span><div className="h-2 overflow-hidden rounded-full bg-slate-100"><div className="h-full rounded-full bg-violet-600" style={{ width: `${department.completionRate}%` }} /></div></div>)}</div></Panel>
-              <Panel className="overflow-hidden"><div className="flex items-center justify-between border-b border-slate-200 px-5 py-4"><div><p className="text-xs font-bold uppercase text-slate-400">Governance</p><h2 className="mt-1 text-lg font-bold text-slate-950">Recent activity</h2></div><FiActivity className="h-5 w-5 text-violet-600" /></div><div className="divide-y divide-slate-100">{report.recentActivity.map((entry) => <div className="px-5 py-3" key={entry.id}><div className="flex items-start justify-between gap-4"><p className="text-sm font-bold text-slate-900">{entry.summary}</p><span className="shrink-0 text-[11px] font-semibold text-slate-400">{dateTimeFormatter.format(new Date(entry.createdAt))}</span></div><p className="mt-1 text-xs text-slate-500">{entry.actor?.name || "System"} / {labelForValue(entry.action)}</p></div>)}</div></Panel>
+              <Panel className="overflow-hidden"><div className="border-b border-slate-200 px-5 py-4"><p className="text-xs font-bold uppercase text-slate-400">Organization</p><h2 className="mt-1 text-lg font-bold text-slate-950">Department performance</h2></div><div className="divide-y divide-slate-100">{report.departments.map((department) => <div className="grid grid-cols-[minmax(0,1fr)_80px_100px] items-center gap-3 px-5 py-3" key={department.name}><div><p className="font-bold text-slate-900">{department.name}</p><p className="mt-0.5 text-xs text-slate-500">{department.members} members / {department.activeTasks} active tasks</p></div><span className="text-right text-sm font-bold text-slate-700">{department.completionRate}%</span><div className="h-2 overflow-hidden rounded-full bg-slate-100"><div className="h-full rounded-full bg-emerald-700" style={{ width: `${department.completionRate}%` }} /></div></div>)}</div></Panel>
+              <Panel className="overflow-hidden"><div className="flex items-center justify-between border-b border-slate-200 px-5 py-4"><div><p className="text-xs font-bold uppercase text-slate-400">Governance</p><h2 className="mt-1 text-lg font-bold text-slate-950">Recent activity</h2></div><FiActivity className="h-5 w-5 text-emerald-700" /></div><div className="divide-y divide-slate-100">{report.recentActivity.map((entry) => <div className="px-5 py-3" key={entry.id}><div className="flex items-start justify-between gap-4"><p className="text-sm font-bold text-slate-900">{entry.summary}</p><span className="shrink-0 text-[11px] font-semibold text-slate-400">{dateTimeFormatter.format(new Date(entry.createdAt))}</span></div><p className="mt-1 text-xs text-slate-500">{entry.actor?.name || "System"} / {labelForValue(entry.action)}</p></div>)}</div></Panel>
             </div>
           </>
         ) : null}

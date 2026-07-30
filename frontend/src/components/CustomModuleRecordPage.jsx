@@ -99,20 +99,20 @@ const CustomModuleRecordPage = ({ create = false }) => {
     <AppShell title={title} subtitle={module?.description || "Workspace module record."}>
       <form className="space-y-5" onSubmit={save}>
         <div className="flex flex-col gap-3 border-b border-slate-200 pb-5 sm:flex-row sm:items-center sm:justify-between">
-          <Link className="inline-flex items-center gap-2 text-sm font-bold text-slate-600 hover:text-violet-700" to={`/modules/${moduleKey}`}><FiArrowLeft />Back to {module?.pluralName?.toLowerCase() || "module"}</Link>
+          <Link className="inline-flex items-center gap-2 text-sm font-bold text-slate-600 hover:text-emerald-800" to={`/modules/${moduleKey}`}><FiArrowLeft />Back to {module?.pluralName?.toLowerCase() || "module"}</Link>
           <div className="flex gap-2">
             {!create && module?.access.canDelete && <button className="inline-flex h-10 items-center gap-2 rounded-lg border border-rose-200 px-4 text-sm font-bold text-rose-700 hover:bg-rose-50 disabled:opacity-50" disabled={deleting} onClick={remove} type="button"><FiTrash2 />{deleting ? "Deleting..." : "Delete"}</button>}
-            {canEdit && <button className="inline-flex h-10 items-center gap-2 rounded-lg bg-violet-600 px-4 text-sm font-bold text-white hover:bg-violet-700 disabled:bg-slate-300" disabled={saving || loading} type="submit"><FiSave />{saving ? "Saving..." : create ? `Create ${module?.singularName || "record"}` : "Save changes"}</button>}
+            {canEdit && <button className="inline-flex h-10 items-center gap-2 rounded-lg bg-emerald-700 px-4 text-sm font-bold text-white hover:bg-emerald-800 disabled:bg-slate-300" disabled={saving || loading} type="submit"><FiSave />{saving ? "Saving..." : create ? `Create ${module?.singularName || "record"}` : "Save changes"}</button>}
           </div>
         </div>
         <Alert message={notice.message} type={notice.type} />
         {loading ? (
-          <section className="rounded-lg border border-slate-200 bg-white py-24 text-center shadow-sm"><div className="mx-auto h-9 w-9 animate-spin rounded-full border-2 border-slate-200 border-t-violet-600" /></section>
+          <section className="rounded-lg border border-slate-200 bg-white py-24 text-center shadow-sm"><div className="mx-auto h-9 w-9 animate-spin rounded-full border-2 border-slate-200 border-t-emerald-700" /></section>
         ) : module ? (
           <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_320px]">
             <CustomFieldsForm disabled={!canEdit} fields={module.fields} onChange={setValues} title={`${module.singularName} details`} values={values} />
             <aside className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm xl:sticky xl:top-28">
-              <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-violet-100 text-violet-700"><FiDatabase /></span>
+              <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-100 text-emerald-800"><FiDatabase /></span>
               <h2 className="mt-4 text-base font-bold text-slate-950">{module.pluralName}</h2>
               <p className="mt-2 text-sm leading-6 text-slate-500">{module.description || "Custom workspace module."}</p>
               {!create && record && <div className="mt-5 divide-y divide-slate-100 border-y border-slate-100 text-sm"><div className="flex justify-between gap-3 py-3"><span className="text-slate-500">Created</span><span className="font-semibold text-slate-700">{new Date(record.createdAt).toLocaleDateString()}</span></div><div className="flex justify-between gap-3 py-3"><span className="text-slate-500">Updated by</span><span className="truncate font-semibold text-slate-700">{record.updatedBy?.name || "Workspace member"}</span></div></div>}
