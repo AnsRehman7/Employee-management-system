@@ -70,7 +70,7 @@ const ProfileScreen = ({
       <Card style={styles.detailList}>
         <View style={styles.detailRow}>
           <View style={styles.detailIcon}>
-            <Mail color={colors.violet} size={18} />
+            <Mail color={colors.brand} size={18} />
           </View>
           <View style={styles.detailBody}>
             <Text style={styles.detailLabel}>Work email</Text>
@@ -108,7 +108,7 @@ const ProfileScreen = ({
       <SectionHeader title="Mobile security" />
       <Card style={styles.securityList}>
         <View style={styles.securityRow}>
-          <Fingerprint color={colors.violet} size={19} />
+          <Fingerprint color={colors.brand} size={19} />
           <View style={styles.securityBody}>
             <Text style={styles.securityTitle}>Biometric confirmation</Text>
             <Text style={styles.securityCopy}>

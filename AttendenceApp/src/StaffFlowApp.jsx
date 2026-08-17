@@ -40,9 +40,13 @@ import ProfileScreen from './screens/ProfileScreen';
 import TasksScreen from './screens/TasksScreen';
 import {
   refreshFirebaseSession,
-  signInWithFirebase,
+  signInWithCustomToken,
 } from './services/firebaseAuth';
-import { requestStaffFlow } from './services/staffflowApi';
+import {
+  requestSignInCode,
+  requestStaffFlow,
+  verifySignInCode,
+} from './services/staffflowApi';
 import {
   clearSecureSession,
   loadSecureSession,
@@ -159,7 +163,7 @@ const BottomNavigation = ({ activeTab, onChange, unreadCount }) => (
         >
           <View style={styles.tabIcon}>
             <Icon
-              color={active ? colors.violet : colors.muted}
+              color={active ? colors.brand : colors.muted}
               size={20}
               strokeWidth={active ? 2.4 : 2}
             />
@@ -188,7 +192,9 @@ const StaffFlowApp = () => {
   const [initializing, setInitializing] = useState(true);
   const [lastLocation, setLastLocation] = useState(null);
   const [notice, setNotice] = useState({ message: '', tone: 'info' });
-  const [password, setPassword] = useState('');
+  const [signInStep, setSignInStep] = useState('email');
+  const [signInCode, setSignInCode] = useState('');
+  const [resendAfter, setResendAfter] = useState(0);
   const [refreshing, setRefreshing] = useState(false);
   const [selectedTask, setSelectedTask] = useState(null);
   const [session, setSession] = useState(null);
@@ -226,7 +232,8 @@ const StaffFlowApp = () => {
     setAttendanceCustomFields({});
     setSelectedTask(null);
     setActiveTab('home');
-    setPassword('');
+    setSignInStep('email');
+    setSignInCode('');
     await clearSecureSession();
   }, []);
 
@@ -398,9 +405,9 @@ const StaffFlowApp = () => {
     };
   }, [loadNotifications, loadWorkspace, session]);
 
-  const handleSignIn = useCallback(async () => {
-    if (!email.trim() || !password) {
-      showNotice('Enter your StaffFlow email and password.', 'error');
+  const handleRequestCode = useCallback(async () => {
+    if (!email.trim()) {
+      showNotice('Enter your StaffFlow email.', 'error');
       return;
     }
     if (configurationIssue) {
@@ -410,29 +417,50 @@ const StaffFlowApp = () => {
 
     setSigningIn(true);
     try {
-      const firebaseSession = await signInWithFirebase({
-        email: email.trim(),
-        password,
-      });
-      const { user } = await requestStaffFlow(firebaseSession, '/auth/me');
-      const nextSession = await saveSession({ ...firebaseSession, user });
-      setPassword('');
-      await loadWorkspace({ sourceSession: nextSession });
-      showNotice('Welcome back to StaffFlow.', 'success');
+      const result = await requestSignInCode(email.trim().toLowerCase());
+      setSignInStep('code');
+      setSignInCode('');
+      setResendAfter(result?.resendAfterSeconds || 60);
+      showNotice('If the account exists, a 6-digit code is on its way.', 'success');
     } catch (error) {
       showNotice(getErrorMessage(error), 'error');
     } finally {
       setSigningIn(false);
       setInitializing(false);
     }
-  }, [
-    configurationIssue,
-    email,
-    loadWorkspace,
-    password,
-    saveSession,
-    showNotice,
-  ]);
+  }, [configurationIssue, email, showNotice]);
+
+  const handleVerifyCode = useCallback(async () => {
+    if (signInCode.trim().length !== 6) {
+      showNotice('Enter the 6-digit code from your email.', 'error');
+      return;
+    }
+
+    setSigningIn(true);
+    try {
+      const normalizedEmail = email.trim().toLowerCase();
+      const { customToken } = await verifySignInCode({
+        code: signInCode.trim(),
+        email: normalizedEmail,
+      });
+      const firebaseSession = await signInWithCustomToken({
+        customToken,
+        email: normalizedEmail,
+      });
+      const { user } = await requestStaffFlow(firebaseSession, '/auth/me');
+      const nextSession = await saveSession({ ...firebaseSession, user });
+      setSignInCode('');
+      setSignInStep('email');
+      await loadWorkspace({ sourceSession: nextSession });
+      showNotice('Welcome back to StaffFlow.', 'success');
+    } catch (error) {
+      setSignInCode('');
+      showNotice(getErrorMessage(error), 'error');
+    } finally {
+      setSigningIn(false);
+      setInitializing(false);
+    }
+  }, [email, loadWorkspace, saveSession, showNotice, signInCode]);
 
   const openWeb = useCallback(
     async path => {
@@ -838,15 +866,21 @@ const StaffFlowApp = () => {
         <StatusBar barStyle="dark-content" backgroundColor={colors.canvas} />
         <SafeAreaView edges={['top', 'bottom']} style={styles.safeArea}>
           <LoginScreen
+            code={signInCode}
             configurationIssue={configurationIssue}
             email={email}
             loading={signingIn}
+            onCodeChange={setSignInCode}
             onEmailChange={setEmail}
-            onOpenForgotPassword={() => openWeb('/forgot-password')}
             onOpenWorkspace={() => openWeb('/login')}
-            onPasswordChange={setPassword}
-            onSignIn={handleSignIn}
-            password={password}
+            onRequestCode={handleRequestCode}
+            onRestart={() => {
+              setSignInStep('email');
+              setSignInCode('');
+            }}
+            onVerifyCode={handleVerifyCode}
+            resendAfter={resendAfter}
+            step={signInStep}
           />
           <Snackbar message={notice.message} tone={notice.tone} />
         </SafeAreaView>
@@ -926,7 +960,7 @@ const styles = StyleSheet.create({
     fontSize: 9,
     fontWeight: '700',
   },
-  tabLabelActive: { color: colors.violet },
+  tabLabelActive: { color: colors.brand },
   tabPressed: { opacity: 0.6 },
 });
 

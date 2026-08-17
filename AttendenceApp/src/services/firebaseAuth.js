@@ -1,10 +1,11 @@
 import { environment } from '../config';
 
 const firebaseMessages = {
+  CREDENTIAL_MISMATCH: 'This sign-in code was issued for a different workspace.',
   EMAIL_NOT_FOUND: 'No StaffFlow login was found for this email.',
+  INVALID_CUSTOM_TOKEN: 'This sign-in code is no longer valid. Request a new one.',
   INVALID_EMAIL: 'Enter a valid email address.',
-  INVALID_LOGIN_CREDENTIALS: 'Email or password is incorrect.',
-  INVALID_PASSWORD: 'Email or password is incorrect.',
+  TOKEN_EXPIRED: 'This sign-in code expired. Request a new one.',
   TOO_MANY_ATTEMPTS_TRY_LATER:
     'Too many sign-in attempts. Wait a moment and try again.',
   USER_DISABLED: 'This StaffFlow account is disabled.',
@@ -14,19 +15,20 @@ const firebaseError = payload =>
   firebaseMessages[payload?.error?.message] ||
   'Unable to sign in. Please try again.';
 
-export const signInWithFirebase = async ({ email, password }) => {
+/**
+ * Exchanges the custom token minted by the StaffFlow API after a verified email
+ * code for a normal Firebase session. Attendance scans keep using the resulting
+ * ID token exactly as before.
+ */
+export const signInWithCustomToken = async ({ customToken, email }) => {
   if (!environment.firebaseWebApiKey) {
     throw new Error('Firebase authentication is not configured for this app.');
   }
 
   const response = await fetch(
-    `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${environment.firebaseWebApiKey}`,
+    `https://identitytoolkit.googleapis.com/v1/accounts:signInWithCustomToken?key=${environment.firebaseWebApiKey}`,
     {
-      body: JSON.stringify({
-        email,
-        password,
-        returnSecureToken: true,
-      }),
+      body: JSON.stringify({ returnSecureToken: true, token: customToken }),
       headers: { 'Content-Type': 'application/json' },
       method: 'POST',
     },
@@ -36,10 +38,10 @@ export const signInWithFirebase = async ({ email, password }) => {
   if (!response.ok) throw new Error(firebaseError(payload));
 
   return {
-    email: payload.email,
+    email,
     expiresAt: Date.now() + Number(payload.expiresIn || 3600) * 1000,
     idToken: payload.idToken,
-    localId: payload.localId,
+    localId: payload.localId || '',
     refreshToken: payload.refreshToken,
   };
 };

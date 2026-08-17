@@ -16,11 +16,14 @@ import {
 import { Link, useNavigate } from "react-router-dom";
 import Alert from "../../Alert";
 import AppShell from "../../AppShell";
+import Pagination from "../../Pagination";
+import { usePagination } from "../../../hooks/usePagination";
 import { api, formatApiError } from "../../../context/api";
 import { useUser } from "../../../context/UserContext";
 import { FilterSelect } from "./FilterControls";
 import { initialsFor, labelForValue } from "./workUtils";
-import { USER_ROLE_OPTIONS, USER_STATUS_STYLES } from "./userUtils";
+import { USER_STATUS_STYLES } from "./userUtils";
+import { useRoles } from "../../../hooks/useRoles";
 
 const emptyFilters = {
   department: "all",
@@ -34,6 +37,7 @@ const leadershipRoles = ["super_admin", "admin", "manager", "hr"];
 const UsersIndexPage = () => {
   const navigate = useNavigate();
   const { user: currentUser } = useUser();
+  const { labelFor, roles } = useRoles();
   const [users, setUsers] = useState([]);
   const [filters, setFilters] = useState(emptyFilters);
   const [loading, setLoading] = useState(true);
@@ -91,7 +95,18 @@ const UsersIndexPage = () => {
   const activeFilterCount = Object.entries(filters).filter(
     ([key, value]) => key !== "sort" && value !== "all"
   ).length;
-  const updateFilter = (name, value) => setFilters((current) => ({ ...current, [name]: value }));
+
+  const { firstItem, lastItem, page, pageItems, resetPage, setPage, total, totalPages } =
+    usePagination(filteredUsers);
+
+  const updateFilter = (name, value) => {
+    resetPage();
+    setFilters((current) => ({ ...current, [name]: value }));
+  };
+  const clearFilters = () => {
+    resetPage();
+    setFilters(emptyFilters);
+  };
   const openMember = (memberId) => navigate(`/users/${memberId}`);
 
   return (
@@ -123,7 +138,7 @@ const UsersIndexPage = () => {
               <p className="mt-0.5 text-xs text-slate-500">{filteredUsers.length} of {users.length} accounts in this view</p>
             </div>
             <div className="flex items-center gap-2">
-              {activeFilterCount > 0 && <button className="inline-flex h-9 items-center gap-2 rounded-lg px-2.5 text-xs font-bold text-emerald-800 transition hover:bg-emerald-50" onClick={() => setFilters(emptyFilters)} type="button"><FiX className="h-4 w-4" />Clear filters</button>}
+              {activeFilterCount > 0 && <button className="inline-flex h-9 items-center gap-2 rounded-lg px-2.5 text-xs font-bold text-emerald-800 transition hover:bg-emerald-50" onClick={clearFilters} type="button"><FiX className="h-4 w-4" />Clear filters</button>}
               <button aria-label="Refresh users" className="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:border-slate-300 hover:bg-slate-50" onClick={() => loadUsers({ showLoading: true })} title="Refresh users" type="button"><FiRefreshCw className="h-4 w-4" /></button>
             </div>
           </div>
@@ -137,7 +152,7 @@ const UsersIndexPage = () => {
               </FilterSelect>
               <FilterSelect icon={FiShield} label="Role" onChange={(event) => updateFilter("role", event.target.value)} value={filters.role}>
                 <option value="all">All roles</option>
-                {USER_ROLE_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+                {roles.map((role) => <option key={role.id} value={role.key}>{role.name}</option>)}
               </FilterSelect>
               <FilterSelect icon={FiLayers} label="Department" onChange={(event) => updateFilter("department", event.target.value)} value={filters.department}>
                 <option value="all">All departments</option>
@@ -167,7 +182,7 @@ const UsersIndexPage = () => {
                     <tr><th className="w-[28%] px-4 py-3">Member</th><th className="w-[14%] px-3 py-3">Role</th><th className="w-[15%] px-3 py-3">Department</th><th className="w-[16%] px-3 py-3">Designation</th><th className="w-[12%] px-3 py-3">Status</th><th className="w-[13%] px-3 py-3">Contact</th><th className="w-[2%] px-2 py-3"><span className="sr-only">Open</span></th></tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
-                    {filteredUsers.map((member) => (
+                    {pageItems.map((member) => (
                       <tr
                         className="group cursor-pointer transition hover:bg-emerald-50/40 focus-within:bg-emerald-50/40"
                         key={member.id}
@@ -179,7 +194,7 @@ const UsersIndexPage = () => {
                         tabIndex="0"
                       >
                         <td className="px-4 py-4 align-top"><div className="flex min-w-0 items-center gap-3"><span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-teal-100 text-xs font-bold text-teal-900">{initialsFor(member.name)}</span><div className="min-w-0"><div className="flex items-center gap-2"><p className="truncate text-sm font-bold text-slate-950 group-hover:text-emerald-800">{member.name}</p>{currentUser?.id === member.id && <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-800">You</span>}</div><p className="mt-1 truncate text-xs text-slate-500">{member.email}</p></div></div></td>
-                        <td className="px-3 py-4 text-sm font-semibold text-slate-700 align-top">{labelForValue(member.role)}</td>
+                        <td className="px-3 py-4 text-sm font-semibold text-slate-700 align-top">{member.roleName || labelFor(member.role)}</td>
                         <td className="truncate px-3 py-4 text-sm text-slate-600 align-top">{member.department || "Not assigned"}</td>
                         <td className="truncate px-3 py-4 text-sm text-slate-600 align-top">{member.designation || "Not assigned"}</td>
                         <td className="px-3 py-4 align-top"><span className={`inline-flex rounded-full border px-2.5 py-1 text-xs font-bold ${USER_STATUS_STYLES[member.status] || USER_STATUS_STYLES.active}`}>{labelForValue(member.status)}</span></td>
@@ -192,16 +207,26 @@ const UsersIndexPage = () => {
               </div>
 
               <div className="divide-y divide-slate-100 lg:hidden">
-                {filteredUsers.map((member) => (
+                {pageItems.map((member) => (
                   <Link className="block p-4 transition hover:bg-emerald-50/40" key={member.id} to={`/users/${member.id}`}>
-                    <div className="flex items-start gap-3"><span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-teal-100 text-xs font-bold text-teal-900">{initialsFor(member.name)}</span><div className="min-w-0 flex-1"><div className="flex items-start justify-between gap-3"><div className="min-w-0"><p className="truncate text-sm font-bold text-slate-950">{member.name}</p><p className="mt-1 truncate text-xs text-slate-500">{member.email}</p></div><FiChevronRight className="mt-1 h-4 w-4 shrink-0 text-slate-400" /></div><div className="mt-3 flex flex-wrap items-center gap-2"><span className={`rounded-full border px-2.5 py-1 text-xs font-bold ${USER_STATUS_STYLES[member.status] || USER_STATUS_STYLES.active}`}>{labelForValue(member.status)}</span><span className="text-xs font-semibold text-slate-500">{labelForValue(member.role)}</span><span className="text-xs text-slate-400">{member.department || "No department"}</span></div></div></div>
+                    <div className="flex items-start gap-3"><span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-teal-100 text-xs font-bold text-teal-900">{initialsFor(member.name)}</span><div className="min-w-0 flex-1"><div className="flex items-start justify-between gap-3"><div className="min-w-0"><p className="truncate text-sm font-bold text-slate-950">{member.name}</p><p className="mt-1 truncate text-xs text-slate-500">{member.email}</p></div><FiChevronRight className="mt-1 h-4 w-4 shrink-0 text-slate-400" /></div><div className="mt-3 flex flex-wrap items-center gap-2"><span className={`rounded-full border px-2.5 py-1 text-xs font-bold ${USER_STATUS_STYLES[member.status] || USER_STATUS_STYLES.active}`}>{labelForValue(member.status)}</span><span className="text-xs font-semibold text-slate-500">{member.roleName || labelFor(member.role)}</span><span className="text-xs text-slate-400">{member.department || "No department"}</span></div></div></div>
                   </Link>
                 ))}
               </div>
             </>
           )}
 
-          {!loading && filteredUsers.length > 0 && <div className="border-t border-slate-200 bg-slate-50 px-4 py-3 text-xs font-semibold text-slate-500">Showing {filteredUsers.length} of {users.length} users</div>}
+          {!loading && (
+            <Pagination
+              firstItem={firstItem}
+              itemLabel="users"
+              lastItem={lastItem}
+              onPageChange={setPage}
+              page={page}
+              total={total}
+              totalPages={totalPages}
+            />
+          )}
         </section>
       </div>
     </AppShell>

@@ -9,6 +9,8 @@ import {
 import { Link, useParams } from "react-router-dom";
 import Alert from "./Alert";
 import AppShell from "./AppShell";
+import Pagination from "./Pagination";
+import { usePagination } from "../hooks/usePagination";
 import { api, formatApiError } from "../context/api";
 
 const valueForDisplay = (field, value, membersById) => {
@@ -74,6 +76,9 @@ const CustomModuleRecordsPage = () => {
     );
   }, [records, search]);
 
+  const { firstItem, lastItem, page, pageItems, resetPage, setPage, total, totalPages } =
+    usePagination(filteredRecords);
+
   return (
     <AppShell
       title={module?.pluralName || "Module"}
@@ -105,7 +110,7 @@ const CustomModuleRecordsPage = () => {
           <div className="border-b border-slate-200 p-4">
             <label className="flex h-11 max-w-xl items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 px-3.5 focus-within:border-emerald-300 focus-within:bg-white focus-within:ring-4 focus-within:ring-emerald-100">
               <FiSearch className="shrink-0 text-slate-400" />
-              <input className="w-full bg-transparent text-sm outline-none placeholder:text-slate-400" onChange={(event) => setSearch(event.target.value)} placeholder={`Search ${module?.pluralName?.toLowerCase() || "records"}`} type="search" value={search} />
+              <input className="w-full bg-transparent text-sm outline-none placeholder:text-slate-400" onChange={(event) => { resetPage(); setSearch(event.target.value); }} placeholder={`Search ${module?.pluralName?.toLowerCase() || "records"}`} type="search" value={search} />
             </label>
           </div>
           <div className="overflow-x-auto">
@@ -118,7 +123,7 @@ const CustomModuleRecordsPage = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {filteredRecords.map((record) => (
+                {pageItems.map((record) => (
                   <tr className="group hover:bg-slate-50" key={record.id}>
                     {fields.map((field, index) => (
                       <td className={`max-w-[300px] truncate px-5 py-4 text-sm ${index === 0 ? "font-bold text-slate-950" : "font-medium text-slate-600"}`} key={field.id}>
@@ -138,9 +143,17 @@ const CustomModuleRecordsPage = () => {
               <p className="mt-3 text-sm font-bold text-slate-700">{search ? "No matching records" : `No ${module?.pluralName?.toLowerCase() || "records"} yet`}</p>
             </div>
           )}
-          <div className="border-t border-slate-200 bg-slate-50 px-5 py-3 text-xs font-semibold text-slate-500">
-            Showing {filteredRecords.length} of {records.length} records
-          </div>
+          {!loading && (
+            <Pagination
+              firstItem={firstItem}
+              itemLabel="records"
+              lastItem={lastItem}
+              onPageChange={setPage}
+              page={page}
+              total={total}
+              totalPages={totalPages}
+            />
+          )}
         </section>
       </div>
     </AppShell>

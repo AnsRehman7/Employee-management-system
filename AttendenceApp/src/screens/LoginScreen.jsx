@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   KeyboardAvoidingView,
   Platform,
@@ -11,11 +11,10 @@ import {
 } from 'react-native';
 import {
   AlertTriangle,
+  ArrowLeft,
   ArrowRight,
-  Eye,
-  EyeOff,
   ExternalLink,
-  LockKeyhole,
+  KeyRound,
   Mail,
   ShieldCheck,
   Sparkles,
@@ -24,17 +23,35 @@ import { colors, shadow, typography } from '../theme';
 import { PrimaryButton } from '../components/ui';
 
 const LoginScreen = ({
+  code,
   configurationIssue,
   email,
   loading,
+  onCodeChange,
   onEmailChange,
-  onOpenForgotPassword,
   onOpenWorkspace,
-  onPasswordChange,
-  onSignIn,
-  password,
+  onRequestCode,
+  onRestart,
+  onVerifyCode,
+  resendAfter = 0,
+  step = 'email',
 }) => {
-  const [showPassword, setShowPassword] = useState(false);
+  const [secondsLeft, setSecondsLeft] = useState(0);
+
+  useEffect(() => {
+    if (step !== 'code') return undefined;
+    setSecondsLeft(resendAfter);
+    return undefined;
+  }, [resendAfter, step]);
+
+  useEffect(() => {
+    if (secondsLeft <= 0) return undefined;
+    const timer = setInterval(
+      () => setSecondsLeft(current => Math.max(0, current - 1)),
+      1000,
+    );
+    return () => clearInterval(timer);
+  }, [secondsLeft]);
 
   return (
     <KeyboardAvoidingView
@@ -57,7 +74,7 @@ const LoginScreen = ({
 
         <View style={styles.intro}>
           <View style={styles.eyebrowRow}>
-            <Sparkles color={colors.violet} size={15} strokeWidth={2.2} />
+            <Sparkles color={colors.brand} size={15} strokeWidth={2.2} />
             <Text style={styles.eyebrow}>Mobile workspace</Text>
           </View>
           <Text style={styles.title}>Your workday, ready when you are.</Text>
@@ -75,75 +92,106 @@ const LoginScreen = ({
         )}
 
         <View style={styles.form}>
-          <View style={styles.field}>
-            <Text style={styles.label}>Work email</Text>
-            <View style={styles.inputShell}>
-              <Mail color={colors.muted} size={18} strokeWidth={2} />
-              <TextInput
-                autoCapitalize="none"
-                autoComplete="email"
-                autoCorrect={false}
-                keyboardType="email-address"
-                onChangeText={onEmailChange}
-                placeholder="name@company.com"
-                placeholderTextColor="#98A2B3"
-                returnKeyType="next"
-                style={styles.input}
-                value={email}
-              />
-            </View>
-          </View>
+          {step === 'email' ? (
+            <>
+              <View style={styles.field}>
+                <Text style={styles.label}>Work email</Text>
+                <View style={styles.inputShell}>
+                  <Mail color={colors.muted} size={18} strokeWidth={2} />
+                  <TextInput
+                    autoCapitalize="none"
+                    autoComplete="email"
+                    autoCorrect={false}
+                    keyboardType="email-address"
+                    onChangeText={onEmailChange}
+                    onSubmitEditing={onRequestCode}
+                    placeholder="name@company.com"
+                    placeholderTextColor={colors.placeholder}
+                    returnKeyType="go"
+                    style={styles.input}
+                    value={email}
+                  />
+                </View>
+                <Text style={styles.helper}>
+                  We email you a 6-digit code. No password needed.
+                </Text>
+              </View>
 
-          <View style={styles.field}>
-            <View style={styles.labelRow}>
-              <Text style={styles.label}>Password</Text>
-              <Pressable hitSlop={8} onPress={onOpenForgotPassword}>
-                <Text style={styles.forgotText}>Forgot password?</Text>
-              </Pressable>
-            </View>
-            <View style={styles.inputShell}>
-              <LockKeyhole color={colors.muted} size={18} strokeWidth={2} />
-              <TextInput
-                autoCapitalize="none"
-                autoComplete="password"
-                autoCorrect={false}
-                onChangeText={onPasswordChange}
-                onSubmitEditing={onSignIn}
-                placeholder="Enter your password"
-                placeholderTextColor="#98A2B3"
-                returnKeyType="go"
-                secureTextEntry={!showPassword}
-                style={styles.input}
-                value={password}
+              <PrimaryButton
+                disabled={Boolean(configurationIssue)}
+                icon={ArrowRight}
+                label="Send code"
+                loading={loading}
+                onPress={onRequestCode}
               />
-              <Pressable
-                accessibilityLabel={
-                  showPassword ? 'Hide password' : 'Show password'
-                }
-                hitSlop={8}
-                onPress={() => setShowPassword(current => !current)}
-              >
-                {showPassword ? (
-                  <EyeOff color={colors.muted} size={19} />
-                ) : (
-                  <Eye color={colors.muted} size={19} />
-                )}
-              </Pressable>
-            </View>
-          </View>
+            </>
+          ) : (
+            <>
+              <View style={styles.field}>
+                <Text style={styles.label}>6-digit code</Text>
+                <View style={styles.inputShell}>
+                  <KeyRound color={colors.muted} size={18} strokeWidth={2} />
+                  <TextInput
+                    autoComplete="sms-otp"
+                    autoFocus
+                    keyboardType="number-pad"
+                    maxLength={6}
+                    onChangeText={value =>
+                      onCodeChange(value.replace(/[^0-9]/g, '').slice(0, 6))
+                    }
+                    onSubmitEditing={onVerifyCode}
+                    placeholder="000000"
+                    placeholderTextColor={colors.placeholder}
+                    returnKeyType="go"
+                    style={[styles.input, styles.codeInput]}
+                    textContentType="oneTimeCode"
+                    value={code}
+                  />
+                </View>
+                <Text style={styles.helper}>Sent to {email}</Text>
+              </View>
 
-          <PrimaryButton
-            disabled={Boolean(configurationIssue)}
-            icon={ArrowRight}
-            label="Sign in securely"
-            loading={loading}
-            onPress={onSignIn}
-          />
+              <PrimaryButton
+                disabled={String(code || '').length !== 6}
+                icon={ArrowRight}
+                label="Verify and sign in"
+                loading={loading}
+                onPress={onVerifyCode}
+              />
+
+              <View style={styles.codeActions}>
+                <Pressable
+                  accessibilityRole="button"
+                  hitSlop={8}
+                  onPress={onRestart}
+                  style={styles.backRow}
+                >
+                  <ArrowLeft color={colors.muted} size={15} strokeWidth={2} />
+                  <Text style={styles.backText}>Use a different email</Text>
+                </Pressable>
+                <Pressable
+                  accessibilityRole="button"
+                  disabled={secondsLeft > 0 || loading}
+                  hitSlop={8}
+                  onPress={onRequestCode}
+                >
+                  <Text
+                    style={[
+                      styles.resendText,
+                      secondsLeft > 0 && styles.resendTextDisabled,
+                    ]}
+                  >
+                    {secondsLeft > 0 ? `Resend in ${secondsLeft}s` : 'Resend code'}
+                  </Text>
+                </Pressable>
+              </View>
+            </>
+          )}
 
           <View style={styles.securityLine}>
             <ShieldCheck color={colors.positive} size={16} strokeWidth={2} />
             <Text style={styles.securityText}>
-              Protected by Firebase Authentication
+              One-time code sign-in, valid for 3 days
             </Text>
           </View>
         </View>
@@ -154,7 +202,7 @@ const LoginScreen = ({
           style={styles.webLink}
         >
           <Text style={styles.webLinkText}>Open StaffFlow on the web</Text>
-          <ExternalLink color={colors.violet} size={16} />
+          <ExternalLink color={colors.brand} size={16} />
         </Pressable>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -166,7 +214,7 @@ export default LoginScreen;
 const styles = StyleSheet.create({
   brandMark: {
     alignItems: 'center',
-    backgroundColor: colors.violet,
+    backgroundColor: colors.brand,
     borderRadius: 8,
     height: 42,
     justifyContent: 'center',
@@ -197,7 +245,7 @@ const styles = StyleSheet.create({
   configurationAlert: {
     alignItems: 'flex-start',
     backgroundColor: colors.amberSoft,
-    borderColor: '#FEDF89',
+    borderColor: '#FDE68A',
     borderRadius: 8,
     borderWidth: 1,
     flexDirection: 'row',
@@ -221,7 +269,7 @@ const styles = StyleSheet.create({
   },
   eyebrow: {
     ...typography.eyebrow,
-    color: colors.violet,
+    color: colors.brand,
   },
   eyebrowRow: {
     alignItems: 'center',
@@ -230,10 +278,25 @@ const styles = StyleSheet.create({
   },
   field: { gap: 7 },
   flex: { flex: 1 },
-  forgotText: {
-    color: colors.violet,
+  backRow: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    gap: 5,
+  },
+  backText: {
+    color: colors.muted,
     fontSize: 12,
+    fontWeight: '700',
+  },
+  codeActions: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  codeInput: {
+    fontSize: 22,
     fontWeight: '800',
+    letterSpacing: 8,
   },
   form: {
     backgroundColor: colors.surface,
@@ -269,11 +332,17 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '800',
   },
-  labelRow: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+  helper: {
+    color: colors.muted,
+    fontSize: 11,
+    lineHeight: 17,
   },
+  resendText: {
+    color: colors.brand,
+    fontSize: 12,
+    fontWeight: '800',
+  },
+  resendTextDisabled: { color: colors.placeholder },
   securityLine: {
     alignItems: 'center',
     flexDirection: 'row',
@@ -305,7 +374,7 @@ const styles = StyleSheet.create({
     padding: 8,
   },
   webLinkText: {
-    color: colors.violet,
+    color: colors.brand,
     fontSize: 13,
     fontWeight: '800',
   },

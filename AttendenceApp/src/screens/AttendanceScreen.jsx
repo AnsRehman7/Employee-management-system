@@ -67,10 +67,10 @@ const AttendanceScreen = ({
       contentContainerStyle={styles.content}
       refreshControl={
         <RefreshControl
-          colors={[colors.violet]}
+          colors={[colors.brand]}
           onRefresh={onRefresh}
           refreshing={refreshing}
-          tintColor={colors.violet}
+          tintColor={colors.brand}
         />
       }
       showsVerticalScrollIndicator={false}
@@ -107,7 +107,7 @@ const AttendanceScreen = ({
           }).format(now)}
         </Text>
         <View style={styles.shiftLine}>
-          <Clock3 color="#DDD2F6" size={16} />
+          <Clock3 color={colors.onBrand} size={16} />
           <Text style={styles.shiftText}>
             {latestAccepted
               ? `Last ${latestAccepted.direction === 'in' ? 'check-in' : 'check-out'} at ${formatTime(
@@ -156,7 +156,7 @@ const AttendanceScreen = ({
         <View style={styles.locationMetrics}>
           <View style={styles.locationMetric}>
             <View style={styles.locationMetricIcon}>
-              <MapPin color={colors.violet} size={18} />
+              <MapPin color={colors.brand} size={18} />
             </View>
             <View>
               <Text style={styles.metricLabel}>Allowed radius</Text>
@@ -303,7 +303,7 @@ const styles = StyleSheet.create({
     marginTop: 24,
   },
   clockDate: {
-    color: '#DDD2F6',
+    color: colors.onBrand,
     fontSize: 13,
     fontWeight: '700',
     marginTop: 4,
@@ -317,7 +317,7 @@ const styles = StyleSheet.create({
     width: 44,
   },
   clockPanel: {
-    backgroundColor: colors.violet,
+    backgroundColor: colors.brand,
     borderRadius: 8,
     marginTop: 22,
     padding: 18,
@@ -346,7 +346,7 @@ const styles = StyleSheet.create({
   },
   locationMetricIcon: {
     alignItems: 'center',
-    backgroundColor: colors.violetSoft,
+    backgroundColor: colors.brandSoft,
     borderRadius: 8,
     height: 36,
     justifyContent: 'center',
@@ -435,7 +435,7 @@ const styles = StyleSheet.create({
     paddingTop: 14,
   },
   shiftText: {
-    color: '#E9DFFC',
+    color: colors.onBrand,
     fontSize: 12,
     fontWeight: '700',
   },

@@ -119,14 +119,19 @@ android {
             signingConfig signingConfigs.debug
         }
         release {
-            manifestPlaceholders = [usesCleartextTraffic: "false"]
-            if (hasReleaseSigning) {
-                signingConfig signingConfigs.release
-            }
-            minifyEnabled enableProguardInReleaseBuilds
-            shrinkResources enableProguardInReleaseBuilds
-            proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
-        }
+    manifestPlaceholders = [usesCleartextTraffic: "false"]
+
+    if (hasReleaseSigning) {
+        signingConfig signingConfigs.release
+    } else {
+        // For local/testing installation only
+        signingConfig signingConfigs.debug
+    }
+
+    minifyEnabled enableProguardInReleaseBuilds
+    shrinkResources enableProguardInReleaseBuilds
+    proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
+}
     }
 }
 

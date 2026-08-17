@@ -15,6 +15,8 @@ import {
 import { Link } from "react-router-dom";
 import Alert from "./Alert";
 import AppShell from "./AppShell";
+import Pagination from "./Pagination";
+import { usePagination } from "../hooks/usePagination";
 import { api, formatApiError } from "../context/api";
 
 const ENTITY_OPTIONS = ["", "workspace", "user", "project", "task", "attendance"];
@@ -76,6 +78,14 @@ const AuditLogPage = () => {
 
   const actors = useMemo(() => new Set(entries.map((entry) => entry.actor?.id).filter(Boolean)).size, [entries]);
 
+  const { firstItem, lastItem, page, pageItems, resetPage, setPage, total, totalPages } =
+    usePagination(entries);
+
+  const updateFilter = (name, value) => {
+    resetPage();
+    setFilters((current) => ({ ...current, [name]: value }));
+  };
+
   return (
     <AppShell title="Audit log" subtitle="Review important workspace, access, project, task, and attendance changes.">
       <div className="space-y-6">
@@ -91,8 +101,8 @@ const AuditLogPage = () => {
           <div className="flex flex-col gap-4 border-b border-slate-200 px-5 py-4 lg:flex-row lg:items-end lg:justify-between">
             <div className="flex items-center gap-3"><span className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-100 text-emerald-800"><FiFileText className="h-4 w-4" /></span><div><h2 className="text-base font-bold text-slate-950">Workspace history</h2><p className="text-sm text-slate-500">Server-recorded changes scoped to this organization.</p></div></div>
             <div className="grid gap-3 sm:grid-cols-[180px_180px_40px]">
-              <label><span className="text-xs font-bold uppercase text-slate-500">Entity</span><select className="mt-1.5 h-10 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 text-sm font-semibold text-slate-700 outline-none transition focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-100" onChange={(event) => setFilters((current) => ({ ...current, entityType: event.target.value }))} value={filters.entityType}>{ENTITY_OPTIONS.map((value) => <option key={value || "all"} value={value}>{value ? labelFor(value) : "All entities"}</option>)}</select></label>
-              <label><span className="text-xs font-bold uppercase text-slate-500">Action</span><select className="mt-1.5 h-10 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 text-sm font-semibold text-slate-700 outline-none transition focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-100" onChange={(event) => setFilters((current) => ({ ...current, action: event.target.value }))} value={filters.action}>{ACTION_OPTIONS.map((value) => <option key={value || "all"} value={value}>{value ? labelFor(value) : "All actions"}</option>)}</select></label>
+              <label><span className="text-xs font-bold uppercase text-slate-500">Entity</span><select className="mt-1.5 h-10 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 text-sm font-semibold text-slate-700 outline-none transition focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-100" onChange={(event) => updateFilter("entityType", event.target.value)} value={filters.entityType}>{ENTITY_OPTIONS.map((value) => <option key={value || "all"} value={value}>{value ? labelFor(value) : "All entities"}</option>)}</select></label>
+              <label><span className="text-xs font-bold uppercase text-slate-500">Action</span><select className="mt-1.5 h-10 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 text-sm font-semibold text-slate-700 outline-none transition focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-100" onChange={(event) => updateFilter("action", event.target.value)} value={filters.action}>{ACTION_OPTIONS.map((value) => <option key={value || "all"} value={value}>{value ? labelFor(value) : "All actions"}</option>)}</select></label>
               <button aria-label="Refresh audit log" className="mt-auto flex h-10 w-10 items-center justify-center rounded-lg border border-slate-200 text-slate-600 transition hover:bg-slate-50" onClick={loadEntries} title="Refresh audit log" type="button"><FiRefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} /></button>
             </div>
           </div>
@@ -101,7 +111,7 @@ const AuditLogPage = () => {
             <div className="py-24 text-center"><div className="mx-auto h-10 w-10 animate-spin rounded-full border-2 border-slate-200 border-t-emerald-700" /><p className="mt-4 text-sm font-semibold text-slate-500">Loading audit events...</p></div>
           ) : entries.length ? (
             <div className="divide-y divide-slate-100">
-              {entries.map((entry) => {
+              {pageItems.map((entry) => {
                 const appearance = actionAppearance(entry.action);
                 const ActionIcon = appearance.icon;
                 const url = entityUrl(entry);
@@ -117,6 +127,16 @@ const AuditLogPage = () => {
           ) : (
             <div className="py-20 text-center"><FiCheckCircle className="mx-auto h-8 w-8 text-emerald-500" /><p className="mt-3 text-sm font-bold text-slate-700">No events match these filters</p><p className="mt-1 text-xs text-slate-500">New important changes will appear automatically.</p></div>
           )}
+
+          <Pagination
+            firstItem={firstItem}
+            itemLabel="events"
+            lastItem={lastItem}
+            onPageChange={setPage}
+            page={page}
+            total={total}
+            totalPages={totalPages}
+          />
         </section>
       </div>
     </AppShell>

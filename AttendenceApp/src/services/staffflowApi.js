@@ -29,7 +29,9 @@ export const requestStaffFlow = async (
         headers: {
           Accept: 'application/json',
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${session.idToken}`,
+          ...(session?.idToken
+            ? { Authorization: `Bearer ${session.idToken}` }
+            : {}),
           ...(options.headers || {}),
         },
         method,
@@ -70,3 +72,18 @@ export const requestStaffFlow = async (
   }
   throw lastError;
 };
+
+/**
+ * Sign-in endpoints run before a session exists, so they carry no bearer token.
+ */
+export const requestSignInCode = email =>
+  requestStaffFlow({ idToken: '' }, '/auth/otp/request', {
+    body: { email },
+    method: 'POST',
+  });
+
+export const verifySignInCode = ({ code, email }) =>
+  requestStaffFlow({ idToken: '' }, '/auth/otp/verify', {
+    body: { code, email },
+    method: 'POST',
+  });

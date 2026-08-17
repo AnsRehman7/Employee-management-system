@@ -65,20 +65,23 @@ const HomeScreen = ({
       contentContainerStyle={styles.content}
       refreshControl={
         <RefreshControl
-          colors={[colors.violet]}
+          colors={[colors.brand]}
           onRefresh={onRefresh}
           refreshing={refreshing}
-          tintColor={colors.violet}
+          tintColor={colors.brand}
         />
       }
       showsVerticalScrollIndicator={false}
     >
       <View style={styles.header}>
         <View style={styles.headerCopy}>
-          <Text style={styles.eyebrow}>{formatDateLong()}</Text>
+          <Text numberOfLines={1} style={styles.workspace}>
+            {user?.organization?.name || 'StaffFlow'}
+          </Text>
           <Text numberOfLines={1} style={styles.greeting}>
             Hello, {String(user?.name || 'there').split(' ')[0]}
           </Text>
+          <Text style={styles.eyebrow}>{formatDateLong()}</Text>
         </View>
         <IconButton
           accessibilityLabel="Open notifications"
@@ -177,7 +180,7 @@ const HomeScreen = ({
                 ]}
               >
                 {task.status === 'in_progress' ? (
-                  <CircleDot color={colors.violet} size={17} />
+                  <CircleDot color={colors.brand} size={17} />
                 ) : (
                   <CalendarClock
                     color={
@@ -216,7 +219,7 @@ const HomeScreen = ({
         <SectionHeader title="Today at a glance" />
         <View style={styles.glance}>
           <View style={styles.glanceItem}>
-            <Clock3 color={colors.violet} size={19} />
+            <Clock3 color={colors.brand} size={19} />
             <View>
               <Text style={styles.glanceLabel}>First check-in</Text>
               <Text style={styles.glanceValue}>
@@ -249,7 +252,7 @@ export default HomeScreen;
 
 const styles = StyleSheet.create({
   attendanceBand: {
-    backgroundColor: colors.violet,
+    backgroundColor: colors.brand,
     borderRadius: 8,
     marginTop: 22,
     padding: 18,
@@ -266,7 +269,7 @@ const styles = StyleSheet.create({
     fontWeight: '800',
   },
   bandCopy: {
-    color: '#E9DFFC',
+    color: colors.onBrand,
     fontSize: 13,
     lineHeight: 19,
     marginTop: 7,
@@ -314,6 +317,8 @@ const styles = StyleSheet.create({
   eyebrow: {
     ...typography.eyebrow,
     color: colors.muted,
+    marginTop: 3,
+    textTransform: 'none',
   },
   glance: {
     backgroundColor: colors.surface,
@@ -350,7 +355,11 @@ const styles = StyleSheet.create({
     color: colors.ink,
     fontSize: 23,
     fontWeight: '800',
-    marginTop: 3,
+    marginTop: 2,
+  },
+  workspace: {
+    ...typography.eyebrow,
+    color: colors.brand,
   },
   header: {
     alignItems: 'center',
@@ -402,7 +411,7 @@ const styles = StyleSheet.create({
     fontWeight: '800',
   },
   textAction: {
-    color: colors.violet,
+    color: colors.brand,
     fontSize: 12,
     fontWeight: '800',
     paddingVertical: 3,

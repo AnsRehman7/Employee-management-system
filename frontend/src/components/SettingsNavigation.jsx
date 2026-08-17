@@ -1,6 +1,7 @@
 import { createElement } from "react";
 import {
   FiBell,
+  FiClock,
   FiFileText,
   FiMapPin,
   FiPlus,
@@ -33,6 +34,11 @@ const SettingsNavigation = () => {
           to: "/settings#workspace",
         },
         user?.permissions?.canManageSettings && {
+          icon: FiClock,
+          label: "Attendance rules",
+          to: "/settings#attendance-rules",
+        },
+        user?.permissions?.canManageSettings && {
           icon: FiMapPin,
           label: "Attendance offices",
           to: "/settings#attendance-offices",
@@ -49,10 +55,10 @@ const SettingsNavigation = () => {
       items: [
         user?.permissions?.canViewUsers && { icon: FiUsers, label: "Team members", to: "/users" },
         user?.permissions?.canManageUsers && { icon: FiPlus, label: "Add member", to: "/users/new" },
-        user?.permissions?.canManagePermissions && {
+        user?.permissions?.canViewUsers && {
           icon: FiShield,
           label: "Roles and permissions",
-          to: "/profile#access-control",
+          to: "/settings/roles",
         },
       ].filter(Boolean),
       label: "People and access",

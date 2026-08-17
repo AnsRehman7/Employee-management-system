@@ -113,7 +113,7 @@ const TaskDetailModal = ({
 
             <View style={styles.detailMetrics}>
               <View style={styles.detailMetric}>
-                <Calendar color={colors.violet} size={17} />
+                <Calendar color={colors.brand} size={17} />
                 <View>
                   <Text style={styles.detailMetricLabel}>Due</Text>
                   <Text style={styles.detailMetricValue}>
@@ -193,7 +193,7 @@ const TaskDetailModal = ({
               onPress={() => onOpenWeb(task)}
               style={styles.webAction}
             >
-              <ArrowUpRight color={colors.violet} size={19} />
+              <ArrowUpRight color={colors.brand} size={19} />
             </Pressable>
           </View>
         </View>
@@ -232,10 +232,10 @@ const TasksScreen = ({
         contentContainerStyle={styles.content}
         refreshControl={
           <RefreshControl
-            colors={[colors.violet]}
+            colors={[colors.brand]}
             onRefresh={onRefresh}
             refreshing={refreshing}
-            tintColor={colors.violet}
+            tintColor={colors.brand}
           />
         }
         showsVerticalScrollIndicator={false}
@@ -302,7 +302,7 @@ const TasksScreen = ({
                   {task.status === 'completed' ? (
                     <CheckCircle2 color={colors.positive} size={19} />
                   ) : task.status === 'in_progress' ? (
-                    <CircleDot color={colors.violet} size={19} />
+                    <CircleDot color={colors.brand} size={19} />
                   ) : (
                     <ListChecks color={colors.cyan} size={19} />
                   )}
@@ -416,7 +416,7 @@ const styles = StyleSheet.create({
     marginTop: 9,
   },
   detailEyebrow: {
-    color: colors.violet,
+    color: colors.brand,
     fontSize: 11,
     fontWeight: '800',
     textTransform: 'uppercase',
@@ -500,10 +500,10 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '800',
   },
-  filterTextActive: { color: colors.violet },
+  filterTextActive: { color: colors.brand },
   filters: {
     alignSelf: 'flex-start',
-    backgroundColor: '#EAECF0',
+    backgroundColor: colors.neutralSoft,
     borderRadius: 8,
     flexDirection: 'row',
     padding: 3,

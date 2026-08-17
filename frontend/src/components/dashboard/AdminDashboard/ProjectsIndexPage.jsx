@@ -15,6 +15,8 @@ import {
 import { Link } from "react-router-dom";
 import Alert from "../../Alert";
 import AppShell from "../../AppShell";
+import Pagination from "../../Pagination";
+import { usePagination } from "../../../hooks/usePagination";
 import { api, formatApiError } from "../../../context/api";
 import { useUser } from "../../../context/UserContext";
 import { FilterDate, FilterSelect } from "./FilterControls";
@@ -102,7 +104,18 @@ const ProjectsIndexPage = () => {
   const activeFilterCount = Object.entries(filters).filter(
     ([key, value]) => key !== "sort" && value && value !== "all"
   ).length;
-  const updateFilter = (name, value) => setFilters((current) => ({ ...current, [name]: value }));
+
+  const { firstItem, lastItem, page, pageItems, resetPage, setPage, total, totalPages } =
+    usePagination(filteredProjects);
+
+  const updateFilter = (name, value) => {
+    resetPage();
+    setFilters((current) => ({ ...current, [name]: value }));
+  };
+  const clearFilters = () => {
+    resetPage();
+    setFilters(emptyFilters);
+  };
 
   return (
     <AppShell title="Projects" subtitle="Track portfolio health, delivery progress, ownership, and dates across every work stream.">
@@ -131,7 +144,7 @@ const ProjectsIndexPage = () => {
               <p className="mt-0.5 text-xs text-slate-500">{filteredProjects.length} of {projects.length} projects in this view</p>
             </div>
             <div className="flex items-center gap-2">
-              {activeFilterCount > 0 && <button className="inline-flex h-9 items-center gap-2 rounded-lg px-2.5 text-xs font-bold text-emerald-800 transition hover:bg-emerald-50" onClick={() => setFilters(emptyFilters)} type="button"><FiX className="h-4 w-4" />Clear filters</button>}
+              {activeFilterCount > 0 && <button className="inline-flex h-9 items-center gap-2 rounded-lg px-2.5 text-xs font-bold text-emerald-800 transition hover:bg-emerald-50" onClick={clearFilters} type="button"><FiX className="h-4 w-4" />Clear filters</button>}
               <button aria-label="Refresh projects" className="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:border-slate-300 hover:bg-slate-50" onClick={() => loadProjects({ showLoading: true })} title="Refresh projects" type="button"><FiRefreshCw className="h-4 w-4" /></button>
             </div>
           </div>
@@ -159,7 +172,7 @@ const ProjectsIndexPage = () => {
                 <table className="w-full table-fixed border-collapse text-left">
                   <thead className="bg-slate-50 text-xs font-bold text-slate-500"><tr><th className="w-[29%] px-4 py-3">Project</th><th className="w-[11%] px-3 py-3">Status</th><th className="w-[12%] px-3 py-3">Health</th><th className="w-[15%] px-3 py-3">Owner</th><th className="w-[12%] px-3 py-3">Due</th><th className="w-[19%] px-3 py-3">Progress</th><th className="w-[2%] px-2 py-3"><span className="sr-only">Open</span></th></tr></thead>
                   <tbody className="divide-y divide-slate-100">
-                    {filteredProjects.map((project) => (
+                    {pageItems.map((project) => (
                       <tr className="group transition hover:bg-emerald-50/40" key={project.id}>
                         <td className="px-4 py-4 align-top"><Link className="block min-w-0" to={`/projects/${project.id}`}><div className="flex gap-3"><span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-emerald-100 text-xs font-bold text-emerald-900">{project.name.slice(0, 2).toUpperCase()}</span><div className="min-w-0"><p className="truncate text-sm font-bold text-slate-950 group-hover:text-emerald-800">{project.name}</p><p className="mt-1 truncate text-xs text-slate-500">{project.taskCount} tasks / {project.totalLoggedHours.toFixed(1)}h logged</p></div></div></Link></td>
                         <td className="px-3 py-4 align-top"><span className={`inline-flex rounded-full border px-2.5 py-1 text-xs font-bold ${PROJECT_STATUS_STYLES[project.status] || PROJECT_STATUS_STYLES.active}`}>{labelForValue(project.status)}</span></td>
@@ -174,11 +187,21 @@ const ProjectsIndexPage = () => {
                 </table>
               </div>
 
-              <div className="divide-y divide-slate-100 lg:hidden">{filteredProjects.map((project) => <Link className="block p-4 transition hover:bg-emerald-50/40" key={project.id} to={`/projects/${project.id}`}><div className="flex items-start justify-between gap-3"><div className="min-w-0"><p className="text-sm font-bold text-slate-950">{project.name}</p><p className="mt-1 text-xs text-slate-500">{project.taskCount} tasks / Due {formatDate(project.dueDate, "not set")}</p></div><FiChevronRight className="mt-1 h-4 w-4 shrink-0 text-slate-400" /></div><div className="mt-3 flex items-center gap-2"><span className={`rounded-full border px-2.5 py-1 text-xs font-bold ${PROJECT_STATUS_STYLES[project.status] || PROJECT_STATUS_STYLES.active}`}>{labelForValue(project.status)}</span><span className={`text-xs font-bold ${PROJECT_HEALTH_STYLES[project.health]}`}>{labelForValue(project.health)}</span><span className="ml-auto text-xs font-bold text-slate-600">{project.progress}%</span></div></Link>)}</div>
+              <div className="divide-y divide-slate-100 lg:hidden">{pageItems.map((project) => <Link className="block p-4 transition hover:bg-emerald-50/40" key={project.id} to={`/projects/${project.id}`}><div className="flex items-start justify-between gap-3"><div className="min-w-0"><p className="text-sm font-bold text-slate-950">{project.name}</p><p className="mt-1 text-xs text-slate-500">{project.taskCount} tasks / Due {formatDate(project.dueDate, "not set")}</p></div><FiChevronRight className="mt-1 h-4 w-4 shrink-0 text-slate-400" /></div><div className="mt-3 flex items-center gap-2"><span className={`rounded-full border px-2.5 py-1 text-xs font-bold ${PROJECT_STATUS_STYLES[project.status] || PROJECT_STATUS_STYLES.active}`}>{labelForValue(project.status)}</span><span className={`text-xs font-bold ${PROJECT_HEALTH_STYLES[project.health]}`}>{labelForValue(project.health)}</span><span className="ml-auto text-xs font-bold text-slate-600">{project.progress}%</span></div></Link>)}</div>
             </>
           )}
 
-          {!loading && filteredProjects.length > 0 && <div className="border-t border-slate-200 bg-slate-50 px-4 py-3 text-xs font-semibold text-slate-500">Showing {filteredProjects.length} of {projects.length} projects</div>}
+          {!loading && (
+            <Pagination
+              firstItem={firstItem}
+              itemLabel="projects"
+              lastItem={lastItem}
+              onPageChange={setPage}
+              page={page}
+              total={total}
+              totalPages={totalPages}
+            />
+          )}
         </section>
       </div>
     </AppShell>

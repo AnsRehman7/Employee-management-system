@@ -1,24 +1,32 @@
 import { Platform } from 'react-native';
 
+/**
+ * Mirrors the StaffFlow web palette (Tailwind emerald / teal / slate) so the app
+ * and the browser workspace read as one product.
+ */
 export const colors = {
-  amber: '#B54708',
-  amberSoft: '#FFF7E8',
-  border: '#E4E7EC',
-  canvas: '#F5F7FB',
-  cyan: '#087E8B',
-  cyanSoft: '#E8F8FA',
-  danger: '#C4324C',
-  dangerSoft: '#FFF0F3',
-  ink: '#101828',
-  muted: '#667085',
-  positive: '#067647',
-  positiveSoft: '#ECFDF3',
+  amber: '#B45309', // amber-700
+  amberSoft: '#FFFBEB', // amber-50
+  border: '#E2E8F0', // slate-200
+  borderStrong: '#CBD5E1', // slate-300
+  brand: '#047857', // emerald-700
+  brandDark: '#065F46', // emerald-800
+  brandSoft: '#ECFDF5', // emerald-50
+  canvas: '#F7F8F5',
+  cyan: '#115E59', // teal-800
+  cyanSoft: '#CCFBF1', // teal-100
+  danger: '#BE123C', // rose-700
+  dangerSoft: '#FFF1F2', // rose-50
+  ink: '#020617', // slate-950
+  muted: '#64748B', // slate-500
+  neutralSoft: '#F1F5F9', // slate-100
+  onBrand: '#D1FAE5', // emerald-100, for text on a brand surface
+  positive: '#047857', // emerald-700
+  positiveSoft: '#ECFDF5', // emerald-50
+  placeholder: '#94A3B8', // slate-400
   surface: '#FFFFFF',
-  surfaceMuted: '#F8FAFC',
-  text: '#344054',
-  violet: '#6D28D9',
-  violetDark: '#5420AC',
-  violetSoft: '#F2ECFF',
+  surfaceMuted: '#F8FAFC', // slate-50
+  text: '#334155', // slate-700
   white: '#FFFFFF',
 };
 
@@ -27,7 +35,7 @@ export const shadow = Platform.select({
     elevation: 2,
   },
   ios: {
-    shadowColor: '#101828',
+    shadowColor: '#020617',
     shadowOffset: { height: 3, width: 0 },
     shadowOpacity: 0.08,
     shadowRadius: 10,

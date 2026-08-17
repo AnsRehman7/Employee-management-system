@@ -1,4 +1,3 @@
-import { FcGoogle } from "react-icons/fc";
 import { FiArrowRight, FiBriefcase, FiLock, FiMail, FiPhone, FiUser } from "react-icons/fi";
 import { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
@@ -16,7 +15,7 @@ const dashboardForUser = (user) => {
 const Signup = () => {
   const { refreshUser } = useUser();
   const navigate = useNavigate();
-  const { formatFirebaseError, login, logout, signInWithGoogle, signup } = useFirebase();
+  const { formatFirebaseError, login, signup } = useFirebase();
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -67,35 +66,6 @@ const Signup = () => {
       }
       await completeSignup();
     } catch (error) {
-      setNotice({ type: "error", message: formatFirebaseError(error) });
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const validateGoogleSignup = () => {
-    if (!formData.organizationName.trim() || !formData.fullName.trim()) {
-      setNotice({
-        type: "error",
-        message: "Add the company name and your full name before continuing with Google.",
-      });
-      return false;
-    }
-
-    return true;
-  };
-
-  const handleGoogleSignup = async () => {
-    if (!validateGoogleSignup()) return;
-
-    setIsSubmitting(true);
-    setNotice({ message: "", type: "info" });
-
-    try {
-      await signInWithGoogle();
-      await completeSignup();
-    } catch (error) {
-      await logout().catch(() => {});
       setNotice({ type: "error", message: formatFirebaseError(error) });
     } finally {
       setIsSubmitting(false);
@@ -247,15 +217,9 @@ const Signup = () => {
               {!isSubmitting && <FiArrowRight className="h-4 w-4" />}
             </button>
 
-            <button
-              type="button"
-              onClick={handleGoogleSignup}
-              disabled={isSubmitting}
-              className="inline-flex w-full items-center justify-center gap-3 rounded-lg border border-slate-200 px-4 py-2.5 text-sm font-bold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              <FcGoogle className="h-5 w-5" />
-              Continue with Google
-            </button>
+            <p className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 text-center text-xs leading-5 text-slate-500">
+              This password is your super admin break-glass access. You and every member you invite will sign in with a one-time email code.
+            </p>
 
             <p className="text-center text-sm text-slate-500">
               Already have an account?{" "}

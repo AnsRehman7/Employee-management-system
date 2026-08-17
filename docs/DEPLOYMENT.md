@@ -36,6 +36,9 @@ Set the project root to `backend`, Node.js 22, and configure:
 - `FIREBASE_WEB_API_KEY` only as a local REST fallback; Admin credentials are mandatory in production
 - `GROQ_API_KEY` and optional `GROQ_MODEL`
 - a long random `CRON_SECRET`
+- a long random `OTP_SECRET` (required; rotating it invalidates every outstanding sign-in code)
+- `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, and `MAIL_FROM_ADDRESS` so sign-in codes can be delivered; the API refuses to start in production without them
+- optional `SESSION_MAX_DAYS` (default 3) and the `OTP_*` throttles
 - `REQUIRE_FIREBASE_APP_CHECK=true` after App Check is configured on every production client
 - rate/outbox settings as needed
 
@@ -57,7 +60,7 @@ Set base directory `frontend`, build command `npm run build`, and publish direct
 
 Firebase configuration:
 
-1. Enable email/password and Google providers.
+1. Enable the email/password provider. Google sign-in is no longer used and can be disabled.
 2. Add only hostnames, such as `ahsanfyp.netlify.app`, under Authorized domains.
 3. Configure the Web Push certificate and set `VITE_FIREBASE_VAPID_KEY`.
 4. Register App Check for the deployed hostname before enabling required enforcement in the API.
@@ -82,7 +85,8 @@ Build with `cd AttendenceApp/android` then `./gradlew bundleRelease`. For native
 ## 6. Release Gate
 
 - CI green on a clean database migration.
-- Staging login, Google popup, planner generate/review/approve, task completion, notification, attendance retry, and correction flows tested.
+- Staging sign-in code request/verify, resend throttling, wrong-code attempt cap, session expiry after `SESSION_MAX_DAYS`, planner generate/review/approve, task completion, notification, attendance retry, and correction flows tested.
+- Confirm super admin password break-glass still works before disabling any email path, and send one real test code end to end through the configured SMTP host.
 - No production secrets in source, artifacts, screenshots, or client bundles.
 - Database backup and rollback owner confirmed.
 - Error monitoring, uptime checks for `/ready`, and alert routing configured.

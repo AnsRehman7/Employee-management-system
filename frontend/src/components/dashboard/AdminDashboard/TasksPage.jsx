@@ -18,6 +18,8 @@ import {
 import { Link, useSearchParams } from "react-router-dom";
 import Alert from "../../Alert";
 import AppShell from "../../AppShell";
+import Pagination from "../../Pagination";
+import { usePagination } from "../../../hooks/usePagination";
 import { api, formatApiError } from "../../../context/api";
 import { useUser } from "../../../context/UserContext";
 import { FilterDate, FilterSelect } from "./FilterControls";
@@ -153,8 +155,15 @@ const TasksPage = () => {
     ([key, value]) => key !== "sort" && value && value !== "all"
   ).length;
 
-  const updateFilter = (name, value) => setFilters((current) => ({ ...current, [name]: value }));
+  const { firstItem, lastItem, page, pageItems, resetPage, setPage, total, totalPages } =
+    usePagination(filteredTasks);
+
+  const updateFilter = (name, value) => {
+    resetPage();
+    setFilters((current) => ({ ...current, [name]: value }));
+  };
   const clearFilters = () => {
+    resetPage();
     setFilters(emptyFilters);
     setSearchParams({}, { replace: true });
   };
@@ -287,7 +296,7 @@ const TasksPage = () => {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
-                    {filteredTasks.map((task) => (
+                    {pageItems.map((task) => (
                       <tr className="group transition hover:bg-emerald-50/40" key={task.id}>
                         <td className="px-4 py-4 align-top">
                           <Link className="block min-w-0" to={`/tasks/${task.id}`}>
@@ -318,7 +327,7 @@ const TasksPage = () => {
               </div>
 
               <div className="divide-y divide-slate-100 lg:hidden">
-                {filteredTasks.map((task) => (
+                {pageItems.map((task) => (
                   <Link className="block p-4 transition hover:bg-emerald-50/40" key={task.id} to={`/tasks/${task.id}`}>
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0"><p className="text-sm font-bold text-slate-950">{task.title}</p><p className="mt-1 truncate text-xs text-slate-500">{task.projectName} / {task.category}</p></div>
@@ -335,7 +344,17 @@ const TasksPage = () => {
             </>
           )}
 
-          {!loading && filteredTasks.length > 0 && <div className="border-t border-slate-200 bg-slate-50 px-4 py-3 text-xs font-semibold text-slate-500">Showing {filteredTasks.length} of {tasks.length} tasks</div>}
+          {!loading && (
+            <Pagination
+              firstItem={firstItem}
+              itemLabel="tasks"
+              lastItem={lastItem}
+              onPageChange={setPage}
+              page={page}
+              total={total}
+              totalPages={totalPages}
+            />
+          )}
         </section>
       </div>
     </AppShell>

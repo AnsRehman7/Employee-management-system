@@ -127,7 +127,7 @@ const STATUS_TONES = {
   active: 'cyan',
   completed: 'positive',
   high: 'danger',
-  in_progress: 'violet',
+  in_progress: 'brand',
   low: 'neutral',
   new: 'neutral',
   normal: 'cyan',
@@ -152,7 +152,7 @@ export const StatusBadge = ({ label, value = label }) => {
 export const MetricTile = ({
   icon: Icon,
   label,
-  tone = 'violet',
+  tone = 'brand',
   value,
 }) => (
   <View style={styles.metricTile}>
@@ -163,7 +163,7 @@ export const MetricTile = ({
             ? colors.cyan
             : tone === 'positive'
               ? colors.positive
-              : colors.violet
+              : colors.brand
         }
         size={18}
         strokeWidth={2}
@@ -185,7 +185,7 @@ export const EmptyState = ({
 }) => (
   <View style={styles.empty}>
     <View style={styles.emptyIcon}>
-      <Icon color={colors.violet} size={22} strokeWidth={1.8} />
+      <Icon color={colors.brand} size={22} strokeWidth={1.8} />
     </View>
     <Text style={styles.emptyTitle}>{title}</Text>
     <Text style={styles.emptyMessage}>{message}</Text>
@@ -208,7 +208,7 @@ export const ListLink = ({
     ]}
   >
     <View style={styles.listLinkIcon}>
-      <Icon color={colors.violet} size={19} strokeWidth={2} />
+      <Icon color={colors.brand} size={19} strokeWidth={2} />
     </View>
     <View style={styles.listLinkBody}>
       <Text style={styles.listLinkTitle}>{title}</Text>
@@ -245,7 +245,7 @@ export const Snackbar = ({ message, tone = 'info' }) => {
 
 export const LoadingState = ({ label = 'Loading workspace' }) => (
   <View style={styles.loadingState}>
-    <ActivityIndicator color={colors.violet} size="large" />
+    <ActivityIndicator color={colors.brand} size="large" />
     <Text style={styles.loadingLabel}>{label}</Text>
   </View>
 );
@@ -269,9 +269,9 @@ const styles = StyleSheet.create({
   },
   badge_cyan: { backgroundColor: colors.cyanSoft },
   badge_danger: { backgroundColor: colors.dangerSoft },
-  badge_neutral: { backgroundColor: '#F2F4F7' },
+  badge_neutral: { backgroundColor: colors.neutralSoft },
   badge_positive: { backgroundColor: colors.positiveSoft },
-  badge_violet: { backgroundColor: colors.violetSoft },
+  badge_brand: { backgroundColor: colors.brandSoft },
   badge_warning: { backgroundColor: colors.amberSoft },
   badgeText: {
     fontSize: 11,
@@ -281,12 +281,12 @@ const styles = StyleSheet.create({
   badgeText_danger: { color: colors.danger },
   badgeText_neutral: { color: colors.muted },
   badgeText_positive: { color: colors.positive },
-  badgeText_violet: { color: colors.violet },
+  badgeText_brand: { color: colors.brand },
   badgeText_warning: { color: colors.amber },
   button: {
     alignItems: 'center',
-    backgroundColor: colors.violet,
-    borderColor: colors.violet,
+    backgroundColor: colors.brand,
+    borderColor: colors.brand,
     borderRadius: 8,
     borderWidth: 1,
     flexDirection: 'row',
@@ -297,7 +297,7 @@ const styles = StyleSheet.create({
   },
   buttonDanger: {
     backgroundColor: colors.dangerSoft,
-    borderColor: '#FECDD6',
+    borderColor: '#FECDD3',
   },
   buttonDangerText: { color: colors.danger },
   buttonDisabled: { opacity: 0.52 },
@@ -327,7 +327,7 @@ const styles = StyleSheet.create({
   },
   emptyIcon: {
     alignItems: 'center',
-    backgroundColor: colors.violetSoft,
+    backgroundColor: colors.brandSoft,
     borderRadius: 8,
     height: 44,
     justifyContent: 'center',
@@ -394,7 +394,7 @@ const styles = StyleSheet.create({
   },
   listLinkIcon: {
     alignItems: 'center',
-    backgroundColor: colors.violetSoft,
+    backgroundColor: colors.brandSoft,
     borderRadius: 8,
     height: 38,
     justifyContent: 'center',
@@ -432,7 +432,7 @@ const styles = StyleSheet.create({
   },
   metricIcon_cyan: { backgroundColor: colors.cyanSoft },
   metricIcon_positive: { backgroundColor: colors.positiveSoft },
-  metricIcon_violet: { backgroundColor: colors.violetSoft },
+  metricIcon_brand: { backgroundColor: colors.brandSoft },
   metricLabel: {
     color: colors.muted,
     fontSize: 11,

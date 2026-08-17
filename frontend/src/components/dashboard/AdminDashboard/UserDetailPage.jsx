@@ -20,10 +20,10 @@ import AppShell from "../../AppShell";
 import CustomFieldsForm from "../../CustomFieldsForm";
 import { api, formatApiError } from "../../../context/api";
 import { useUser } from "../../../context/UserContext";
+import { useRoles } from "../../../hooks/useRoles";
 import { initialsFor, labelForValue } from "./workUtils";
 import {
   canEditWorkspaceUser,
-  getAssignableRoleOptions,
   USER_STATUS_STYLES,
 } from "./userUtils";
 
@@ -48,6 +48,7 @@ const UserDetailPage = () => {
   const { userId } = useParams();
   const location = useLocation();
   const { user: currentUser } = useUser();
+  const { assignableRoles, labelFor } = useRoles();
   const [member, setMember] = useState(null);
   const [formData, setFormData] = useState(formFromUser());
   const [loading, setLoading] = useState(true);
@@ -88,10 +89,12 @@ const UserDetailPage = () => {
   const fieldRequired = (key) =>
     Boolean(moduleDefinition?.fields.find((field) => field.systemFieldKey === key)?.isRequired);
   const roleOptions = useMemo(() => {
-    const options = getAssignableRoleOptions(currentUser?.role);
+    const options = assignableRoles.map((role) => ({ label: role.name, value: role.key }));
+    // Keep the member's current role visible even when the actor cannot assign it,
+    // so the select never silently reads as something the member is not.
     if (!formData.role || options.some((option) => option.value === formData.role)) return options;
-    return [{ label: labelForValue(formData.role), value: formData.role }, ...options];
-  }, [currentUser?.role, formData.role]);
+    return [{ label: labelFor(formData.role), value: formData.role }, ...options];
+  }, [assignableRoles, formData.role, labelFor]);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -196,7 +199,7 @@ const UserDetailPage = () => {
 
           <aside className="space-y-5">
             <section className="rounded-lg border border-slate-200 bg-white shadow-sm">
-              <div className="p-5 text-center">{member.avatarUrl ? <img alt="" className="mx-auto h-16 w-16 rounded-lg object-cover ring-1 ring-slate-200" src={member.avatarUrl} /> : <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-lg bg-teal-100 text-lg font-bold text-teal-900">{initialsFor(member.name)}</span>}<h2 className="mt-3 text-lg font-bold text-slate-950">{member.name}</h2><p className="mt-1 truncate text-sm text-slate-500">{member.email}</p><div className="mt-3 flex flex-wrap justify-center gap-2"><span className="rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-900">{labelForValue(member.role)}</span><span className={`rounded-full border px-2.5 py-1 text-xs font-bold ${USER_STATUS_STYLES[member.status] || USER_STATUS_STYLES.active}`}>{labelForValue(member.status)}</span>{isSelf && <span className="rounded-full border border-teal-200 bg-teal-50 px-2.5 py-1 text-xs font-bold text-teal-900">Your account</span>}</div></div>
+              <div className="p-5 text-center">{member.avatarUrl ? <img alt="" className="mx-auto h-16 w-16 rounded-lg object-cover ring-1 ring-slate-200" src={member.avatarUrl} /> : <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-lg bg-teal-100 text-lg font-bold text-teal-900">{initialsFor(member.name)}</span>}<h2 className="mt-3 text-lg font-bold text-slate-950">{member.name}</h2><p className="mt-1 truncate text-sm text-slate-500">{member.email}</p><div className="mt-3 flex flex-wrap justify-center gap-2"><span className="rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-900">{member.roleName || labelForValue(member.role)}</span><span className={`rounded-full border px-2.5 py-1 text-xs font-bold ${USER_STATUS_STYLES[member.status] || USER_STATUS_STYLES.active}`}>{labelForValue(member.status)}</span>{isSelf && <span className="rounded-full border border-teal-200 bg-teal-50 px-2.5 py-1 text-xs font-bold text-teal-900">Your account</span>}</div></div>
               <div className="border-t border-slate-200 p-5"><label className="block"><span className="flex items-center gap-2 text-sm font-bold text-slate-700"><FiShield className="h-4 w-4 text-emerald-700" />Workspace role</span><select className={fieldClass} disabled={!canEdit} name="role" onChange={handleChange} value={formData.role}>{roleOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select></label></div>
             </section>
 

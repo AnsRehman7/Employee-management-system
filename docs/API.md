@@ -33,19 +33,51 @@ The same identifier is returned as `X-Request-Id`. Include it in support reports
 
 | Prefix | Important operations |
 | --- | --- |
-| `/auth` | Sync identity, read/update current profile |
+| `/auth` | Request/verify email sign-in codes, sync identity, read/update current profile |
 | `/projects` | Filter/list, create, detail, update, soft-delete, activity timeline |
 | `/projects/:id/plans` | Generate/list plan versions, approve/reject, evaluate outcomes |
 | `/tasks` | Filter/list/stats, create, detail, update, status transition, soft-delete |
 | `/tasks/:id` | Time logs, comments/mentions, attachments, watchers, activity timeline |
-| `/attendance` | Issue challenge, list offices/scans, submit scan, corrections/review |
+| `/attendance` | Issue challenge, list offices/scans, daily summary register, submit verified scan, corrections/review |
 | `/users` | Directory, detail, create, profile/status/permission administration |
+| `/roles` | Workspace role catalogue: list, create, update, delete custom roles |
 | `/workspace` | Workspace settings and office geofence administration |
 | `/notifications` | Inbox, read state, register/unregister push subscriptions |
 | `/customization` | Versioned module and field definitions |
 | `/modules` | Typed runtime custom records |
 | `/reports/overview` | Delivery, attendance, capacity, risk, and planner research metrics |
 | `/audit` | Organization-scoped administrative audit log |
+
+## Authentication Contract
+
+Sign-in is passwordless. `POST /auth/otp/request` takes an email and always answers `202` for a well-formed address, whether or not an account exists, so the endpoint cannot be used to enumerate members. `POST /auth/otp/verify` takes the email and the 6-digit code and returns a short-lived Firebase **custom token**; the client exchanges it via `signInWithCustomToken` and continues to send a normal Firebase ID token on every request.
+
+Codes are persisted only as an HMAC-SHA256 digest keyed by `OTP_SECRET`, never in plaintext, so a database dump yields no usable credential. Each code is single-use (claimed atomically), expires after `OTP_TTL_MINUTES`, allows `OTP_MAX_ATTEMPTS` guesses before being burned, and is throttled per email by `OTP_COOLDOWN_SECONDS` and `OTP_MAX_PER_HOUR`. Every failed verification returns one identical message regardless of cause.
+
+Sessions last `SESSION_MAX_DAYS` (default 3). Because Firebase ID tokens expire hourly and refresh silently, the limit is enforced against the token's `auth_time` — the original sign-in, which refreshing does not advance — so a client cannot extend a session by refreshing. Past the limit the API returns `401` and the client must sign in with a new code.
+
+Sign-in method is enforced server-side on every authenticated request: `custom` (email code) is the normal path, `password` is accepted **only** for a super admin as break-glass access when email delivery is unavailable, and every other provider is rejected. Existing password or Google sessions therefore stop working for regular members as soon as this is deployed.
+
+## Roles Contract
+
+Roles are workspace data, not a fixed list. Each organization is seeded with six built-in roles (`super_admin`, `admin`, `manager`, `hr`, `accounts`, `employee`) which cannot be renamed or deleted, and `permissions.manage` holders may add their own alongside them via `/roles`.
+
+Every role carries a `rank` where lower is more senior, and all guards compare ranks rather than role names so custom roles slot into the same hierarchy:
+
+- A new role is created one step below its author, so it can never reach sideways or upward.
+- A role may only be created, edited, deleted, or assigned by someone strictly more senior than it. Equal rank is not sufficient.
+- **A role can never carry a permission its author does not already hold.** This is what stops role creation from becoming a privilege-escalation path.
+- A role still assigned to members cannot be deleted; move them first.
+
+`GET /users` and `/auth/me` return `role` (the key), `roleName`, and `roleRank`. Permission resolution order is: per-account override, then the assigned role record, then the legacy `users.role` enum. Members on a custom role carry `EMPLOYEE` in that enum, so any path still reading it fails closed rather than inheriting broader access. Recipient lookups for notifications resolve by permission, so custom roles receive the same alerts as the built-ins.
+
+## Attendance Contract
+
+Attendance is recorded **only** by a verified device scan: the client requests a one-use challenge from `POST /attendance/challenge`, then submits `POST /attendance/scans` with that token plus device coordinates and accuracy. The API rejects a scan for any user other than the caller, so there is no manual attendance entry path. Adjustments go through `/attendance/corrections`, which is reviewed by an attendance manager and writes an audited scan on approval.
+
+`GET /attendance/summary` returns the computed daily register rather than raw scans. It applies the workspace attendance rules (`workdayStart`, `checkInGraceMinutes`, `checkoutWindowStart`/`checkoutWindowEnd`, `minimumOfficeMinutes`, working days, and holidays, all in the workspace timezone) and supports `from`, `to`, `userId`, `department`, `search`, `status`, `page`, and `pageSize`. A range is capped at 92 days per view. Members without `attendance.view_all` are scoped to their own records regardless of the requested `userId`.
+
+Attendance rules live on the workspace, not the attendance screen: read them from `GET /workspace/settings` and change them with `PATCH /workspace/settings` (`settings.manage` required).
 
 ## Planner Approval Contract
 

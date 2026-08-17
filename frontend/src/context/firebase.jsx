@@ -3,14 +3,12 @@ import { createContext, useContext } from "react";
 import { initializeApp } from "firebase/app";
 import {
   browserLocalPersistence,
-  GoogleAuthProvider,
   createUserWithEmailAndPassword,
   getAuth,
-  linkWithPopup,
   sendPasswordResetEmail,
   setPersistence,
+  signInWithCustomToken,
   signInWithEmailAndPassword,
-  signInWithPopup,
   signOut,
 } from "firebase/auth";
 
@@ -44,18 +42,12 @@ export const formatFirebaseError = (error) => {
 
   const messages = {
     "auth/email-already-in-use": "An account with this email already exists.",
-    "auth/configuration-not-found": "Google sign-in is not enabled for this Firebase project.",
-    "auth/credential-already-in-use": "This Google account is already connected to another StaffFlow login.",
     "auth/invalid-credential": "The email or password is incorrect.",
+    "auth/custom-token-mismatch": "This sign-in code was issued for a different workspace.",
+    "auth/invalid-custom-token": "This sign-in link is no longer valid. Request a new code.",
     "auth/invalid-api-key": "The Firebase API key is invalid. Check the deployed frontend environment variables.",
     "auth/invalid-email": "Enter a valid email address.",
     "auth/network-request-failed": "Network error. Check your connection and try again.",
-    "auth/operation-not-allowed": "Enable Google sign-in in Firebase Authentication, then try again.",
-    "auth/account-exists-with-different-credential":
-      "This email already uses password sign-in. Sign in with your password first.",
-    "auth/popup-blocked": "Allow pop-ups for this site, then try Google sign-in again.",
-    "auth/popup-closed-by-user": "Google sign-in was closed before it finished.",
-    "auth/provider-already-linked": "Google sign-in is already connected to this account.",
     "auth/too-many-requests": "Too many attempts. Please wait a moment and try again.",
     "auth/user-not-found": "No account was found for this email.",
     "auth/unauthorized-domain":
@@ -73,29 +65,14 @@ const signup = async ({ email, password }) => {
   return userCredential.user;
 };
 
-export const signInWithGoogle = async () => {
+/** Exchanges the server-minted custom token from a verified email code for a session. */
+export const loginWithCustomToken = async (customToken) => {
   await authPersistenceReady;
-  const provider = new GoogleAuthProvider();
-  provider.setCustomParameters({ prompt: "select_account" });
-  provider.addScope("email");
-  provider.addScope("profile");
-  const result = await signInWithPopup(auth, provider);
-  return result.user;
+  const userCredential = await signInWithCustomToken(auth, customToken);
+  return userCredential.user;
 };
 
-export const linkGoogleAccount = async () => {
-  await authPersistenceReady;
-  if (!auth.currentUser) throw new Error("Sign in before connecting a Google account.");
-  if (auth.currentUser.providerData.some(({ providerId }) => providerId === GoogleAuthProvider.PROVIDER_ID)) {
-    return auth.currentUser;
-  }
-
-  const provider = new GoogleAuthProvider();
-  provider.setCustomParameters({ prompt: "select_account" });
-  const result = await linkWithPopup(auth.currentUser, provider);
-  return result.user;
-};
-
+/** Break-glass path: only a super admin can still complete a password session. */
 export const login = async (email, password) => {
   await authPersistenceReady;
   const userCredential = await signInWithEmailAndPassword(auth, normalizeEmail(email), password);
@@ -114,11 +91,10 @@ export const FirebaseProvider = ({ children }) => (
       auth,
       formatFirebaseError,
       login,
-      linkGoogleAccount,
+      loginWithCustomToken,
       logout,
       sendResetPassword,
       signup,
-      signInWithGoogle,
     }}
   >
     {children}

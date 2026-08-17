@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from "react";
-import { FcGoogle } from "react-icons/fc";
 import {
   FiActivity,
   FiBriefcase,
@@ -42,7 +41,7 @@ const initialsFor = (name = "") =>
 const ProfilePage = () => {
   const location = useLocation();
   const { setUser, user } = useUser();
-  const { auth, formatFirebaseError, linkGoogleAccount, sendResetPassword } = useFirebase();
+  const { formatFirebaseError, sendResetPassword } = useFirebase();
   const [profileForm, setProfileForm] = useState({
     avatarUrl: user?.avatarUrl || "",
     contact: user?.contact || "",
@@ -61,7 +60,6 @@ const ProfilePage = () => {
   const [profileBusy, setProfileBusy] = useState(false);
   const [accessBusy, setAccessBusy] = useState(false);
   const [securityBusy, setSecurityBusy] = useState("");
-  const [providers, setProviders] = useState(() => auth.currentUser?.providerData.map(({ providerId }) => providerId) || []);
   const [loadingAccess, setLoadingAccess] = useState(Boolean(user?.permissions?.canManagePermissions));
   const [notice, setNotice] = useState({ message: "", type: "info" });
   const [moduleDefinition, setModuleDefinition] = useState(null);
@@ -198,20 +196,6 @@ const ProfilePage = () => {
     }
   };
 
-  const connectGoogle = async () => {
-    setSecurityBusy("google");
-    setNotice({ message: "", type: "info" });
-    try {
-      const firebaseUser = await linkGoogleAccount();
-      setProviders(firebaseUser.providerData.map(({ providerId }) => providerId));
-      setNotice({ message: "Google sign-in connected successfully.", type: "success" });
-    } catch (requestError) {
-      setNotice({ message: formatFirebaseError(requestError), type: "error" });
-    } finally {
-      setSecurityBusy("");
-    }
-  };
-
   const sendPasswordLink = async () => {
     setSecurityBusy("password");
     setNotice({ message: "", type: "info" });
@@ -270,10 +254,42 @@ const ProfilePage = () => {
         </div>
 
         <section className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
-          <div className="flex items-center gap-3 border-b border-slate-200 px-5 py-4"><span className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-100 text-emerald-700"><FiKey className="h-4 w-4" /></span><div><h2 className="text-base font-bold text-slate-950">Sign-in security</h2><p className="text-sm text-slate-500">Manage the identity providers connected to your account.</p></div></div>
+          <div className="flex items-center gap-3 border-b border-slate-200 px-5 py-4"><span className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-100 text-emerald-700"><FiKey className="h-4 w-4" /></span><div><h2 className="text-base font-bold text-slate-950">Sign-in security</h2><p className="text-sm text-slate-500">How this account signs in to the workspace.</p></div></div>
           <div className="divide-y divide-slate-100">
-            <div className="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-between"><div className="flex items-center gap-3"><span className="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-100 text-slate-600"><FiMail className="h-4 w-4" /></span><div><p className="text-sm font-bold text-slate-900">Email and password</p><p className="mt-0.5 text-xs text-slate-500">{user.email}</p></div></div><button className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-slate-200 px-3 text-sm font-bold text-slate-700 transition hover:bg-slate-50 disabled:opacity-60" disabled={Boolean(securityBusy)} onClick={sendPasswordLink} type="button">{securityBusy === "password" ? "Sending..." : "Send password link"}</button></div>
-            <div className="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-between"><div className="flex items-center gap-3"><span className="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-50 ring-1 ring-slate-200"><FcGoogle className="h-5 w-5" /></span><div><p className="text-sm font-bold text-slate-900">Google</p><p className="mt-0.5 text-xs text-slate-500">{providers.includes("google.com") ? "Connected to this account" : "Not connected"}</p></div></div>{providers.includes("google.com") ? <span className="inline-flex h-9 items-center gap-2 self-start rounded-full border border-emerald-200 bg-emerald-50 px-3 text-xs font-bold text-emerald-700 sm:self-auto"><FiCheck className="h-3.5 w-3.5" />Connected</span> : <button className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-slate-200 px-3 text-sm font-bold text-slate-700 transition hover:bg-slate-50 disabled:opacity-60" disabled={Boolean(securityBusy)} onClick={connectGoogle} type="button"><FcGoogle className="h-4 w-4" />{securityBusy === "google" ? "Connecting..." : "Connect Google"}</button>}</div>
+            <div className="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-center gap-3">
+                <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-100 text-emerald-800"><FiMail className="h-4 w-4" /></span>
+                <div>
+                  <p className="text-sm font-bold text-slate-900">Email sign-in code</p>
+                  <p className="mt-0.5 text-xs text-slate-500">A one-time code is sent to {user.email} at every sign-in.</p>
+                </div>
+              </div>
+              <span className="inline-flex h-9 items-center gap-2 self-start rounded-full border border-emerald-200 bg-emerald-50 px-3 text-xs font-bold text-emerald-700 sm:self-auto">
+                <FiCheck className="h-3.5 w-3.5" />
+                Active
+              </span>
+            </div>
+            <div className="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-center gap-3">
+                <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-100 text-slate-600"><FiShield className="h-4 w-4" /></span>
+                <div>
+                  <p className="text-sm font-bold text-slate-900">Session length</p>
+                  <p className="mt-0.5 text-xs text-slate-500">You stay signed in for 3 days, then a new code is required.</p>
+                </div>
+              </div>
+            </div>
+            {user.role === "super_admin" && (
+              <div className="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex items-center gap-3">
+                  <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-100 text-amber-700"><FiKey className="h-4 w-4" /></span>
+                  <div>
+                    <p className="text-sm font-bold text-slate-900">Password break-glass</p>
+                    <p className="mt-0.5 text-xs text-slate-500">Super admin only, for when email delivery is unavailable.</p>
+                  </div>
+                </div>
+                <button className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-slate-200 px-3 text-sm font-bold text-slate-700 transition hover:bg-slate-50 disabled:opacity-60" disabled={Boolean(securityBusy)} onClick={sendPasswordLink} type="button">{securityBusy === "password" ? "Sending..." : "Send password link"}</button>
+              </div>
+            )}
           </div>
         </section>
 

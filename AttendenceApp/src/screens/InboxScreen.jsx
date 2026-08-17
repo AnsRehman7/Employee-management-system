@@ -44,10 +44,10 @@ const InboxScreen = ({
     contentContainerStyle={styles.content}
     refreshControl={
       <RefreshControl
-        colors={[colors.violet]}
+        colors={[colors.brand]}
         onRefresh={onRefresh}
         refreshing={refreshing}
-        tintColor={colors.violet}
+        tintColor={colors.brand}
       />
     }
     showsVerticalScrollIndicator={false}
@@ -99,7 +99,7 @@ const InboxScreen = ({
             >
               <Icon
                 color={
-                  notification.isRead ? colors.muted : colors.violet
+                  notification.isRead ? colors.muted : colors.brand
                 }
                 size={19}
               />
@@ -162,7 +162,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     width: 38,
   },
-  notificationIconUnread: { backgroundColor: colors.violetSoft },
+  notificationIconUnread: { backgroundColor: colors.brandSoft },
   notificationList: {
     overflow: 'hidden',
     padding: 0,
@@ -192,7 +192,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   notificationUnread: {
-    backgroundColor: '#FCFAFF',
+    backgroundColor: colors.brandSoft,
   },
   readAllButton: {
     minHeight: 38,
@@ -207,7 +207,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   unreadDot: {
-    backgroundColor: colors.violet,
+    backgroundColor: colors.brand,
     borderRadius: 4,
     height: 7,
     width: 7,

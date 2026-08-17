@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   FiActivity,
   FiArrowLeft,
@@ -15,9 +15,7 @@ import Alert from "../../Alert";
 import AppShell from "../../AppShell";
 import CustomFieldsForm from "../../CustomFieldsForm";
 import { api, formatApiError } from "../../../context/api";
-import { useFirebase } from "../../../context/firebase";
-import { useUser } from "../../../context/UserContext";
-import { getAssignableRoleOptions } from "./userUtils";
+import { useRoles } from "../../../hooks/useRoles";
 
 const initialForm = {
   avatarUrl: "",
@@ -37,13 +35,11 @@ const fieldClass =
 
 const UserCreatePage = () => {
   const navigate = useNavigate();
-  const { user: currentUser } = useUser();
-  const { sendResetPassword } = useFirebase();
   const [formData, setFormData] = useState(initialForm);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [moduleDefinition, setModuleDefinition] = useState(null);
-  const roleOptions = useMemo(() => getAssignableRoleOptions(currentUser?.role), [currentUser?.role]);
+  const { assignableRoles } = useRoles();
 
   useEffect(() => {
     let active = true;
@@ -78,10 +74,11 @@ const UserCreatePage = () => {
         skills: formData.skills.split(",").map((skill) => skill.trim()).filter(Boolean),
       };
       const { user } = await api.createUser(payload);
-      const invitationSent = await sendResetPassword(formData.email).then(() => true).catch(() => false);
       navigate(`/users/${user.id}`, {
         replace: true,
-        state: { notice: invitationSent ? "User account created and setup email sent." : "User account created. Send a password setup link from the profile security section." },
+        state: {
+          notice: `User account created. ${formData.email} can sign in right away by requesting a one-time code on the login page.`,
+        },
       });
     } catch (requestError) {
       setError(formatApiError(requestError));
@@ -134,7 +131,7 @@ const UserCreatePage = () => {
           <section className="rounded-lg border border-slate-200 bg-white shadow-sm">
             <div className="border-b border-slate-200 px-5 py-4"><div className="flex items-center gap-3"><span className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-100 text-emerald-800"><FiShield className="h-4 w-4" /></span><div><h2 className="text-base font-bold text-slate-950">Access</h2><p className="text-sm text-slate-500">Choose the member's workspace permissions.</p></div></div></div>
             <div className="space-y-5 p-5">
-              <label className="block"><span className="text-sm font-bold text-slate-700">Role</span><select className={fieldClass} name="role" onChange={handleChange} value={formData.role}>{roleOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select></label>
+              <label className="block"><span className="text-sm font-bold text-slate-700">Role</span><select className={fieldClass} name="role" onChange={handleChange} value={formData.role}>{assignableRoles.map((role) => <option key={role.id} value={role.key}>{role.name}</option>)}</select></label>
               <div className="border-y border-slate-200 py-4"><div className="flex items-start gap-3"><FiShield className="mt-0.5 h-4 w-4 shrink-0 text-emerald-700" /><div><p className="text-sm font-bold text-slate-900">Active on creation</p><p className="mt-1 text-xs leading-5 text-slate-500">The account can sign in immediately after Firebase and the workspace profile are created.</p></div></div></div>
               <button className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-emerald-700 px-4 text-sm font-bold text-white shadow-sm shadow-emerald-200 transition hover:bg-emerald-800 disabled:bg-slate-300" disabled={saving} type="submit"><FiPlus className="h-4 w-4" />{saving ? "Creating user..." : "Create user"}</button>
             </div>

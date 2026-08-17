@@ -100,7 +100,7 @@ const OptionPicker = ({
                     >
                       {option.label}
                     </Text>
-                    {active && <Check color={colors.violet} size={18} />}
+                    {active && <Check color={colors.brand} size={18} />}
                   </Pressable>
                 );
               })}
@@ -166,7 +166,7 @@ const DynamicFields = ({
     <View style={styles.panel}>
       <View style={styles.panelHeader}>
         <View style={styles.panelIcon}>
-          <SlidersHorizontal color={colors.violet} size={18} />
+          <SlidersHorizontal color={colors.brand} size={18} />
         </View>
         <View style={styles.panelHeaderText}>
           <Text style={typography.sectionTitle}>Additional details</Text>
@@ -200,8 +200,8 @@ const DynamicFields = ({
                     onValueChange={nextValue => setValue(field, nextValue)}
                     thumbColor={colors.white}
                     trackColor={{
-                      false: '#D0D5DD',
-                      true: colors.violet,
+                      false: colors.borderStrong,
+                      true: colors.brand,
                     }}
                     value={Boolean(value)}
                   />
@@ -249,7 +249,7 @@ const DynamicFields = ({
                           {option.label}
                         </Text>
                         {selected && (
-                          <Check color={colors.violet} size={15} />
+                          <Check color={colors.brand} size={15} />
                         )}
                       </Pressable>
                     );
@@ -271,7 +271,7 @@ const DynamicFields = ({
                         ? 'YYYY-MM-DD HH:mm'
                         : '')
                   }
-                  placeholderTextColor="#98A2B3"
+                  placeholderTextColor={colors.placeholder}
                   style={[
                     styles.input,
                     field.type === 'long_text' && styles.textarea,
@@ -306,15 +306,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 11,
   },
   chipSelected: {
-    backgroundColor: colors.violetSoft,
-    borderColor: '#C4B5FD',
+    backgroundColor: colors.brandSoft,
+    borderColor: '#6EE7B7',
   },
   chipText: {
     color: colors.text,
     fontSize: 12,
     fontWeight: '700',
   },
-  chipTextSelected: { color: colors.violet },
+  chipTextSelected: { color: colors.brand },
   chips: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -349,7 +349,7 @@ const styles = StyleSheet.create({
     minHeight: 46,
     paddingHorizontal: 13,
   },
-  inputPressed: { borderColor: '#C4B5FD' },
+  inputPressed: { borderColor: '#6EE7B7' },
   inputText: {
     color: colors.ink,
     flex: 1,
@@ -374,7 +374,7 @@ const styles = StyleSheet.create({
     minHeight: 54,
     paddingHorizontal: 18,
   },
-  optionActive: { backgroundColor: colors.violetSoft },
+  optionActive: { backgroundColor: colors.brandSoft },
   optionList: { maxHeight: 390 },
   optionSheet: {
     backgroundColor: colors.surface,
@@ -388,7 +388,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '700',
   },
-  optionTextActive: { color: colors.violet },
+  optionTextActive: { color: colors.brand },
   panel: {
     backgroundColor: colors.surface,
     borderColor: colors.border,
@@ -409,7 +409,7 @@ const styles = StyleSheet.create({
   panelHeaderText: { flex: 1 },
   panelIcon: {
     alignItems: 'center',
-    backgroundColor: colors.violetSoft,
+    backgroundColor: colors.brandSoft,
     borderRadius: 8,
     height: 38,
     justifyContent: 'center',
@@ -421,7 +421,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   placeholder: {
-    color: '#98A2B3',
+    color: colors.placeholder,
     flex: 1,
     fontSize: 14,
   },

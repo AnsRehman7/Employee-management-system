@@ -9,6 +9,7 @@ import {
   FiRefreshCw,
   FiSave,
   FiSettings,
+  FiSliders,
   FiUsers,
   FiX,
 } from "react-icons/fi";
@@ -47,8 +48,12 @@ const WEEKDAYS = [
 ];
 
 const initialForm = {
+  checkInGraceMinutes: 60,
+  checkoutWindowEnd: "18:00",
+  checkoutWindowStart: "16:00",
   departments: [],
   holidays: [],
+  minimumOfficeMinutes: 360,
   name: "",
   timezone: "Asia/Karachi",
   weekStartsOn: 1,
@@ -81,8 +86,12 @@ const WorkspaceSettingsPage = () => {
     setUsage(nextUsage);
     setOffices(nextOffices);
     setForm({
+      checkInGraceMinutes: nextOrganization.checkInGraceMinutes ?? 60,
+      checkoutWindowEnd: nextOrganization.checkoutWindowEnd || "18:00",
+      checkoutWindowStart: nextOrganization.checkoutWindowStart || "16:00",
       departments: nextOrganization.departments || [],
       holidays: nextOrganization.holidays || [],
+      minimumOfficeMinutes: nextOrganization.minimumOfficeMinutes ?? 360,
       name: nextOrganization.name || "",
       timezone: nextOrganization.timezone || "Asia/Karachi",
       weekStartsOn: nextOrganization.weekStartsOn ?? 1,
@@ -120,11 +129,13 @@ const WorkspaceSettingsPage = () => {
     return () => window.clearTimeout(target);
   }, [loading, location.hash]);
 
+  const numericFields = ["checkInGraceMinutes", "minimumOfficeMinutes", "weekStartsOn"];
+
   const handleChange = (event) => {
     const { name, value } = event.target;
     setForm((current) => ({
       ...current,
-      [name]: name === "weekStartsOn" ? Number(value) : value,
+      [name]: numericFields.includes(name) ? Number(value) : value,
     }));
   };
 
@@ -154,6 +165,10 @@ const WorkspaceSettingsPage = () => {
     }
     if (form.workdayStart >= form.workdayEnd) {
       setNotice({ message: "Workday end must be later than workday start.", type: "error" });
+      return;
+    }
+    if (form.checkoutWindowStart >= form.checkoutWindowEnd) {
+      setNotice({ message: "The checkout window must end later than it starts.", type: "error" });
       return;
     }
 
@@ -204,6 +219,47 @@ const WorkspaceSettingsPage = () => {
                   <label className="block md:col-span-2"><span className="flex items-center gap-2 text-sm font-bold text-slate-700"><FiCalendar className="h-4 w-4 text-slate-400" />Week starts on</span><select className={fieldClass} name="weekStartsOn" onChange={handleChange} value={form.weekStartsOn}>{WEEKDAYS.map((day) => <option key={day.value} value={day.value}>{day.label}</option>)}</select></label>
                   <fieldset className="md:col-span-2"><legend className="text-sm font-bold text-slate-700">Working days</legend><div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-7">{WEEKDAYS.map((day) => { const checked = form.workingDays.includes(day.value); return <label className={`flex cursor-pointer items-center gap-2 rounded-lg border px-3 py-2 text-xs font-bold ${checked ? "border-emerald-300 bg-emerald-50 text-emerald-800" : "border-slate-200 bg-white text-slate-500"}`} key={day.value}><input checked={checked} className="h-4 w-4 accent-emerald-700" onChange={(event) => setForm((current) => ({ ...current, workingDays: event.target.checked ? [...current.workingDays, day.value].sort() : current.workingDays.filter((value) => value !== day.value) }))} type="checkbox" />{day.label.slice(0, 3)}</label>; })}</div></fieldset>
                   <div className="md:col-span-2"><span className="text-sm font-bold text-slate-700">Company holidays</span><div className="mt-2 flex gap-2"><input className="h-11 min-w-0 flex-1 rounded-lg border border-slate-200 bg-slate-50 px-3.5 text-sm outline-none focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-100" onChange={(event) => setHoliday(event.target.value)} type="date" value={holiday} /><button aria-label="Add holiday" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-slate-900 text-white hover:bg-slate-800" onClick={addHoliday} title="Add holiday" type="button"><FiPlus /></button></div><div className="mt-3 flex flex-wrap gap-2">{form.holidays.map((date) => <span className="inline-flex h-8 items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-2.5 text-xs font-bold text-slate-600" key={date}>{new Date(`${date}T00:00:00`).toLocaleDateString()}<button aria-label={`Remove holiday ${date}`} className="text-slate-400 hover:text-rose-600" onClick={() => setForm((current) => ({ ...current, holidays: current.holidays.filter((item) => item !== date) }))} title="Remove holiday" type="button"><FiX /></button></span>)}</div></div>
+                </div>
+              </section>
+
+              <section className="scroll-mt-28 rounded-lg border border-slate-200 bg-white shadow-sm" id="attendance-rules">
+                <div className="border-b border-slate-200 px-5 py-4">
+                  <div className="flex items-center gap-3">
+                    <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-100 text-emerald-800"><FiSliders className="h-4 w-4" /></span>
+                    <div>
+                      <h2 className="text-base font-bold text-slate-950">Attendance rules</h2>
+                      <p className="text-sm text-slate-500">The first scan of the day is the check-in. The latest exit scan inside the checkout window is the checkout.</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="grid gap-5 p-5 md:grid-cols-2">
+                  <label className="block">
+                    <span className="text-sm font-bold text-slate-700">Check-in grace period</span>
+                    <div className="relative">
+                      <input className={`${fieldClass} pr-20`} max="720" min="0" name="checkInGraceMinutes" onChange={handleChange} required step="5" type="number" value={form.checkInGraceMinutes} />
+                      <span className="pointer-events-none absolute bottom-0 right-3.5 flex h-11 items-center text-xs font-bold text-slate-400">minutes</span>
+                    </div>
+                    <span className="mt-1.5 block text-xs text-slate-500">Arrivals after {form.workdayStart} plus this grace period are marked late.</span>
+                  </label>
+                  <label className="block">
+                    <span className="text-sm font-bold text-slate-700">Minimum office time</span>
+                    <div className="relative">
+                      <input className={`${fieldClass} pr-20`} max="1440" min="0" name="minimumOfficeMinutes" onChange={handleChange} required step="15" type="number" value={form.minimumOfficeMinutes} />
+                      <span className="pointer-events-none absolute bottom-0 right-3.5 flex h-11 items-center text-xs font-bold text-slate-400">minutes</span>
+                    </div>
+                    <span className="mt-1.5 block text-xs text-slate-500">Completed days below this total are flagged as a short day.</span>
+                  </label>
+                  <label className="block">
+                    <span className="text-sm font-bold text-slate-700">Checkout window opens</span>
+                    <input className={fieldClass} name="checkoutWindowStart" onChange={handleChange} required type="time" value={form.checkoutWindowStart} />
+                  </label>
+                  <label className="block">
+                    <span className="text-sm font-bold text-slate-700">Checkout window closes</span>
+                    <input className={fieldClass} name="checkoutWindowEnd" onChange={handleChange} required type="time" value={form.checkoutWindowEnd} />
+                  </label>
+                  <p className="rounded-lg border border-emerald-100 bg-emerald-50 px-4 py-3 text-xs leading-5 text-emerald-900 md:col-span-2">
+                    These rules drive the attendance register for every member. Attendance itself is recorded only by verified device scans inside a configured office geofence; adjustments go through attendance corrections so every change stays auditable.
+                  </p>
                 </div>
               </section>
 
