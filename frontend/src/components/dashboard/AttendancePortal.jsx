@@ -22,6 +22,7 @@ import {
 import { Link } from "react-router-dom";
 import AppShell from "../AppShell";
 import Alert from "../Alert";
+import { TableSkeleton } from "../Skeleton";
 import Pagination from "../Pagination";
 import { PAGE_SIZE } from "../../hooks/usePagination";
 import AttendanceCorrections from "./AttendanceCorrections";
@@ -465,10 +466,7 @@ const AttendancePortal = () => {
           {error && <div className="px-4 pt-4"><Alert message={error} type="error" /></div>}
 
           {loading ? (
-            <div className="py-20 text-center">
-              <div className="mx-auto h-9 w-9 animate-spin rounded-full border-2 border-slate-200 border-t-emerald-700" />
-              <p className="mt-4 text-sm font-semibold text-slate-500">Loading attendance...</p>
-            </div>
+            <TableSkeleton label="Loading attendance records" rows={6} />
           ) : rows.length === 0 ? (
             <div className="py-20 text-center">
               <FiShield className="mx-auto h-8 w-8 text-slate-400" />
@@ -613,10 +611,7 @@ const AttendancePortal = () => {
           {scansExpanded && (
             <div className="border-t border-slate-200">
               {loadingScans ? (
-                <div className="py-16 text-center">
-                  <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-slate-200 border-t-emerald-700" />
-                  <p className="mt-3 text-sm font-semibold text-slate-500">Loading scans...</p>
-                </div>
+                <TableSkeleton columns={3} label="Loading scans" rows={4} />
               ) : scans.length === 0 ? (
                 <div className="py-16 text-center">
                   <FiShield className="mx-auto h-7 w-7 text-slate-300" />

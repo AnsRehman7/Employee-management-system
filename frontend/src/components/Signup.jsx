@@ -22,8 +22,6 @@ const Signup = () => {
     fullName: "",
     email: "",
     password: "",
-    contact: "",
-    designation: "",
     organizationName: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -35,8 +33,6 @@ const Signup = () => {
 
   const completeSignup = async () => {
     const profile = await refreshUser({
-      contact: formData.contact,
-      designation: formData.designation,
       fullName: formData.fullName,
       organizationName: formData.organizationName,
     });
@@ -94,10 +90,11 @@ const Signup = () => {
       panelEyebrow="Start in minutes"
       panelText="Create the company, become the super admin, then invite your team into scoped dashboards."
       panelTitle="Start a workspace that already knows who can do what."
+      secureNote=""
       subtitle="Start a 14-day trial and become the workspace super admin."
       title="Create workspace"
     >
-      <form className="space-y-4" onSubmit={handleSignup}>
+      <form className="space-y-3.5" onSubmit={handleSignup}>
         <Alert message={notice.message} type={notice.type} />
 
         <AuthField
@@ -144,35 +141,15 @@ const Signup = () => {
           value={formData.password}
         />
 
-        <div className="grid gap-4 sm:grid-cols-2">
-          <AuthField
-            icon={FiPhone}
-            label="Contact"
-            name="contact"
-            onChange={handleChange}
-            placeholder="Optional"
-            value={formData.contact}
-          />
 
-          <AuthField
-            icon={FiBriefcase}
-            label="Designation"
-            name="designation"
-            onChange={handleChange}
-            placeholder="Founder"
-            value={formData.designation}
-          />
-        </div>
-
-        <div className="pt-1">
+        <div className="pt-0.5">
           <AuthSubmitButton disabled={isSubmitting} loading={isSubmitting} loadingLabel="Creating workspace...">
             Create account
           </AuthSubmitButton>
         </div>
 
-        <p className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 text-center text-xs leading-5 text-slate-500">
-          This password is your super admin break-glass access. You and every member you invite sign in with a
-          one-time email code.
+        <p className="text-center text-xs leading-5 text-slate-400">
+          This password is your super admin break-glass access. Everyone you invite signs in with a one-time email code.
         </p>
       </form>
     </AuthLayout>

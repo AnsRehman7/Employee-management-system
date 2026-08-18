@@ -21,7 +21,7 @@ import {
   PrimaryButton,
   SectionHeader,
 } from '../components/ui';
-import { colors, typography } from '../theme';
+import { useAppTheme, useThemedStyles } from '../ThemeContext';
 import { formatDateTime } from '../utils/formatters';
 
 const iconForNotification = notification => {
@@ -39,7 +39,11 @@ const InboxScreen = ({
   onRefresh,
   refreshing,
   unreadCount,
-}) => (
+}) => {
+  const { colors, typography } = useAppTheme();
+  const styles = useThemedStyles(createStyles);
+
+  return (
   <ScrollView
     contentContainerStyle={styles.content}
     refreshControl={
@@ -131,11 +135,12 @@ const InboxScreen = ({
       )}
     </Card>
   </ScrollView>
-);
+  );
+};
 
 export default InboxScreen;
 
-const styles = StyleSheet.create({
+const createStyles = ({ colors, typography }) => StyleSheet.create({
   content: {
     gap: 18,
     paddingBottom: 110,

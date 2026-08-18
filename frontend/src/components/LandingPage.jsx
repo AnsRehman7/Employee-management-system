@@ -1,11 +1,12 @@
 import { FiArrowRight, FiBarChart2, FiCheckCircle, FiLayers, FiShield, FiUsers } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
+import ThemeToggle from "./ThemeToggle";
 
 const LandingPage = () => {
   const navigate = useNavigate();
 
   return (
-    <main className="min-h-screen overflow-hidden bg-[#f7f8f5] text-slate-950">
+    <main className="min-h-screen overflow-hidden bg-canvas text-slate-950">
       <nav className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5">
         <button
           type="button"
@@ -17,11 +18,12 @@ const LandingPage = () => {
             <FiLayers className="h-5 w-5" />
           </span>
           <span>
-            <span className="block text-lg font-bold tracking-normal">StaffFlow</span>
+            <span className="block text-lg font-bold">StaffFlow</span>
             <span className="block text-xs font-semibold uppercase text-slate-500">Work intelligence</span>
           </span>
         </button>
         <div className="flex items-center gap-3">
+          <ThemeToggle />
           <button
             onClick={() => navigate("/pricing")}
             className="rounded-lg px-4 py-2 text-sm font-bold text-slate-600 transition hover:bg-white hover:text-emerald-800"
@@ -43,15 +45,15 @@ const LandingPage = () => {
         </div>
       </nav>
 
-      <section className="mx-auto grid max-w-7xl items-center gap-12 px-6 pb-16 pt-10 lg:grid-cols-[1.05fr_0.95fr] lg:pb-24 lg:pt-16">
+      <section className="mx-auto grid max-w-7xl items-center gap-10 px-6 pb-14 pt-8 lg:grid-cols-[1.05fr_0.95fr] lg:pb-20 lg:pt-12">
         <div className="animate-fade-in">
-          <p className="mb-5 inline-flex rounded-full border border-emerald-200 bg-white px-4 py-2 text-sm font-bold text-emerald-800 shadow-sm">
+          <p className="mb-5 inline-flex rounded-full border border-emerald-200 bg-white px-3.5 py-1.5 text-xs font-bold text-emerald-800 shadow-sm">
             AI-powered project and workforce management
           </p>
-          <h1 className="max-w-4xl text-5xl font-bold tracking-normal text-slate-950 sm:text-6xl lg:text-7xl">
+          <h1 className="max-w-3xl text-6xl font-bold text-slate-950">
             Run projects, people, and attendance from one executive workspace.
           </h1>
-          <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600">
+          <p className="mt-5 max-w-xl text-base leading-7 text-slate-600">
             StaffFlow gives leadership an operating dashboard first: delivery health, team workload,
             attendance, and role-scoped work views without the admin-panel clutter.
           </p>
@@ -84,7 +86,7 @@ const LandingPage = () => {
 
         <div className="relative animate-fade-in-slow">
           <div className="rounded-lg border border-slate-200 bg-white p-4 text-slate-950 shadow-2xl shadow-slate-200/80">
-            <div className="rounded-lg bg-[#f4f7f4] p-5">
+            <div className="rounded-lg bg-canvas p-5">
               <div className="mb-5 flex items-center justify-between">
                 <div>
                   <p className="text-xs font-bold uppercase text-emerald-700">Executive dashboard</p>

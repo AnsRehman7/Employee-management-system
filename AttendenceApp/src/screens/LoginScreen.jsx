@@ -19,7 +19,7 @@ import {
   ShieldCheck,
   Sparkles,
 } from 'lucide-react-native';
-import { colors, shadow, typography } from '../theme';
+import { useAppTheme, useThemedStyles } from '../ThemeContext';
 import { PrimaryButton } from '../components/ui';
 
 const LoginScreen = ({
@@ -36,6 +36,8 @@ const LoginScreen = ({
   resendAfter = 0,
   step = 'email',
 }) => {
+  const { colors } = useAppTheme();
+  const styles = useThemedStyles(createStyles);
   const [secondsLeft, setSecondsLeft] = useState(0);
 
   useEffect(() => {
@@ -211,7 +213,7 @@ const LoginScreen = ({
 
 export default LoginScreen;
 
-const styles = StyleSheet.create({
+const createStyles = ({ colors, typography, shadow }) => StyleSheet.create({
   brandMark: {
     alignItems: 'center',
     backgroundColor: colors.brand,

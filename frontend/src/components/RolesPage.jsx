@@ -11,6 +11,7 @@ import {
   FiX,
 } from "react-icons/fi";
 import Alert from "./Alert";
+import { useToast } from "../context/ToastContext";
 import AppShell from "./AppShell";
 import SettingsNavigation from "./SettingsNavigation";
 import { api, formatApiError } from "../context/api";
@@ -21,6 +22,7 @@ const emptyDraft = { description: "", name: "", permissions: [] };
 
 const RolesPage = () => {
   const { user } = useUser();
+  const toast = useToast();
   const { error: rolesError, reload, roles } = useRoles();
   const [catalog, setCatalog] = useState({ permissions: [] });
   const [selectedId, setSelectedId] = useState("");
@@ -88,15 +90,16 @@ const RolesPage = () => {
     try {
       if (creating) {
         await api.createRole(draft);
-        setNotice({ message: `The ${draft.name} role was created.`, type: "success" });
+        toast.success("Role created", `${draft.name} is ready to assign.`);
       } else {
         await api.updateRole(selectedId, draft);
-        setNotice({ message: `The ${draft.name} role was updated.`, type: "success" });
+        toast.success("Role updated", `${draft.name} permissions saved.`);
       }
       await reload();
       cancelEdit();
     } catch (requestError) {
       setNotice({ message: formatApiError(requestError), type: "error" });
+      toast.error("Could not save role", formatApiError(requestError));
     } finally {
       setSaving(false);
     }
@@ -107,7 +110,7 @@ const RolesPage = () => {
     setNotice({ message: "", type: "info" });
     try {
       await api.deleteRole(role.id);
-      setNotice({ message: `The ${role.name} role was deleted.`, type: "success" });
+      toast.success("Role deleted", `${role.name} was removed.`);
       await reload();
       cancelEdit();
     } catch (requestError) {

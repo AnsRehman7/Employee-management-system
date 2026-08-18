@@ -52,7 +52,7 @@ import {
   loadSecureSession,
   saveSecureSession,
 } from './services/secureSession';
-import { colors } from './theme';
+import { useAppTheme, useThemedStyles } from './ThemeContext';
 import { todayKey } from './utils/formatters';
 import {
   calculateDistanceMeters,
@@ -144,7 +144,11 @@ const openLocationSettings = async () => {
   }
 };
 
-const BottomNavigation = ({ activeTab, onChange, unreadCount }) => (
+const BottomNavigation = ({ activeTab, onChange, unreadCount }) => {
+  const { colors } = useAppTheme();
+  const styles = useThemedStyles(createStyles);
+
+  return (
   <View style={styles.bottomNavigation}>
     {TABS.map(tab => {
       const Icon = tab.icon;
@@ -182,9 +186,12 @@ const BottomNavigation = ({ activeTab, onChange, unreadCount }) => (
       );
     })}
   </View>
-);
+  );
+};
 
 const StaffFlowApp = () => {
+  const { colors, isDark } = useAppTheme();
+  const styles = useThemedStyles(createStyles);
   const [activeTab, setActiveTab] = useState('home');
   const [attendanceOffices, setAttendanceOffices] = useState([]);
   const [attendanceCustomFields, setAttendanceCustomFields] = useState({});
@@ -852,7 +859,7 @@ const StaffFlowApp = () => {
   if (initializing) {
     return (
       <SafeAreaProvider>
-        <StatusBar barStyle="dark-content" backgroundColor={colors.canvas} />
+        <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} backgroundColor={colors.canvas} />
         <SafeAreaView edges={['top', 'bottom']} style={styles.safeArea}>
           <LoadingState label="Opening StaffFlow" />
         </SafeAreaView>
@@ -863,7 +870,7 @@ const StaffFlowApp = () => {
   if (!session) {
     return (
       <SafeAreaProvider>
-        <StatusBar barStyle="dark-content" backgroundColor={colors.canvas} />
+        <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} backgroundColor={colors.canvas} />
         <SafeAreaView edges={['top', 'bottom']} style={styles.safeArea}>
           <LoginScreen
             code={signInCode}
@@ -890,7 +897,7 @@ const StaffFlowApp = () => {
 
   return (
     <SafeAreaProvider>
-      <StatusBar barStyle="dark-content" backgroundColor={colors.canvas} />
+      <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} backgroundColor={colors.canvas} />
       <SafeAreaView edges={['top', 'bottom']} style={styles.safeArea}>
         <View style={styles.screen}>
           {workspaceReady ? (
@@ -910,7 +917,7 @@ const StaffFlowApp = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = ({ colors }) => StyleSheet.create({
   bottomNavigation: {
     backgroundColor: colors.surface,
     borderTopColor: colors.border,

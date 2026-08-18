@@ -25,7 +25,13 @@ const Alert = ({ message, title, type = "info" }) => {
   const Icon = tone.Icon;
 
   return (
-    <div className={`flex gap-3 rounded-lg border px-4 py-3 text-sm ${tone.container}`}>
+    <div
+      /* Errors interrupt; confirmations wait for a pause. Either way the message is
+         announced, which inline-only feedback previously was not. */
+      aria-live={type === "error" ? "assertive" : "polite"}
+      className={`flex gap-3 rounded-lg border px-4 py-3 text-sm ${tone.container}`}
+      role={type === "error" ? "alert" : "status"}
+    >
       <Icon className={`mt-0.5 h-4 w-4 shrink-0 ${tone.icon}`} aria-hidden="true" />
       <div>
         {title && <p className="font-semibold">{title}</p>}

@@ -47,8 +47,8 @@ const StatCard = ({ accent = "bg-emerald-700", helper, icon, label, surface = "b
   <Card className={`p-4 ${surface}`}>
     <div className="flex items-start justify-between gap-3">
       <div className="min-w-0">
-        <p className="truncate text-xs font-bold uppercase tracking-normal text-slate-500">{label}</p>
-        <p className="mt-3 text-2xl font-bold tracking-normal text-slate-950">{value}</p>
+        <p className="truncate text-xs font-bold uppercase text-slate-500">{label}</p>
+        <p className="mt-3 text-2xl font-bold text-slate-950">{value}</p>
         <p className="mt-1 text-sm font-semibold text-slate-500">{helper}</p>
       </div>
       <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-white ${accent}`}>
@@ -321,10 +321,10 @@ const ExecutiveDashboard = () => {
 
       <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <p className="text-xs font-bold uppercase tracking-normal text-emerald-700">
+          <p className="text-xs font-bold uppercase text-emerald-700">
             {dayFormatter.format(new Date())} / Workforce intelligence
           </p>
-          <h2 className="mt-2 text-2xl font-bold tracking-normal text-slate-950">
+          <h2 className="mt-2 text-2xl font-bold text-slate-950">
             {getGreeting()}, {user?.name?.split(" ")[0] || "there"}
           </h2>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
@@ -389,7 +389,7 @@ const ExecutiveDashboard = () => {
         <Card className="p-5">
           <div className="mb-5 flex flex-col gap-3 border-b border-slate-200 pb-5 sm:flex-row sm:items-start sm:justify-between">
             <div>
-              <p className="text-xs font-bold uppercase tracking-normal text-slate-500">Performance</p>
+              <p className="text-xs font-bold uppercase text-slate-500">Performance</p>
               <h3 className="mt-1 text-2xl font-bold text-slate-950">Work completion trend</h3>
               <p className="mt-1 text-sm text-slate-500">Completed task movement across the last seven months.</p>
             </div>
@@ -431,7 +431,7 @@ const ExecutiveDashboard = () => {
       <div className="grid gap-6 xl:grid-cols-3">
         <Card className="p-5">
           <div className="mb-5">
-            <p className="text-xs font-bold uppercase tracking-normal text-slate-500">Portfolio</p>
+            <p className="text-xs font-bold uppercase text-slate-500">Portfolio</p>
             <h3 className="mt-1 text-xl font-bold text-slate-950">Project health</h3>
           </div>
           <DonutChart
@@ -444,7 +444,7 @@ const ExecutiveDashboard = () => {
         <Card className="p-5">
           <div className="mb-5 flex items-start justify-between gap-3">
             <div>
-              <p className="text-xs font-bold uppercase tracking-normal text-slate-500">Capacity</p>
+              <p className="text-xs font-bold uppercase text-slate-500">Capacity</p>
               <h3 className="mt-1 text-xl font-bold text-slate-950">Team workload</h3>
             </div>
             <FiBarChart2 className="h-5 w-5 text-teal-600" />
@@ -455,7 +455,7 @@ const ExecutiveDashboard = () => {
         <Card className="p-5">
           <div className="mb-5 flex items-start justify-between gap-3">
             <div>
-              <p className="text-xs font-bold uppercase tracking-normal text-slate-500">Live feed</p>
+              <p className="text-xs font-bold uppercase text-slate-500">Live feed</p>
               <h3 className="mt-1 text-xl font-bold text-slate-950">Recent activity</h3>
             </div>
             <FiTrendingUp className="h-5 w-5 text-emerald-600" />

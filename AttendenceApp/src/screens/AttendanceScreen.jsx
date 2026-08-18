@@ -26,7 +26,7 @@ import {
   SectionHeader,
   StatusBadge,
 } from '../components/ui';
-import { colors, typography } from '../theme';
+import { useAppTheme, useThemedStyles } from '../ThemeContext';
 import { formatDateTime, formatTime } from '../utils/formatters';
 import { formatDistance } from '../utils/geofence';
 
@@ -44,6 +44,8 @@ const AttendanceScreen = ({
   scans,
   submittingDirection,
 }) => {
+  const { colors, typography } = useAppTheme();
+  const styles = useThemedStyles(createStyles);
   const [now, setNow] = useState(new Date());
 
   useEffect(() => {
@@ -288,7 +290,7 @@ const AttendanceScreen = ({
 
 export default AttendanceScreen;
 
-const styles = StyleSheet.create({
+const createStyles = ({ colors, typography }) => StyleSheet.create({
   actionButton: { flex: 1 },
   actionRow: {
     flexDirection: 'row',

@@ -1,5 +1,6 @@
 import { FiArrowRight, FiCheckCircle, FiLayers } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
+import ThemeToggle from "./ThemeToggle";
 
 const plans = [
   {
@@ -32,18 +33,19 @@ const PricingPage = () => {
   const navigate = useNavigate();
 
   return (
-    <main className="min-h-screen bg-[#f7f8f5] text-slate-950">
+    <main className="min-h-screen bg-canvas text-slate-950">
       <nav className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5">
         <button className="flex items-center gap-3 text-left" onClick={() => navigate("/")} type="button">
           <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-700 text-white shadow-lg shadow-emerald-200">
             <FiLayers className="h-5 w-5" />
           </span>
           <span>
-            <span className="block text-lg font-bold tracking-normal">StaffFlow</span>
+            <span className="block text-lg font-bold">StaffFlow</span>
             <span className="block text-xs font-semibold uppercase text-slate-500">Work intelligence</span>
           </span>
         </button>
         <div className="flex items-center gap-3">
+          <ThemeToggle />
           <button
             className="rounded-lg px-4 py-2 text-sm font-bold text-slate-600 transition hover:bg-white hover:text-emerald-800"
             onClick={() => navigate("/login")}
@@ -61,13 +63,13 @@ const PricingPage = () => {
         </div>
       </nav>
 
-      <section className="mx-auto max-w-7xl px-6 pb-20 pt-10">
+      <section className="mx-auto max-w-7xl px-6 pb-16 pt-8">
         <div className="max-w-3xl">
-          <p className="text-sm font-bold uppercase tracking-normal text-emerald-700">Pricing</p>
-          <h1 className="mt-4 text-5xl font-bold tracking-normal text-slate-950 sm:text-6xl">
+          <p className="text-sm font-bold uppercase text-emerald-700">Pricing</p>
+          <h1 className="mt-3.5 text-5xl font-bold text-slate-950">
             Start lean. Add structure as the company grows.
           </h1>
-          <p className="mt-6 text-lg leading-8 text-slate-600">
+          <p className="mt-5 text-base leading-7 text-slate-600">
             StaffFlow starts with a free trial workspace and scales into role-based operations for managers, HR,
             accounts, and employees.
           </p>
@@ -96,7 +98,7 @@ const PricingPage = () => {
               </div>
 
               <div className="mt-8 flex items-end gap-2">
-                <span className="text-5xl font-bold">{plan.price}</span>
+                <span className="text-4xl font-bold tabular-figures">{plan.price}</span>
                 {plan.price !== "Custom" && <span className="pb-2 text-sm font-semibold opacity-70">/mo</span>}
               </div>
 

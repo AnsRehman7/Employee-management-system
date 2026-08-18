@@ -12,14 +12,21 @@ import {
   ChevronRight,
   Inbox,
 } from 'lucide-react-native';
-import { colors, shadow, typography } from '../theme';
+import { useAppTheme, useThemedStyles } from '../ThemeContext';
 import { initialsFor, labelForValue } from '../utils/formatters';
 
-export const Card = ({ children, style }) => (
-  <View style={[styles.card, style]}>{children}</View>
-);
+export const Card = ({ children, style }) => {
+  const styles = useThemedStyles(createStyles);
 
-export const Avatar = ({ name, size = 42 }) => (
+  return (
+  <View style={[styles.card, style]}>{children}</View>
+  );
+};
+
+export const Avatar = ({ name, size = 42 }) => {
+  const styles = useThemedStyles(createStyles);
+
+  return (
   <View
     style={[
       styles.avatar,
@@ -34,7 +41,8 @@ export const Avatar = ({ name, size = 42 }) => (
       {initialsFor(name)}
     </Text>
   </View>
-);
+  );
+};
 
 export const PrimaryButton = ({
   disabled = false,
@@ -45,6 +53,8 @@ export const PrimaryButton = ({
   tone = 'primary',
   style,
 }) => {
+  const { colors } = useAppTheme();
+  const styles = useThemedStyles(createStyles);
   const secondary = tone === 'secondary';
   const danger = tone === 'danger';
   const foreground = secondary
@@ -92,7 +102,11 @@ export const IconButton = ({
   badge,
   icon: Icon,
   onPress,
-}) => (
+}) => {
+  const { colors } = useAppTheme();
+  const styles = useThemedStyles(createStyles);
+
+  return (
   <Pressable
     accessibilityLabel={accessibilityLabel}
     accessibilityRole="button"
@@ -110,9 +124,14 @@ export const IconButton = ({
       </View>
     )}
   </Pressable>
-);
+  );
+};
 
-export const SectionHeader = ({ action, subtitle, title }) => (
+export const SectionHeader = ({ action, subtitle, title }) => {
+  const { typography } = useAppTheme();
+  const styles = useThemedStyles(createStyles);
+
+  return (
   <View style={styles.sectionHeader}>
     <View style={styles.sectionHeaderText}>
       <Text style={typography.sectionTitle}>{title}</Text>
@@ -120,7 +139,8 @@ export const SectionHeader = ({ action, subtitle, title }) => (
     </View>
     {action}
   </View>
-);
+  );
+};
 
 const STATUS_TONES = {
   accepted: 'positive',
@@ -139,6 +159,7 @@ const STATUS_TONES = {
 };
 
 export const StatusBadge = ({ label, value = label }) => {
+  const styles = useThemedStyles(createStyles);
   const tone = STATUS_TONES[String(value || '').toLowerCase()] || 'neutral';
   return (
     <View style={[styles.badge, styles[`badge_${tone}`]]}>
@@ -154,7 +175,11 @@ export const MetricTile = ({
   label,
   tone = 'brand',
   value,
-}) => (
+}) => {
+  const { colors } = useAppTheme();
+  const styles = useThemedStyles(createStyles);
+
+  return (
   <View style={styles.metricTile}>
     <View style={[styles.metricIcon, styles[`metricIcon_${tone}`]]}>
       <Icon
@@ -176,13 +201,18 @@ export const MetricTile = ({
       {label}
     </Text>
   </View>
-);
+  );
+};
 
 export const EmptyState = ({
   icon: Icon = Inbox,
   message,
   title = 'Nothing here yet',
-}) => (
+}) => {
+  const { colors } = useAppTheme();
+  const styles = useThemedStyles(createStyles);
+
+  return (
   <View style={styles.empty}>
     <View style={styles.emptyIcon}>
       <Icon color={colors.brand} size={22} strokeWidth={1.8} />
@@ -190,7 +220,8 @@ export const EmptyState = ({
     <Text style={styles.emptyTitle}>{title}</Text>
     <Text style={styles.emptyMessage}>{message}</Text>
   </View>
-);
+  );
+};
 
 export const ListLink = ({
   caption,
@@ -198,7 +229,11 @@ export const ListLink = ({
   onPress,
   title,
   value,
-}) => (
+}) => {
+  const { colors } = useAppTheme();
+  const styles = useThemedStyles(createStyles);
+
+  return (
   <Pressable
     accessibilityRole="button"
     onPress={onPress}
@@ -217,9 +252,12 @@ export const ListLink = ({
     {!!value && <Text style={styles.listLinkValue}>{value}</Text>}
     <ChevronRight color={colors.muted} size={18} strokeWidth={2} />
   </Pressable>
-);
+  );
+};
 
 export const Snackbar = ({ message, tone = 'info' }) => {
+  const { colors } = useAppTheme();
+  const styles = useThemedStyles(createStyles);
   if (!message) return null;
   const error = tone === 'error';
   const success = tone === 'success';
@@ -243,14 +281,19 @@ export const Snackbar = ({ message, tone = 'info' }) => {
   );
 };
 
-export const LoadingState = ({ label = 'Loading workspace' }) => (
+export const LoadingState = ({ label = 'Loading workspace' }) => {
+  const { colors } = useAppTheme();
+  const styles = useThemedStyles(createStyles);
+
+  return (
   <View style={styles.loadingState}>
     <ActivityIndicator color={colors.brand} size="large" />
     <Text style={styles.loadingLabel}>{label}</Text>
   </View>
-);
+  );
+};
 
-const styles = StyleSheet.create({
+const createStyles = ({ colors, shadow }) => StyleSheet.create({
   avatar: {
     alignItems: 'center',
     backgroundColor: colors.cyanSoft,
@@ -453,6 +496,28 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: '800',
   },
+  skeletonAvatar: {
+    backgroundColor: colors.skeleton,
+    borderRadius: 8,
+    height: 38,
+    width: 38,
+  },
+  skeletonBar: {
+    backgroundColor: colors.skeleton,
+    borderRadius: 4,
+    height: 10,
+  },
+  skeletonBarNarrow: { width: '45%' },
+  skeletonBarWide: { width: '75%' },
+  skeletonBody: { flex: 1, gap: 8 },
+  skeletonRow: {
+    alignItems: 'center',
+    borderBottomColor: colors.border,
+    borderBottomWidth: 1,
+    flexDirection: 'row',
+    gap: 12,
+    paddingVertical: 14,
+  },
   sectionHeader: {
     alignItems: 'flex-start',
     flexDirection: 'row',
@@ -490,3 +555,25 @@ const styles = StyleSheet.create({
     lineHeight: 19,
   },
 });
+
+/**
+ * Loading placeholder shaped like the list it replaces, so the layout does not jump
+ * when data arrives. Announced once rather than per bar.
+ */
+export const SkeletonList = ({ label = 'Loading', rows = 4 }) => {
+  const styles = useThemedStyles(createStyles);
+
+  return (
+    <View accessibilityLabel={label} accessibilityRole="progressbar">
+      {Array.from({ length: rows }).map((_, index) => (
+        <View key={index} style={styles.skeletonRow}>
+          <View style={styles.skeletonAvatar} />
+          <View style={styles.skeletonBody}>
+            <View style={[styles.skeletonBar, styles.skeletonBarWide]} />
+            <View style={[styles.skeletonBar, styles.skeletonBarNarrow]} />
+          </View>
+        </View>
+      ))}
+    </View>
+  );
+};

@@ -15,7 +15,9 @@ import {
 } from "react-icons/fi";
 import { useLocation } from "react-router-dom";
 import Alert from "./Alert";
+import { useToast } from "../context/ToastContext";
 import AppShell from "./AppShell";
+import { CardSkeleton } from "./Skeleton";
 import BrowserNotificationSettings from "./BrowserNotificationSettings";
 import SettingsNavigation from "./SettingsNavigation";
 import WorkspaceOfficesSettings from "./WorkspaceOfficesSettings";
@@ -65,6 +67,7 @@ const initialForm = {
 const WorkspaceSettingsPage = () => {
   const location = useLocation();
   const { setUser, user } = useUser();
+  const toast = useToast();
   const canManageWorkspace = Boolean(user?.permissions?.canManageSettings);
   const [form, setForm] = useState(initialForm);
   const [organization, setOrganization] = useState(null);
@@ -179,8 +182,10 @@ const WorkspaceSettingsPage = () => {
       applySettings(result);
       setUser((current) => current ? { ...current, organization: { ...current.organization, ...result.organization } } : current);
       setNotice({ message: "Workspace settings updated successfully.", type: "success" });
+      toast.success("Workspace settings saved");
     } catch (requestError) {
       setNotice({ message: formatApiError(requestError), type: "error" });
+      toast.error("Could not save settings", formatApiError(requestError));
     } finally {
       setSaving(false);
     }
@@ -201,7 +206,7 @@ const WorkspaceSettingsPage = () => {
         <Alert message={notice.message} type={notice.type} />
 
         {loading && !organization ? (
-          <section className="rounded-lg border border-slate-200 bg-white py-24 text-center shadow-sm"><div className="mx-auto h-10 w-10 animate-spin rounded-full border-2 border-slate-200 border-t-emerald-700" /><p className="mt-4 text-sm font-semibold text-slate-500">Loading workspace settings...</p></section>
+          <section className="rounded-lg border border-slate-200 bg-white py-24 text-center shadow-sm"><CardSkeleton label="Loading workspace settings" lines={4} /></section>
         ) : organization ? (
           <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_360px]">
             <div className="space-y-5">

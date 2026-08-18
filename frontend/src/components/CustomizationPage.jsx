@@ -156,7 +156,7 @@ const FieldDialog = ({ field, module, onClose, onSaved }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-slate-950/45 p-0 sm:items-center sm:p-6">
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-scrim/55 p-0 sm:items-center sm:p-6">
       <form className="max-h-[92vh] w-full overflow-y-auto rounded-t-lg bg-white shadow-2xl sm:max-w-2xl sm:rounded-lg" onSubmit={submit}>
         <div className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-200 bg-white px-5 py-4">
           <div>
@@ -238,7 +238,7 @@ const CreateModuleDialog = ({ onClose, onCreated }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-slate-950/45 p-0 sm:items-center sm:p-6">
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-scrim/55 p-0 sm:items-center sm:p-6">
       <form className="w-full rounded-t-lg bg-white shadow-2xl sm:max-w-xl sm:rounded-lg" onSubmit={submit}>
         <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4"><div><h2 className="text-lg font-bold text-slate-950">Create module</h2><p className="text-sm text-slate-500">Start with a required Name field.</p></div><button aria-label="Close module creator" className="flex h-9 w-9 items-center justify-center rounded-lg hover:bg-slate-100" onClick={onClose} type="button"><FiX /></button></div>
         <div className="space-y-5 p-5">

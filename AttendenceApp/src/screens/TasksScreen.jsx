@@ -27,7 +27,7 @@ import {
   SectionHeader,
   StatusBadge,
 } from '../components/ui';
-import { colors, typography } from '../theme';
+import { useAppTheme, useThemedStyles } from '../ThemeContext';
 import {
   dueLabel,
   formatDate,
@@ -65,6 +65,8 @@ const TaskDetailModal = ({
   task,
   updating,
 }) => {
+  const { colors } = useAppTheme();
+  const styles = useThemedStyles(createStyles);
   if (!task) return null;
   const customFields = (moduleDefinition?.fields || []).filter(
     field =>
@@ -215,6 +217,8 @@ const TasksScreen = ({
   tasks,
   updatingTaskId,
 }) => {
+  const { colors, typography } = useAppTheme();
+  const styles = useThemedStyles(createStyles);
   const [filter, setFilter] = useState('active');
   const visibleTasks = useMemo(
     () =>
@@ -361,7 +365,7 @@ const TasksScreen = ({
 
 export default TasksScreen;
 
-const styles = StyleSheet.create({
+const createStyles = ({ colors, typography }) => StyleSheet.create({
   closeButton: {
     alignItems: 'center',
     backgroundColor: colors.surfaceMuted,

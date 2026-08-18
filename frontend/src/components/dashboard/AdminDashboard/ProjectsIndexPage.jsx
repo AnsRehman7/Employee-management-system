@@ -14,6 +14,7 @@ import {
 } from "react-icons/fi";
 import { Link } from "react-router-dom";
 import Alert from "../../Alert";
+import { TableSkeleton } from "../../Skeleton";
 import AppShell from "../../AppShell";
 import Pagination from "../../Pagination";
 import { usePagination } from "../../../hooks/usePagination";
@@ -163,7 +164,7 @@ const ProjectsIndexPage = () => {
           <div className="px-4 pt-4"><Alert message={error} type="error" /></div>
 
           {loading ? (
-            <div className="py-20 text-center"><div className="mx-auto h-9 w-9 animate-spin rounded-full border-2 border-slate-200 border-t-emerald-700" /><p className="mt-4 text-sm font-semibold text-slate-500">Loading projects...</p></div>
+            <TableSkeleton label="Loading projects" rows={6} />
           ) : filteredProjects.length === 0 ? (
             <div className="py-20 text-center"><FiSliders className="mx-auto h-8 w-8 text-slate-400" /><h2 className="mt-4 text-base font-bold text-slate-950">No projects match this view</h2><p className="mt-1 text-sm text-slate-500">Change or clear the filters to see more projects.</p></div>
           ) : (

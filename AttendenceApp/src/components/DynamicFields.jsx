@@ -10,7 +10,7 @@ import {
   View,
 } from 'react-native';
 import { Check, ChevronDown, SlidersHorizontal, X } from 'lucide-react-native';
-import { colors, typography } from '../theme';
+import { useAppTheme, useThemedStyles } from '../ThemeContext';
 
 const inputKeyboard = type => {
   if (['decimal', 'integer'].includes(type)) return 'decimal-pad';
@@ -20,12 +20,16 @@ const inputKeyboard = type => {
   return 'default';
 };
 
-const FieldLabel = ({ field }) => (
+const FieldLabel = ({ field }) => {
+  const styles = useThemedStyles(createStyles);
+
+  return (
   <Text style={styles.label}>
     {field.label}
     {field.isRequired ? <Text style={styles.required}> *</Text> : null}
   </Text>
-);
+  );
+};
 
 const OptionPicker = ({
   disabled,
@@ -35,6 +39,8 @@ const OptionPicker = ({
   placeholder,
   value,
 }) => {
+  const { colors } = useAppTheme();
+  const styles = useThemedStyles(createStyles);
   const [open, setOpen] = useState(false);
   const selected = options.find(option => option.value === value);
 
@@ -150,6 +156,8 @@ const DynamicFields = ({
   onChange,
   values = {},
 }) => {
+  const { colors, typography } = useAppTheme();
+  const styles = useThemedStyles(createStyles);
   const customFields = useMemo(
     () =>
       fields
@@ -293,7 +301,7 @@ const DynamicFields = ({
 
 export default DynamicFields;
 
-const styles = StyleSheet.create({
+const createStyles = ({ colors }) => StyleSheet.create({
   chip: {
     alignItems: 'center',
     backgroundColor: colors.surface,

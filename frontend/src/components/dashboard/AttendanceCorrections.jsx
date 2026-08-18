@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { FiCheck, FiClock, FiEdit3, FiX } from "react-icons/fi";
 import Alert from "../Alert";
+import { useToast } from "../../context/ToastContext";
 import Pagination from "../Pagination";
 import { PAGE_SIZE } from "../../hooks/usePagination";
 import { api, formatApiError } from "../../context/api";
@@ -18,6 +19,7 @@ const statusStyle = {
 };
 
 const AttendanceCorrections = ({ canManage }) => {
+  const toast = useToast();
   const [corrections, setCorrections] = useState([]);
   const [pagination, setPagination] = useState(null);
   const [page, setPage] = useState(1);
@@ -48,7 +50,7 @@ const AttendanceCorrections = ({ canManage }) => {
     try {
       await api.createAttendanceCorrection(form);
       setForm({ direction: "in", reason: "", requestedAt: localDateTime() });
-      setNotice({ message: "Correction request submitted.", type: "success" });
+      toast.success("Correction submitted", "An attendance manager will review it.");
       setPage(1);
       await load();
     } catch (requestError) {
@@ -68,7 +70,7 @@ const AttendanceCorrections = ({ canManage }) => {
       });
       setCorrections((current) => current.map((item) => (item.id === correction.id ? correction : item)));
       setReview({ id: "", reviewNote: "", status: "approved" });
-      setNotice({ message: `Correction ${correction.status}.`, type: "success" });
+      toast.success(`Correction ${correction.status}`);
     } catch (requestError) {
       setNotice({ message: formatApiError(requestError), type: "error" });
     } finally {

@@ -24,7 +24,7 @@ import {
   SectionHeader,
   StatusBadge,
 } from '../components/ui';
-import { colors, typography } from '../theme';
+import { useAppTheme, useThemedStyles } from '../ThemeContext';
 import { labelForValue } from '../utils/formatters';
 
 const ProfileScreen = ({
@@ -34,7 +34,11 @@ const ProfileScreen = ({
   onSignOut,
   officeConfigured,
   user,
-}) => (
+}) => {
+  const { colors, typography } = useAppTheme();
+  const styles = useThemedStyles(createStyles);
+
+  return (
   <ScrollView
     contentContainerStyle={styles.content}
     showsVerticalScrollIndicator={false}
@@ -170,11 +174,12 @@ const ProfileScreen = ({
     />
     <Text style={styles.version}>StaffFlow mobile / Version 1.0</Text>
   </ScrollView>
-);
+  );
+};
 
 export default ProfileScreen;
 
-const styles = StyleSheet.create({
+const createStyles = ({ colors, typography }) => StyleSheet.create({
   configurationIssue: {
     color: colors.danger,
     fontSize: 11,

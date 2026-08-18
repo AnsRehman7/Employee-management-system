@@ -11,11 +11,16 @@ import {
   FiLogOut,
   FiPlus,
   FiSearch,
+  FiCommand,
+  FiMoon,
   FiSettings,
   FiShield,
+  FiSun,
 } from "react-icons/fi";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import Alert from "./Alert";
+import CommandPalette from "./CommandPalette";
+import ThemeToggle from "./ThemeToggle";
 import NotificationCenter from "./NotificationCenter";
 import { api } from "../context/api";
 import { useFirebase } from "../context/firebase";
@@ -48,6 +53,7 @@ const AppShell = ({ children, subtitle = "", title = "Workspace" }) => {
   const location = useLocation();
   const { user } = useUser();
   const { formatFirebaseError, logout } = useFirebase();
+  const [paletteOpen, setPaletteOpen] = useState(false);
   const [isSigningOut, setIsSigningOut] = useState(false);
   const [error, setError] = useState("");
   const [globalSearch, setGlobalSearch] = useState("");
@@ -60,6 +66,17 @@ const AppShell = ({ children, subtitle = "", title = "Workspace" }) => {
   useEffect(() => {
     window.localStorage.setItem("staffflow.sidebar-collapsed", String(sidebarCollapsed));
   }, [sidebarCollapsed]);
+
+  useEffect(() => {
+    const onKeyDown = (event) => {
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
+        event.preventDefault();
+        setPaletteOpen((current) => !current);
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, []);
 
   useEffect(() => {
     if (!user?.id) {
@@ -188,8 +205,8 @@ const AppShell = ({ children, subtitle = "", title = "Workspace" }) => {
   );
 
   return (
-    <div className="min-h-screen bg-[#f7f8f5] text-slate-950">
-      <aside className={`fixed inset-y-0 left-0 z-40 hidden flex-col border-r border-slate-200 bg-[#fcfdfb] transition-[width] duration-200 lg:flex ${sidebarCollapsed ? "w-20" : "w-72"}`}>
+    <div className="min-h-screen bg-canvas text-slate-950">
+      <aside className={`fixed inset-y-0 left-0 z-40 hidden flex-col border-r border-slate-200 bg-surface transition-[width] duration-200 lg:flex ${sidebarCollapsed ? "w-20" : "w-72"}`}>
         <div className={`border-b border-slate-200 ${sidebarCollapsed ? "p-2" : "p-4"}`}>
           <div className="flex items-center justify-between">
             <NavLink className={`flex min-w-0 items-center ${sidebarCollapsed ? "" : "gap-3"}`} title={sidebarCollapsed ? "StaffFlow" : undefined} to={homePath}>
@@ -256,7 +273,7 @@ const AppShell = ({ children, subtitle = "", title = "Workspace" }) => {
       </aside>
 
       <div className={`transition-[padding] duration-200 ${sidebarCollapsed ? "lg:pl-20" : "lg:pl-72"}`}>
-        <header className="sticky top-0 z-30 border-b border-slate-200 bg-[#fcfdfb]/95 backdrop-blur-xl">
+        <header className="sticky top-0 z-30 border-b border-slate-200 bg-surface/95 backdrop-blur-xl">
           <div className="mx-auto max-w-[1540px] px-4 py-4 sm:px-6 lg:px-8">
             <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
               <div className="min-w-0">
@@ -272,10 +289,23 @@ const AppShell = ({ children, subtitle = "", title = "Workspace" }) => {
               </div>
 
               <div className="flex min-w-0 items-center gap-3">
-                <form className="hidden h-10 w-[360px] items-center gap-3 rounded-md border border-slate-200 bg-[#f7f8f5] px-3 text-sm text-slate-500 focus-within:border-emerald-300 focus-within:bg-white focus-within:ring-4 focus-within:ring-emerald-100 xl:flex" onSubmit={handleGlobalSearch}>
+                <form className="hidden h-10 w-[280px] items-center gap-3 rounded-md border border-slate-200 bg-canvas px-3 text-sm text-slate-500 focus-within:border-emerald-300 focus-within:bg-white focus-within:ring-4 focus-within:ring-emerald-100 xl:flex" onSubmit={handleGlobalSearch}>
                   <FiSearch className="h-4 w-4 shrink-0" />
                   <input className="w-full bg-transparent text-sm text-slate-700 outline-none placeholder:text-slate-400" onChange={(event) => setGlobalSearch(event.target.value)} placeholder="Search tasks..." type="search" value={globalSearch} />
                 </form>
+
+                <button
+                  aria-label="Open command palette"
+                  className="hidden h-10 items-center gap-2 rounded-md border border-slate-200 bg-white px-2.5 text-slate-500 transition hover:bg-emerald-50 hover:text-emerald-800 xl:flex"
+                  onClick={() => setPaletteOpen(true)}
+                  title="Command palette"
+                  type="button"
+                >
+                  <FiCommand className="h-3.5 w-3.5" />
+                  <kbd className="text-[10px] font-bold">K</kbd>
+                </button>
+
+                <ThemeToggle />
                 {user?.permissions?.canCreateTasks && (
                   <button aria-label="Create task" className="hidden h-10 w-10 items-center justify-center rounded-md border border-slate-200 bg-white text-slate-600 transition hover:bg-emerald-50 hover:text-emerald-800 xl:flex" onClick={() => navigate("/tasks/new")} title="Create task" type="button">
                     <FiPlus className="h-4 w-4" />
@@ -329,6 +359,8 @@ const AppShell = ({ children, subtitle = "", title = "Workspace" }) => {
 
         <main className="mx-auto max-w-[1540px] px-4 py-6 sm:px-6 lg:px-8">{children}</main>
       </div>
+
+      <CommandPalette customModules={customModules} onClose={() => setPaletteOpen(false)} open={paletteOpen} />
     </div>
   );
 };

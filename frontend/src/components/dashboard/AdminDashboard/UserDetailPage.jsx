@@ -17,6 +17,7 @@ import {
 import { Link, useLocation, useParams } from "react-router-dom";
 import Alert from "../../Alert";
 import AppShell from "../../AppShell";
+import { CardSkeleton } from "../../Skeleton";
 import CustomFieldsForm from "../../CustomFieldsForm";
 import { api, formatApiError } from "../../../context/api";
 import { useUser } from "../../../context/UserContext";
@@ -145,7 +146,7 @@ const UserDetailPage = () => {
   };
 
   if (loading) {
-    return <AppShell title="User details" subtitle="Loading workspace account information."><div className="py-24 text-center"><div className="mx-auto h-10 w-10 animate-spin rounded-full border-2 border-slate-200 border-t-emerald-700" /><p className="mt-4 text-sm font-semibold text-slate-500">Loading user...</p></div></AppShell>;
+    return <AppShell title="User details" subtitle="Loading workspace account information."><div className="py-24 text-center"><CardSkeleton label="Loading user" lines={4} /></div></AppShell>;
   }
 
   if (!member) {

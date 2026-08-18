@@ -16,6 +16,7 @@ import {
 import { Link } from "react-router-dom";
 import Alert from "../../Alert";
 import AppShell from "../../AppShell";
+import { CardSkeleton } from "../../Skeleton";
 import { api, formatApiError } from "../../../context/api";
 import { labelForValue } from "./workUtils";
 
@@ -207,7 +208,7 @@ const ReportsPage = () => {
         <Alert message={error} type="error" />
 
         {loading && !report ? (
-          <Panel className="py-24 text-center"><div className="mx-auto h-10 w-10 animate-spin rounded-full border-2 border-slate-200 border-t-emerald-700" /><p className="mt-4 text-sm font-semibold text-slate-500">Preparing organization report...</p></Panel>
+          <Panel className="py-24 text-center"><CardSkeleton label="Loading reports" lines={4} /></Panel>
         ) : report ? (
           <>
             <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">

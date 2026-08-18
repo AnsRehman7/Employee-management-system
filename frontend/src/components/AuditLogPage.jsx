@@ -14,6 +14,7 @@ import {
 } from "react-icons/fi";
 import { Link } from "react-router-dom";
 import Alert from "./Alert";
+import { TableSkeleton } from "./Skeleton";
 import AppShell from "./AppShell";
 import Pagination from "./Pagination";
 import { usePagination } from "../hooks/usePagination";
@@ -108,7 +109,7 @@ const AuditLogPage = () => {
           </div>
 
           {loading && !entries.length ? (
-            <div className="py-24 text-center"><div className="mx-auto h-10 w-10 animate-spin rounded-full border-2 border-slate-200 border-t-emerald-700" /><p className="mt-4 text-sm font-semibold text-slate-500">Loading audit events...</p></div>
+            <TableSkeleton label="Loading audit events" rows={6} />
           ) : entries.length ? (
             <div className="divide-y divide-slate-100">
               {pageItems.map((entry) => {

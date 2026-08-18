@@ -8,6 +8,7 @@ import {
 import { Link, useNavigate, useParams } from "react-router-dom";
 import Alert from "./Alert";
 import AppShell from "./AppShell";
+import { CardSkeleton } from "./Skeleton";
 import CustomFieldsForm from "./CustomFieldsForm";
 import { api, formatApiError } from "../context/api";
 
@@ -107,7 +108,7 @@ const CustomModuleRecordPage = ({ create = false }) => {
         </div>
         <Alert message={notice.message} type={notice.type} />
         {loading ? (
-          <section className="rounded-lg border border-slate-200 bg-white py-24 text-center shadow-sm"><div className="mx-auto h-9 w-9 animate-spin rounded-full border-2 border-slate-200 border-t-emerald-700" /></section>
+          <CardSkeleton label="Loading record" lines={5} />
         ) : module ? (
           <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_320px]">
             <CustomFieldsForm disabled={!canEdit} fields={module.fields} onChange={setValues} title={`${module.singularName} details`} values={values} />

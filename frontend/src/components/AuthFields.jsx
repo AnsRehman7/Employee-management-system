@@ -6,8 +6,8 @@ const shellClass =
 
 export const AuthField = ({ icon, label, ...inputProps }) => (
   <label className="block">
-    <span className="mb-1.5 block text-sm font-semibold text-slate-700">{label}</span>
-    <div className={`${shellClass} h-12`}>
+    <span className="mb-1 block text-sm font-semibold text-slate-700">{label}</span>
+    <div className={`${shellClass} h-11`}>
       {icon && createElement(icon, { className: "h-[18px] w-[18px] shrink-0 text-slate-400" })}
       <input
         className="min-w-0 flex-1 bg-transparent text-sm text-slate-950 outline-none placeholder:text-slate-400"
@@ -22,8 +22,8 @@ export const AuthPasswordField = ({ icon, label, ...inputProps }) => {
 
   return (
     <label className="block">
-      <span className="mb-1.5 block text-sm font-semibold text-slate-700">{label}</span>
-      <div className={`${shellClass} h-12`}>
+      <span className="mb-1 block text-sm font-semibold text-slate-700">{label}</span>
+      <div className={`${shellClass} h-11`}>
         {icon && createElement(icon, { className: "h-[18px] w-[18px] shrink-0 text-slate-400" })}
         <input
           className="min-w-0 flex-1 bg-transparent text-sm text-slate-950 outline-none placeholder:text-slate-400"
@@ -46,7 +46,7 @@ export const AuthPasswordField = ({ icon, label, ...inputProps }) => {
 
 export const AuthSubmitButton = ({ children, loading, loadingLabel, ...buttonProps }) => (
   <button
-    className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-lg bg-emerald-700 px-4 text-sm font-bold text-white shadow-sm shadow-emerald-800/20 transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:shadow-none"
+    className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-emerald-700 px-4 text-sm font-bold text-white shadow-sm shadow-emerald-800/20 transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:shadow-none"
     type="submit"
     {...buttonProps}
   >

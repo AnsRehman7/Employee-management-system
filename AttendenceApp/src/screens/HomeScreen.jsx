@@ -25,7 +25,7 @@ import {
   SectionHeader,
   StatusBadge,
 } from '../components/ui';
-import { colors, typography } from '../theme';
+import { useAppTheme, useThemedStyles } from '../ThemeContext';
 import {
   dueLabel,
   formatDateLong,
@@ -48,6 +48,8 @@ const HomeScreen = ({
   unreadCount,
   user,
 }) => {
+  const { colors } = useAppTheme();
+  const styles = useThemedStyles(createStyles);
   const activeTasks = useMemo(
     () =>
       tasks
@@ -250,7 +252,7 @@ const HomeScreen = ({
 
 export default HomeScreen;
 
-const styles = StyleSheet.create({
+const createStyles = ({ colors, typography }) => StyleSheet.create({
   attendanceBand: {
     backgroundColor: colors.brand,
     borderRadius: 8,
