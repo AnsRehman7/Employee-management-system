@@ -38,7 +38,9 @@ Set the project root to `backend`, Node.js 22, and configure:
 - a long random `CRON_SECRET`
 - a long random `OTP_SECRET`. Generate one with `node -e "console.log(require('crypto').randomBytes(48).toString('base64url'))"`. Without it sign-in fails closed; rotating it invalidates every outstanding code
 - `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, and `MAIL_FROM_ADDRESS` so sign-in codes can be delivered. The API still boots without them and logs a startup warning, but every code request returns 503 until they are set, so nobody can sign in
+- `REDIS_URL` and `REDIS_REST_TOKEN` from Upstash so sign-in codes are stored in Redis. Without them codes fall back to the `login_otps` table, which still works
 - optional `SESSION_MAX_DAYS` (default 3) and the `OTP_*` throttles
+- `SMTP_FROM`/`SMTP_PASS` are accepted as aliases for `MAIL_FROM_ADDRESS`/`SMTP_PASSWORD`
 - `REQUIRE_FIREBASE_APP_CHECK=true` after App Check is configured on every production client
 - rate/outbox settings as needed
 

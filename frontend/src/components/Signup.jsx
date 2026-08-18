@@ -1,7 +1,9 @@
-import { FiArrowRight, FiBriefcase, FiLock, FiMail, FiPhone, FiUser } from "react-icons/fi";
 import { useState } from "react";
+import { FiBriefcase, FiLock, FiMail, FiPhone, FiUser } from "react-icons/fi";
 import { NavLink, useNavigate } from "react-router-dom";
 import Alert from "./Alert";
+import AuthLayout from "./AuthLayout";
+import { AuthField, AuthPasswordField, AuthSubmitButton } from "./AuthFields";
 import { useFirebase } from "../context/firebase";
 import { useUser } from "../context/UserContext";
 
@@ -73,165 +75,107 @@ const Signup = () => {
   };
 
   return (
-    <main className="min-h-screen max-w-full overflow-x-hidden bg-[#f7f8f5] text-slate-950 lg:h-screen lg:overflow-hidden">
-      <div className="grid min-h-screen min-w-0 lg:grid-cols-[0.9fr_1.1fr]">
-        <section className="hidden flex-col justify-between border-r border-slate-200 bg-white p-10 text-slate-950 lg:flex">
-          <div>
-            <p className="text-sm font-bold uppercase tracking-normal text-emerald-700">StaffFlow</p>
-            <h1 className="mt-5 max-w-xl text-5xl font-bold tracking-normal">
-              Start a workspace that already knows who can do what.
-            </h1>
-            <p className="mt-5 max-w-lg text-base leading-7 text-slate-600">
-              Create the company, become the super admin, then invite managers, HR, accounts, and employees into scoped dashboards.
-            </p>
-          </div>
+    <AuthLayout
+      eyebrow="Get started"
+      features={[
+        "Super admin, admin, manager, HR, and custom roles",
+        "Employees only see work connected to their account",
+        "Projects, attendance, and progress in one workspace",
+      ]}
+      featuresTitle="Role control"
+      footer={
+        <>
+          Already have an account?{" "}
+          <NavLink className="font-bold text-emerald-700 transition hover:text-emerald-800" to="/login">
+            Sign in
+          </NavLink>
+        </>
+      }
+      panelEyebrow="Start in minutes"
+      panelText="Create the company, become the super admin, then invite your team into scoped dashboards."
+      panelTitle="Start a workspace that already knows who can do what."
+      subtitle="Start a 14-day trial and become the workspace super admin."
+      title="Create workspace"
+    >
+      <form className="space-y-4" onSubmit={handleSignup}>
+        <Alert message={notice.message} type={notice.type} />
 
-          <div className="grid gap-3">
-            {[
-              ["Role control", "Super admin, admin, manager, HR, accounts, and employee access."],
-              ["Private work", "Employees only see assignments connected to their account."],
-              ["Operations view", "Projects, attendance, and task progress stay in one workspace."],
-            ].map(([title, text]) => (
-              <div className="rounded-lg border border-slate-200 bg-[#f4f7f4] p-4" key={title}>
-                <p className="text-sm font-bold text-slate-950">{title}</p>
-                <p className="mt-1 text-sm leading-6 text-slate-600">{text}</p>
-              </div>
-            ))}
-          </div>
-        </section>
+        <AuthField
+          icon={FiBriefcase}
+          label="Company name"
+          name="organizationName"
+          onChange={handleChange}
+          placeholder="Prime Dumpster LLC"
+          required
+          value={formData.organizationName}
+        />
 
-        <section className="flex min-h-screen min-w-0 items-center justify-center px-4 py-4 sm:px-6">
-          <div className="w-full min-w-0 max-w-xl rounded-lg border border-slate-200 bg-white p-5 shadow-xl shadow-slate-200/70 sm:p-6">
-            <div className="mb-4">
-              <p className="text-xs font-bold uppercase tracking-normal text-emerald-800">Free trial</p>
-              <h2 className="mt-2 text-3xl font-bold tracking-normal text-slate-950">Create workspace</h2>
-              <p className="mt-1 text-sm text-slate-500">Start a 14-day trial and become the workspace super admin.</p>
-            </div>
+        <AuthField
+          autoComplete="name"
+          icon={FiUser}
+          label="Full name"
+          name="fullName"
+          onChange={handleChange}
+          placeholder="Your full name"
+          required
+          value={formData.fullName}
+        />
 
-          <form onSubmit={handleSignup} className="min-w-0 space-y-3 [&_label]:min-w-0">
-            <Alert message={notice.message} type={notice.type} />
+        <AuthField
+          autoComplete="email"
+          icon={FiMail}
+          label="Email address"
+          name="email"
+          onChange={handleChange}
+          placeholder="name@company.com"
+          required
+          type="email"
+          value={formData.email}
+        />
 
-            <div className="grid min-w-0 gap-3 sm:grid-cols-2">
-              <label className="block">
-                <span className="text-xs font-bold uppercase text-slate-600">Company name</span>
-                <div className="mt-1.5 flex min-w-0 items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 transition focus-within:border-emerald-600 focus-within:bg-white focus-within:ring-4 focus-within:ring-emerald-600/10">
-                  <FiBriefcase className="h-5 w-5 text-slate-400" />
-                  <input
-                    type="text"
-                    name="organizationName"
-                    required
-                    value={formData.organizationName}
-                    onChange={handleChange}
-                    placeholder="Prime Dumpster LLC"
-                    className="min-w-0 flex-1 bg-transparent text-sm text-slate-950 outline-none placeholder:text-slate-400"
-                  />
-                </div>
-              </label>
+        <AuthPasswordField
+          autoComplete="new-password"
+          icon={FiLock}
+          label="Password"
+          name="password"
+          onChange={handleChange}
+          placeholder="At least 12 characters"
+          required
+          value={formData.password}
+        />
 
-              <label className="block">
-                <span className="text-xs font-bold uppercase text-slate-600">Full name</span>
-                <div className="mt-1.5 flex min-w-0 items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 transition focus-within:border-emerald-600 focus-within:bg-white focus-within:ring-4 focus-within:ring-emerald-600/10">
-                  <FiUser className="h-5 w-5 text-slate-400" />
-                  <input
-                    type="text"
-                    name="fullName"
-                    required
-                    value={formData.fullName}
-                    onChange={handleChange}
-                    placeholder="Ayesha Noor"
-                    className="min-w-0 flex-1 bg-transparent text-sm text-slate-950 outline-none placeholder:text-slate-400"
-                  />
-                </div>
-              </label>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <AuthField
+            icon={FiPhone}
+            label="Contact"
+            name="contact"
+            onChange={handleChange}
+            placeholder="Optional"
+            value={formData.contact}
+          />
 
-              <label className="block">
-                <span className="text-xs font-bold uppercase text-slate-600">Email</span>
-                <div className="mt-1.5 flex min-w-0 items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 transition focus-within:border-emerald-600 focus-within:bg-white focus-within:ring-4 focus-within:ring-emerald-600/10">
-                  <FiMail className="h-5 w-5 text-slate-400" />
-                  <input
-                    type="email"
-                    name="email"
-                    required
-                    value={formData.email}
-                    onChange={handleChange}
-                    placeholder="you@company.com"
-                    className="min-w-0 flex-1 bg-transparent text-sm text-slate-950 outline-none placeholder:text-slate-400"
-                  />
-                </div>
-              </label>
+          <AuthField
+            icon={FiBriefcase}
+            label="Designation"
+            name="designation"
+            onChange={handleChange}
+            placeholder="Founder"
+            value={formData.designation}
+          />
+        </div>
 
-              <label className="block">
-                <span className="text-xs font-bold uppercase text-slate-600">Password</span>
-                <div className="mt-1.5 flex min-w-0 items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 transition focus-within:border-emerald-600 focus-within:bg-white focus-within:ring-4 focus-within:ring-emerald-600/10">
-                  <FiLock className="h-5 w-5 text-slate-400" />
-                  <input
-                    minLength={12}
-                    type="password"
-                    name="password"
-                    required
-                    value={formData.password}
-                    onChange={handleChange}
-                    placeholder="Minimum 12 characters"
-                    className="min-w-0 flex-1 bg-transparent text-sm text-slate-950 outline-none placeholder:text-slate-400"
-                  />
-                </div>
-              </label>
+        <div className="pt-1">
+          <AuthSubmitButton disabled={isSubmitting} loading={isSubmitting} loadingLabel="Creating workspace...">
+            Create account
+          </AuthSubmitButton>
+        </div>
 
-              <label className="block">
-                <span className="text-xs font-bold uppercase text-slate-600">Contact</span>
-                <div className="mt-1.5 flex min-w-0 items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 transition focus-within:border-emerald-600 focus-within:bg-white focus-within:ring-4 focus-within:ring-emerald-600/10">
-                  <FiPhone className="h-5 w-5 text-slate-400" />
-                  <input
-                    type="text"
-                    name="contact"
-                    value={formData.contact}
-                    onChange={handleChange}
-                    placeholder="Optional"
-                    className="min-w-0 flex-1 bg-transparent text-sm text-slate-950 outline-none placeholder:text-slate-400"
-                  />
-                </div>
-              </label>
-
-              <label className="block">
-                <span className="text-xs font-bold uppercase text-slate-600">Designation</span>
-                <div className="mt-1.5 flex min-w-0 items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 transition focus-within:border-emerald-600 focus-within:bg-white focus-within:ring-4 focus-within:ring-emerald-600/10">
-                  <FiBriefcase className="h-5 w-5 text-slate-400" />
-                  <input
-                    type="text"
-                    name="designation"
-                    value={formData.designation}
-                    onChange={handleChange}
-                    placeholder="Founder / Operations Lead"
-                    className="min-w-0 flex-1 bg-transparent text-sm text-slate-950 outline-none placeholder:text-slate-400"
-                  />
-                </div>
-              </label>
-            </div>
-
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-emerald-700 px-4 py-2.5 text-sm font-bold text-white shadow-lg shadow-emerald-200 transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:bg-slate-300"
-            >
-              {isSubmitting ? "Creating workspace..." : "Start free trial"}
-              {!isSubmitting && <FiArrowRight className="h-4 w-4" />}
-            </button>
-
-            <p className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 text-center text-xs leading-5 text-slate-500">
-              This password is your super admin break-glass access. You and every member you invite will sign in with a one-time email code.
-            </p>
-
-            <p className="text-center text-sm text-slate-500">
-              Already have an account?{" "}
-              <NavLink to="/login" className="font-bold text-emerald-800 hover:text-emerald-900">
-                Sign in
-              </NavLink>
-            </p>
-          </form>
-          </div>
-        </section>
-      </div>
-    </main>
+        <p className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 text-center text-xs leading-5 text-slate-500">
+          This password is your super admin break-glass access. You and every member you invite sign in with a
+          one-time email code.
+        </p>
+      </form>
+    </AuthLayout>
   );
 };
 
