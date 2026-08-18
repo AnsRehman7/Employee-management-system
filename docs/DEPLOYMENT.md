@@ -36,8 +36,8 @@ Set the project root to `backend`, Node.js 22, and configure:
 - `FIREBASE_WEB_API_KEY` only as a local REST fallback; Admin credentials are mandatory in production
 - `GROQ_API_KEY` and optional `GROQ_MODEL`
 - a long random `CRON_SECRET`
-- a long random `OTP_SECRET` (required; rotating it invalidates every outstanding sign-in code)
-- `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, and `MAIL_FROM_ADDRESS` so sign-in codes can be delivered; the API refuses to start in production without them
+- a long random `OTP_SECRET`. Generate one with `node -e "console.log(require('crypto').randomBytes(48).toString('base64url'))"`. Without it sign-in fails closed; rotating it invalidates every outstanding code
+- `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, and `MAIL_FROM_ADDRESS` so sign-in codes can be delivered. The API still boots without them and logs a startup warning, but every code request returns 503 until they are set, so nobody can sign in
 - optional `SESSION_MAX_DAYS` (default 3) and the `OTP_*` throttles
 - `REQUIRE_FIREBASE_APP_CHECK=true` after App Check is configured on every production client
 - rate/outbox settings as needed
