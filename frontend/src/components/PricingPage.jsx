@@ -6,7 +6,7 @@ const plans = [
   {
     name: "Trial",
     price: "$0",
-    description: "For companies setting up StaffFlow for the first time.",
+    description: "For companies setting up DayMark for the first time.",
     features: ["14-day workspace trial", "Super admin account", "Projects, tasks, and user roles", "Hours logging"],
     cta: "Start free trial",
     featured: true,
@@ -40,7 +40,7 @@ const PricingPage = () => {
             <FiLayers className="h-5 w-5" />
           </span>
           <span>
-            <span className="block text-lg font-bold">StaffFlow</span>
+            <span className="block text-lg font-bold">DayMark</span>
             <span className="block text-xs font-semibold uppercase text-slate-500">Work intelligence</span>
           </span>
         </button>
@@ -70,7 +70,7 @@ const PricingPage = () => {
             Start lean. Add structure as the company grows.
           </h1>
           <p className="mt-5 text-base leading-7 text-slate-600">
-            StaffFlow starts with a free trial workspace and scales into role-based operations for managers, HR,
+            DayMark starts with a free trial workspace and scales into role-based operations for managers, HR,
             accounts, and employees.
           </p>
         </div>

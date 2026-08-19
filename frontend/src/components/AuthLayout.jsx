@@ -20,7 +20,7 @@ const AuthLayout = ({
   panelEyebrow = "Plan with confidence",
   panelText = "Keep delivery, people, and time organized and make the day easier for your whole team.",
   panelTitle = "Every task, teammate, and update in one clear view.",
-  secureNote = "Secure access to your StaffFlow workspace",
+  secureNote = "Secure access to your DayMark workspace",
   subtitle,
   title,
 }) => (
@@ -39,7 +39,7 @@ const AuthLayout = ({
               SF
             </span>
             <div className="min-w-0">
-              <p className="truncate text-base font-bold tracking-tight">StaffFlow</p>
+              <p className="truncate text-base font-bold tracking-tight">DayMark</p>
               <p className="mt-0.5 text-xs font-medium text-white/55">Work intelligence</p>
             </div>
           </div>
@@ -79,7 +79,7 @@ const AuthLayout = ({
             <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-600 text-xs font-bold text-white">
               SF
             </span>
-            <span className="text-sm font-bold text-slate-950">StaffFlow</span>
+            <span className="text-sm font-bold text-slate-950">DayMark</span>
           </div>
 
           {eyebrow && (

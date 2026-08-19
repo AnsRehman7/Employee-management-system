@@ -114,7 +114,7 @@ const LandingPage = () => {
       <nav className="sticky top-0 z-40 border-b border-slate-200/70 bg-canvas/90 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-3.5">
           <button
-            aria-label="StaffFlow home"
+            aria-label="DayMark home"
             className="flex items-center gap-3 text-left"
             onClick={() => navigate("/")}
             type="button"
@@ -123,7 +123,7 @@ const LandingPage = () => {
               <FiLayers className="h-5 w-5" />
             </span>
             <span>
-              <span className="block text-lg font-bold">StaffFlow</span>
+              <span className="block text-lg font-bold">DayMark</span>
               <span className="block text-xs font-semibold uppercase text-slate-500">Work intelligence</span>
             </span>
           </button>
@@ -165,7 +165,7 @@ const LandingPage = () => {
             Run projects, people, and attendance from one workspace.
           </h1>
           <p className="mt-4 max-w-lg text-base leading-7 text-slate-600">
-            StaffFlow puts delivery health, team workload, and verified attendance on a single operating
+            DayMark puts delivery health, team workload, and verified attendance on a single operating
             dashboard, scoped to what each role should see.
           </p>
 
@@ -374,7 +374,7 @@ const LandingPage = () => {
             <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-700 text-white">
               <FiLayers className="h-4 w-4" />
             </span>
-            <span className="text-sm font-bold text-slate-950">StaffFlow</span>
+            <span className="text-sm font-bold text-slate-950">DayMark</span>
           </div>
           <div className="flex items-center gap-6 text-sm font-semibold text-slate-500">
             <button className="transition hover:text-emerald-800" onClick={() => navigate("/pricing")} type="button">
@@ -387,7 +387,7 @@ const LandingPage = () => {
               Start trial
             </button>
           </div>
-          <p className="text-xs text-slate-400">&copy; {new Date().getFullYear()} StaffFlow</p>
+          <p className="text-xs text-slate-400">&copy; {new Date().getFullYear()} DayMark</p>
         </div>
       </footer>
     </main>

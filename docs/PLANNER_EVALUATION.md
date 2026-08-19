@@ -10,7 +10,7 @@ Suggested research question:
 
 ## Testable Hypotheses
 
-- **H1:** StaffFlow reduces median planning time versus manual planning.
+- **H1:** DayMark reduces median planning time versus manual planning.
 - **H2:** Traceability yields higher requirement coverage than an unconstrained task-list prompt.
 - **H3:** Calendar/capacity/dependency scheduling yields fewer violations than unconstrained AI planning.
 - **H4:** Explanations and mandatory review keep unsafe automatic assignments at zero while producing a measurable, decreasing override rate.
@@ -43,7 +43,7 @@ Use a within-subject counterbalanced study with at least three planning conditio
 
 1. Manual planning using the same project brief and employee roster.
 2. Unconstrained AI task generation without traceability or scheduling checks.
-3. StaffFlow planner with constraint checks, explanations, and human approval.
+3. DayMark planner with constraint checks, explanations, and human approval.
 
 Recruit several participants with project-management or senior-student experience. Prepare small, medium, and large project briefs with known requirements, skills, deadlines, calendars, dependencies, and seeded conflicts. Randomize condition order to reduce learning effects.
 

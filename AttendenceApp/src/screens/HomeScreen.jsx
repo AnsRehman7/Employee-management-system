@@ -78,7 +78,7 @@ const HomeScreen = ({
       <View style={styles.header}>
         <View style={styles.headerCopy}>
           <Text numberOfLines={1} style={styles.workspace}>
-            {user?.organization?.name || 'StaffFlow'}
+            {user?.organization?.name || 'DayMark'}
           </Text>
           <Text numberOfLines={1} style={styles.greeting}>
             Hello, {String(user?.name || 'there').split(' ')[0]}

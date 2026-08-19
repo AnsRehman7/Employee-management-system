@@ -123,7 +123,7 @@ const Login = () => {
     email: {
       eyebrow: "Welcome back",
       subtitle: "Enter your workspace email and we will send you a one-time code.",
-      title: "Sign in to StaffFlow",
+      title: "Sign in to DayMark",
     },
     password: {
       eyebrow: "Break-glass access",

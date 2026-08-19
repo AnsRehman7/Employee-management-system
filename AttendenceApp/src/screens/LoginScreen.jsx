@@ -69,7 +69,7 @@ const LoginScreen = ({
             <Text style={styles.brandMarkText}>SF</Text>
           </View>
           <View>
-            <Text style={styles.brandName}>StaffFlow</Text>
+            <Text style={styles.brandName}>DayMark</Text>
             <Text style={styles.brandMeta}>Work intelligence</Text>
           </View>
         </View>
@@ -203,7 +203,7 @@ const LoginScreen = ({
           onPress={onOpenWorkspace}
           style={styles.webLink}
         >
-          <Text style={styles.webLinkText}>Open StaffFlow on the web</Text>
+          <Text style={styles.webLinkText}>Open DayMark on the web</Text>
           <ExternalLink color={colors.brand} size={16} />
         </Pressable>
       </ScrollView>

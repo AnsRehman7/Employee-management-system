@@ -87,10 +87,10 @@ const WorkActivityTimeline = ({ activity = [], emptyMessage = "No activity has b
                 <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between">
                   <div className="flex min-w-0 items-center gap-2">
                     <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-emerald-100 text-[10px] font-bold text-emerald-900">
-                      {initialsFor(entry.actor?.name || "StaffFlow")}
+                      {initialsFor(entry.actor?.name || "DayMark")}
                     </span>
                     <p className="min-w-0 text-sm text-slate-700">
-                      <span className="font-bold text-slate-950">{entry.actor?.name || "StaffFlow"}</span>
+                      <span className="font-bold text-slate-950">{entry.actor?.name || "DayMark"}</span>
                       <span className="ml-1">{entry.summary}</span>
                     </p>
                   </div>

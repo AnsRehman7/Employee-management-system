@@ -9,7 +9,7 @@ class AppErrorBoundary extends Component {
   }
 
   componentDidCatch(error, details) {
-    console.error("StaffFlow screen error", error, details);
+    console.error("DayMark screen error", error, details);
   }
 
   render() {
@@ -22,7 +22,7 @@ class AppErrorBoundary extends Component {
             <FiAlertTriangle className="h-5 w-5" />
           </span>
           <p className="mt-5 text-xs font-bold uppercase text-emerald-800">Unable to open this view</p>
-          <h1 className="mt-2 text-2xl font-extrabold text-slate-950">StaffFlow hit an unexpected error</h1>
+          <h1 className="mt-2 text-2xl font-extrabold text-slate-950">DayMark hit an unexpected error</h1>
           <p className="mt-2 text-sm leading-6 text-slate-600">
             Reload the application. Your saved workspace data is not affected.
           </p>
@@ -32,7 +32,7 @@ class AppErrorBoundary extends Component {
             className="mt-6 inline-flex items-center gap-2 rounded-lg bg-emerald-800 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-emerald-900"
           >
             <FiRefreshCw className="h-4 w-4" />
-            Reload StaffFlow
+            Reload DayMark
           </button>
         </section>
       </main>

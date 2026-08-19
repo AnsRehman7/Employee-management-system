@@ -47,7 +47,7 @@ const ProfileScreen = ({
       <Text style={typography.eyebrow}>Account</Text>
       <Text style={styles.title}>Profile</Text>
       <Text style={styles.subtitle}>
-        Your StaffFlow identity and mobile security status.
+        Your DayMark identity and mobile security status.
       </Text>
     </View>
 
@@ -55,7 +55,7 @@ const ProfileScreen = ({
       <Avatar name={user?.name} size={58} />
       <View style={styles.identityBody}>
         <Text numberOfLines={1} style={styles.identityName}>
-          {user?.name || 'StaffFlow member'}
+          {user?.name || 'DayMark member'}
         </Text>
         <Text numberOfLines={1} style={styles.identityRole}>
           {user?.designation || labelForValue(user?.role)}
@@ -90,7 +90,7 @@ const ProfileScreen = ({
           <View style={styles.detailBody}>
             <Text style={styles.detailLabel}>Workspace</Text>
             <Text numberOfLines={1} style={styles.detailValue}>
-              {user?.organization?.name || 'StaffFlow'}
+              {user?.organization?.name || 'DayMark'}
             </Text>
           </View>
         </View>
@@ -158,7 +158,7 @@ const ProfileScreen = ({
           title="Open settings"
         />
         <ListLink
-          caption="Continue in the complete StaffFlow web application."
+              caption="Continue in the complete DayMark web application."
           icon={ExternalLink}
           onPress={onOpenProfile}
           title="Open web application"
@@ -172,7 +172,7 @@ const ProfileScreen = ({
       onPress={onSignOut}
       tone="danger"
     />
-    <Text style={styles.version}>StaffFlow mobile / Version 1.0</Text>
+    <Text style={styles.version}>DayMark mobile / Version 1.0</Text>
   </ScrollView>
   );
 };

@@ -1,6 +1,6 @@
-# StaffFlow
+# DayMark
 
-StaffFlow is a multi-tenant workforce and project-delivery system built as a BSCS final-year project. It combines role-based operations, auditable project/task workflows, verified attendance, configurable business modules, durable notifications, and an explainable constraint-aware project planner.
+DayMark is a multi-tenant workforce and project-delivery system built as a BSCS final-year project. It combines role-based operations, auditable project/task workflows, verified attendance, configurable business modules, durable notifications, and an explainable constraint-aware project planner.
 
 The planner is the research contribution: it turns requirements into a traceable, dependency-aware plan; schedules work against calendars and employee capacity; explains suggested assignees; flags infeasible plans; and requires a manager to approve or override every generated plan before tasks are created.
 

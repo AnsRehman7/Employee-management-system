@@ -1,7 +1,7 @@
 import { Platform } from 'react-native';
 
 /**
- * Mirrors the StaffFlow web palette so the app and the browser workspace read as one
+ * Mirrors the DayMark web palette so the app and the browser workspace read as one
  * product, including the dark theme. Roles are inverted rather than values flipped:
  * light tints become deep tints and dark accent text becomes light accent text.
  */

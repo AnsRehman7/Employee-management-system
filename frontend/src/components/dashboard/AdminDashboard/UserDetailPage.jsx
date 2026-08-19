@@ -171,7 +171,7 @@ const UserDetailPage = () => {
         <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_380px]">
           <div className="space-y-5">
             <section className="rounded-lg border border-slate-200 bg-white shadow-sm">
-            <div className="border-b border-slate-200 px-5 py-4"><div className="flex items-center gap-3"><span className="flex h-9 w-9 items-center justify-center rounded-lg bg-teal-100 text-teal-800"><FiUser className="h-4 w-4" /></span><div><h2 className="text-base font-bold text-slate-950">Profile information</h2><p className="text-sm text-slate-500">Identity and team details used throughout StaffFlow.</p></div></div></div>
+            <div className="border-b border-slate-200 px-5 py-4"><div className="flex items-center gap-3"><span className="flex h-9 w-9 items-center justify-center rounded-lg bg-teal-100 text-teal-800"><FiUser className="h-4 w-4" /></span><div><h2 className="text-base font-bold text-slate-950">Profile information</h2><p className="text-sm text-slate-500">Identity and team details used throughout DayMark.</p></div></div></div>
             <div className="space-y-5 p-5">
               <label className="block"><span className="flex items-center gap-2 text-sm font-bold text-slate-700"><FiUser className="h-4 w-4 text-slate-400" />Full name</span><input className={fieldClass} disabled={!canEdit} maxLength="120" name="fullName" onChange={handleChange} required value={formData.fullName} /></label>
               <label className="block"><span className="text-sm font-bold text-slate-700">Avatar URL</span><input className={fieldClass} disabled={!canEdit} maxLength="2048" name="avatarUrl" onChange={handleChange} placeholder="https://..." type="url" value={formData.avatarUrl} /></label>

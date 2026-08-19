@@ -183,7 +183,7 @@ const AppShell = ({ children, subtitle = "", title = "Workspace" }) => {
     navigate(query ? `/tasks?search=${encodeURIComponent(query)}` : "/tasks");
   };
 
-  const workspaceName = user?.organization?.name || "StaffFlow";
+  const workspaceName = user?.organization?.name || "DayMark";
   const userName = user?.name || "Team member";
   const homePath = dashboardForUser(user);
   const settingsAreaActive =
@@ -216,13 +216,13 @@ const AppShell = ({ children, subtitle = "", title = "Workspace" }) => {
       <aside className={`fixed inset-y-0 left-0 z-40 hidden flex-col border-r border-slate-200 bg-surface transition-[width] duration-200 lg:flex ${sidebarCollapsed ? "w-20" : "w-72"}`}>
         <div className={`flex h-16 shrink-0 items-center border-b border-slate-200 ${sidebarCollapsed ? "px-2" : "px-4"}`}>
           <div className="flex w-full items-center justify-between">
-            <NavLink className={`flex min-w-0 items-center ${sidebarCollapsed ? "" : "gap-3"}`} title={sidebarCollapsed ? "StaffFlow" : undefined} to={homePath}>
+            <NavLink className={`flex min-w-0 items-center ${sidebarCollapsed ? "" : "gap-3"}`} title={sidebarCollapsed ? "DayMark" : undefined} to={homePath}>
               <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-emerald-700 text-sm font-bold text-white shadow-sm shadow-emerald-200">
                 SF
               </span>
               {!sidebarCollapsed && (
                 <div className="min-w-0">
-                  <p className="truncate text-sm font-bold text-slate-950">StaffFlow</p>
+                  <p className="truncate text-sm font-bold text-slate-950">DayMark</p>
                   <p className="mt-0.5 text-[10px] font-semibold uppercase text-slate-500">Work intelligence</p>
                 </div>
               )}

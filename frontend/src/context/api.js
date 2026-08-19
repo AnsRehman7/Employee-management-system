@@ -55,7 +55,7 @@ const fetchRequest = async (path, options, forceRefresh = false) => {
       throw new Error("The server took too long to respond. Please try again.");
     }
 
-    throw new Error(`Unable to reach the StaffFlow API at ${API_BASE_URL}.`);
+    throw new Error(`Unable to reach the DayMark API at ${API_BASE_URL}.`);
   } finally {
     window.clearTimeout(timeout);
   }

@@ -2,13 +2,13 @@ import { environment } from '../config';
 
 const firebaseMessages = {
   CREDENTIAL_MISMATCH: 'This sign-in code was issued for a different workspace.',
-  EMAIL_NOT_FOUND: 'No StaffFlow login was found for this email.',
+  EMAIL_NOT_FOUND: 'No DayMark login was found for this email.',
   INVALID_CUSTOM_TOKEN: 'This sign-in code is no longer valid. Request a new one.',
   INVALID_EMAIL: 'Enter a valid email address.',
   TOKEN_EXPIRED: 'This sign-in code expired. Request a new one.',
   TOO_MANY_ATTEMPTS_TRY_LATER:
     'Too many sign-in attempts. Wait a moment and try again.',
-  USER_DISABLED: 'This StaffFlow account is disabled.',
+  USER_DISABLED: 'This DayMark account is disabled.',
 };
 
 const firebaseError = payload =>
@@ -16,7 +16,7 @@ const firebaseError = payload =>
   'Unable to sign in. Please try again.';
 
 /**
- * Exchanges the custom token minted by the StaffFlow API after a verified email
+ * Exchanges the custom token minted by the DayMark API after a verified email
  * code for a normal Firebase session. Attendance scans keep using the resulting
  * ID token exactly as before.
  */

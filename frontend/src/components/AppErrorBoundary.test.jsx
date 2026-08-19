@@ -15,6 +15,6 @@ it("shows a recoverable fallback when a screen crashes", () => {
   );
 
   expect(screen.getByRole("heading", { name: /unexpected error/i })).toBeInTheDocument();
-  expect(screen.getByRole("button", { name: /reload staffflow/i })).toBeInTheDocument();
+  expect(screen.getByRole("button", { name: /reload daymark/i })).toBeInTheDocument();
   consoleSpy.mockRestore();
 });

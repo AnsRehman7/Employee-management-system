@@ -44,7 +44,7 @@ export const requestStaffFlow = async (
         const error = new Error(
           payload?.error?.message ||
             payload?.message ||
-            'StaffFlow could not complete this request.',
+            'DayMark could not complete this request.',
         );
         error.status = response.status;
         throw error;
@@ -67,7 +67,7 @@ export const requestStaffFlow = async (
 
   if (lastError?.name === 'AbortError') {
     throw new Error(
-      'StaffFlow took too long to respond. Check your connection and try again.',
+      'DayMark took too long to respond. Check your connection and try again.',
     );
   }
   throw lastError;

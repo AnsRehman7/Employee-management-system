@@ -47,7 +47,7 @@ export const formatHours = value => {
 };
 
 export const initialsFor = value =>
-  String(value || 'StaffFlow')
+  String(value || 'DayMark')
     .split(/\s+/)
     .filter(Boolean)
     .slice(0, 2)

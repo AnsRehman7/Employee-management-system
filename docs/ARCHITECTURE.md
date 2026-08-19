@@ -2,7 +2,7 @@
 
 ## System Boundaries
 
-StaffFlow has three clients but one source of business truth. Firebase proves identity; the Express API resolves that identity to a PostgreSQL user and organization, enforces permissions, and owns every workflow transition. The browser and mobile app never receive database credentials or Firebase Admin material.
+DayMark has three clients but one source of business truth. Firebase proves identity; the Express API resolves that identity to a PostgreSQL user and organization, enforces permissions, and owns every workflow transition. The browser and mobile app never receive database credentials or Firebase Admin material.
 
 ```text
 React web ---- Firebase Auth ---- Google/Firebase

@@ -10,7 +10,7 @@ import {
 } from "react-icons/fi";
 
 /**
- * Miniature renderings of real StaffFlow screens, drawn in markup rather than shipped
+ * Miniature renderings of real DayMark screens, drawn in markup rather than shipped
  * as screenshots. They stay sharp at any size, follow the active theme, and cost
  * nothing to download. Every one is fixed-height so a hero can never overflow.
  */

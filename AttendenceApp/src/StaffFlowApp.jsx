@@ -114,7 +114,7 @@ const requestLocationPermission = async () => {
       buttonNegative: 'Not now',
       buttonPositive: 'Allow',
       message:
-        'StaffFlow checks your current location only when you use mobile attendance.',
+        'DayMark checks your current location only when you use mobile attendance.',
       title: 'Allow office location check',
     },
   );
@@ -414,7 +414,7 @@ const StaffFlowApp = () => {
 
   const handleRequestCode = useCallback(async () => {
     if (!email.trim()) {
-      showNotice('Enter your StaffFlow email.', 'error');
+      showNotice('Enter your DayMark email.', 'error');
       return;
     }
     if (configurationIssue) {
@@ -459,7 +459,7 @@ const StaffFlowApp = () => {
       setSignInCode('');
       setSignInStep('email');
       await loadWorkspace({ sourceSession: nextSession });
-      showNotice('Welcome back to StaffFlow.', 'success');
+      showNotice('Welcome back to DayMark.', 'success');
     } catch (error) {
       setSignInCode('');
       showNotice(getErrorMessage(error), 'error');
@@ -475,7 +475,7 @@ const StaffFlowApp = () => {
         const url = `${environment.webBaseUrl}${path}`;
         const supported = await Linking.canOpenURL(url);
         if (!supported) {
-          throw new Error('The StaffFlow web link is unavailable.');
+          throw new Error('The DayMark web link is unavailable.');
         }
         await Linking.openURL(url);
       } catch (error) {
@@ -503,7 +503,7 @@ const StaffFlowApp = () => {
       ) {
         await openLocationSettings();
         throw new Error(
-          'Turn on Location, return to StaffFlow, then check in again.',
+          'Turn on Location, return to DayMark, then check in again.',
         );
       }
       if (error?.code === 3 || /timed? ?out/i.test(error?.message || '')) {
@@ -740,7 +740,7 @@ const StaffFlowApp = () => {
 
   const requestSignOut = useCallback(() => {
     Alert.alert(
-      'Sign out of StaffFlow?',
+      'Sign out of DayMark?',
       'You will need your company credentials to sign in again.',
       [
         { style: 'cancel', text: 'Cancel' },
@@ -861,7 +861,7 @@ const StaffFlowApp = () => {
       <SafeAreaProvider>
         <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} backgroundColor={colors.canvas} />
         <SafeAreaView edges={['top', 'bottom']} style={styles.safeArea}>
-          <LoadingState label="Opening StaffFlow" />
+          <LoadingState label="Opening DayMark" />
         </SafeAreaView>
       </SafeAreaProvider>
     );

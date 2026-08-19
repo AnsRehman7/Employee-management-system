@@ -2,7 +2,7 @@ self.addEventListener("push", (event) => {
   const payload = event.data?.json?.() || {};
   const notification = payload.notification || {};
   const data = payload.data || {};
-  const title = notification.title || data.title || "StaffFlow";
+  const title = notification.title || data.title || "DayMark";
   const actionUrl = data.actionUrl || "/";
 
   event.waitUntil(

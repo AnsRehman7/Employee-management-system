@@ -211,7 +211,7 @@ const WorkspaceSettingsPage = () => {
           <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_360px]">
             <div className="space-y-5">
               <section className="rounded-lg border border-slate-200 bg-white shadow-sm">
-                <div className="border-b border-slate-200 px-5 py-4"><div className="flex items-center gap-3"><span className="flex h-9 w-9 items-center justify-center rounded-lg bg-teal-100 text-teal-800"><FiBriefcase className="h-4 w-4" /></span><div><h2 className="text-base font-bold text-slate-950">Workspace identity</h2><p className="text-sm text-slate-500">The organization name displayed throughout StaffFlow.</p></div></div></div>
+                <div className="border-b border-slate-200 px-5 py-4"><div className="flex items-center gap-3"><span className="flex h-9 w-9 items-center justify-center rounded-lg bg-teal-100 text-teal-800"><FiBriefcase className="h-4 w-4" /></span><div><h2 className="text-base font-bold text-slate-950">Workspace identity</h2><p className="text-sm text-slate-500">The organization name displayed throughout DayMark.</p></div></div></div>
                 <div className="grid gap-5 p-5 md:grid-cols-2"><label className="block"><span className="text-sm font-bold text-slate-700">Workspace name</span><input className={fieldClass} maxLength="160" name="name" onChange={handleChange} required value={form.name} /></label><label className="block"><span className="text-sm font-bold text-slate-700">Workspace slug</span><input className={`${fieldClass} cursor-not-allowed text-slate-500`} disabled value={organization.slug} /></label></div>
               </section>
 

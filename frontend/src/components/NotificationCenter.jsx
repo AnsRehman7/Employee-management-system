@@ -142,7 +142,7 @@ const NotificationCenter = () => {
           </div>
 
           {desktopPermission === "default" && (
-            <button className="flex w-full items-center gap-3 border-b border-emerald-100 bg-emerald-50 px-4 py-3 text-left transition hover:bg-emerald-100" onClick={enableDesktopNotifications} type="button"><span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white text-emerald-800 ring-1 ring-emerald-200"><FiBell className="h-4 w-4" /></span><span><span className="block text-xs font-bold text-emerald-950">Enable desktop alerts</span><span className="mt-0.5 block text-xs text-emerald-800">Show new StaffFlow activity in Windows.</span></span></button>
+            <button className="flex w-full items-center gap-3 border-b border-emerald-100 bg-emerald-50 px-4 py-3 text-left transition hover:bg-emerald-100" onClick={enableDesktopNotifications} type="button"><span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white text-emerald-800 ring-1 ring-emerald-200"><FiBell className="h-4 w-4" /></span><span><span className="block text-xs font-bold text-emerald-950">Enable desktop alerts</span><span className="mt-0.5 block text-xs text-emerald-800">Show new DayMark activity in Windows.</span></span></button>
           )}
 
           {error && <p aria-live="polite" className="border-b border-rose-100 bg-rose-50 px-4 py-2 text-xs font-semibold text-rose-700">{error}</p>}

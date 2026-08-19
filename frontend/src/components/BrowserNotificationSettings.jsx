@@ -74,8 +74,8 @@ const BrowserNotificationSettings = () => {
       await showBrowserNotification({
         actionUrl: "/settings#notifications",
         id: `staffflow-test-${Date.now()}`,
-        message: "Native StaffFlow alerts are working on this device.",
-        title: "StaffFlow notification test",
+        message: "Native DayMark alerts are working on this device.",
+        title: "DayMark notification test",
       });
       setMessage("Test notification sent.");
     } catch {

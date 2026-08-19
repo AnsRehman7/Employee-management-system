@@ -2,7 +2,7 @@
 
 ## Trust Model
 
-Browser and mobile clients are untrusted. Firebase authenticates a person, but StaffFlow authorization, tenancy, workflow transitions, attendance acceptance, and AI approval happen in the API. PostgreSQL, Firebase Admin, Groq, cron, signing, and push credentials are server/CI secrets.
+Browser and mobile clients are untrusted. Firebase authenticates a person, but DayMark authorization, tenancy, workflow transitions, attendance acceptance, and AI approval happen in the API. PostgreSQL, Firebase Admin, Groq, cron, signing, and push credentials are server/CI secrets.
 
 Primary threats are cross-tenant access, broken role checks, stolen tokens, leaked service credentials, task/plan tampering, attendance replay or location spoofing, prompt injection, abusive traffic, and notification data exposure.
 
