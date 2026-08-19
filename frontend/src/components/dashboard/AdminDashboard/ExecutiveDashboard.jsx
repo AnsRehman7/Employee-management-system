@@ -66,7 +66,7 @@ const DonutChart = ({ centerLabel, centerValue, segments }) => {
     <div className="flex items-center gap-5">
       <div className="relative h-36 w-36 shrink-0">
         <svg className="h-full w-full -rotate-90" viewBox="0 0 100 100">
-          <circle cx="50" cy="50" fill="none" r="38" stroke="#e5e7eb" strokeWidth="12" />
+          <circle className="text-slate-200" cx="50" cy="50" fill="none" r="38" stroke="currentColor" strokeWidth="12" />
           {segments.map((segment) => {
             const size = (segment.value / total) * 100;
             const dashOffset = -offset;
@@ -109,32 +109,117 @@ const DonutChart = ({ centerLabel, centerValue, segments }) => {
   );
 };
 
+/**
+ * Converts points into a smooth cubic path (Catmull-Rom to Bezier) so the series
+ * reads as a trend rather than a set of hard corners.
+ */
+const smoothPath = (coordinates) => {
+  if (coordinates.length < 2) return "";
+
+  return coordinates.reduce((path, point, index) => {
+    if (index === 0) return `M ${point.x} ${point.y}`;
+
+    const previous = coordinates[index - 1];
+    const beforePrevious = coordinates[index - 2] || previous;
+    const next = coordinates[index + 1] || point;
+
+    const controlOneX = previous.x + (point.x - beforePrevious.x) / 6;
+    const controlOneY = previous.y + (point.y - beforePrevious.y) / 6;
+    const controlTwoX = point.x - (next.x - previous.x) / 6;
+    const controlTwoY = point.y - (next.y - previous.y) / 6;
+
+    return `${path} C ${controlOneX} ${controlOneY}, ${controlTwoX} ${controlTwoY}, ${point.x} ${point.y}`;
+  }, "");
+};
+
 const TrendChart = ({ points }) => {
+  // A real aspect ratio in user units. The previous square viewBox was stretched with
+  // preserveAspectRatio="none", which distorted the stroke and flattened the markers
+  // into ovals.
+  const width = 760;
+  const height = 260;
+  const padding = { bottom: 28, left: 12, right: 12, top: 18 };
   const maxValue = Math.max(...points.map((point) => point.value), 1);
-  const coordinates = points.map((point, index) => {
-    const x = points.length === 1 ? 10 : 10 + (index / (points.length - 1)) * 80;
-    const y = 82 - (point.value / maxValue) * 58;
-    return { ...point, x, y };
-  });
-  const path = coordinates.map((point, index) => `${index === 0 ? "M" : "L"} ${point.x} ${point.y}`).join(" ");
-  const fillPath = `${path} L ${coordinates[coordinates.length - 1]?.x || 90} 86 L ${coordinates[0]?.x || 10} 86 Z`;
+  const plotHeight = height - padding.top - padding.bottom;
+  const plotWidth = width - padding.left - padding.right;
+
+  const coordinates = points.map((point, index) => ({
+    ...point,
+    x: points.length === 1 ? padding.left + plotWidth / 2 : padding.left + (index / (points.length - 1)) * plotWidth,
+    y: padding.top + plotHeight - (point.value / maxValue) * plotHeight,
+  }));
+
+  const line = smoothPath(coordinates);
+  const baseline = padding.top + plotHeight;
+  const area = line
+    ? `${line} L ${coordinates[coordinates.length - 1].x} ${baseline} L ${coordinates[0].x} ${baseline} Z`
+    : "";
+  const last = coordinates[coordinates.length - 1];
 
   return (
-    <div>
-      <svg className="h-64 w-full" preserveAspectRatio="none" viewBox="0 0 100 100">
+    <div className="text-emerald-600">
+      <svg
+        aria-label={`Completed task trend across ${points.length} months`}
+        className="h-56 w-full sm:h-64"
+        role="img"
+        viewBox={`0 0 ${width} ${height}`}
+      >
         <defs>
           <linearGradient id="trendFill" x1="0" x2="0" y1="0" y2="1">
-            <stop offset="0%" stopColor="#15803d" stopOpacity="0.22" />
-            <stop offset="100%" stopColor="#15803d" stopOpacity="0" />
+            <stop offset="0%" stopColor="currentColor" stopOpacity="0.28" />
+            <stop offset="100%" stopColor="currentColor" stopOpacity="0" />
           </linearGradient>
         </defs>
-        <path d={fillPath} fill="url(#trendFill)" />
-        <path d={path} fill="none" stroke="#15803d" strokeLinecap="round" strokeWidth="2.5" />
-        {coordinates.map((point) => (
-          <circle cx={point.x} cy={point.y} fill="#fff" key={point.label} r="2.6" stroke="#15803d" strokeWidth="2" />
-        ))}
+
+        {/* Reference lines give the curve a sense of scale without adding chrome. */}
+        {[0, 0.25, 0.5, 0.75, 1].map((step) => {
+          const y = padding.top + plotHeight * step;
+          return (
+            <line
+              className="text-slate-200"
+              key={step}
+              stroke="currentColor"
+              strokeDasharray={step === 1 ? undefined : "4 6"}
+              strokeWidth="1"
+              x1={padding.left}
+              x2={width - padding.right}
+              y1={y}
+              y2={y}
+            />
+          );
+        })}
+
+        {area && <path d={area} fill="url(#trendFill)" />}
+        {line && (
+          <path
+            d={line}
+            fill="none"
+            stroke="currentColor"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="2.5"
+          />
+        )}
+
+        {/* Only the latest point is marked, so the series stays readable. */}
+        {last && (
+          <>
+            <circle cx={last.x} cy={last.y} fill="currentColor" opacity="0.18" r="9" />
+            <circle
+              className="text-white"
+              cx={last.x}
+              cy={last.y}
+              fill="currentColor"
+              r="4"
+              stroke="currentColor"
+              strokeWidth="0"
+            />
+            <circle cx={last.x} cy={last.y} fill="none" r="4" stroke="currentColor" strokeWidth="2.5" />
+          </>
+        )}
       </svg>
-      <div className="grid grid-cols-7 gap-2 text-center text-xs font-bold text-slate-400">
+
+      <div className="grid gap-2 text-center text-xs font-bold text-slate-400" style={{ gridTemplateColumns: `repeat(${Math.max(points.length, 1)}, minmax(0, 1fr))` }}>
         {points.map((point) => (
           <span key={point.label}>{point.label}</span>
         ))}

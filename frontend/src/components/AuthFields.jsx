@@ -10,7 +10,7 @@ export const AuthField = ({ icon, label, ...inputProps }) => (
     <div className={`${shellClass} h-11`}>
       {icon && createElement(icon, { className: "h-[18px] w-[18px] shrink-0 text-slate-400" })}
       <input
-        className="min-w-0 flex-1 bg-transparent text-sm text-slate-950 outline-none placeholder:text-slate-400"
+        className="min-w-0 flex-1 bg-transparent text-sm text-slate-950 outline-none focus:outline-none focus-visible:outline-none placeholder:text-slate-400"
         {...inputProps}
       />
     </div>
@@ -26,7 +26,7 @@ export const AuthPasswordField = ({ icon, label, ...inputProps }) => {
       <div className={`${shellClass} h-11`}>
         {icon && createElement(icon, { className: "h-[18px] w-[18px] shrink-0 text-slate-400" })}
         <input
-          className="min-w-0 flex-1 bg-transparent text-sm text-slate-950 outline-none placeholder:text-slate-400"
+          className="min-w-0 flex-1 bg-transparent text-sm text-slate-950 outline-none focus:outline-none focus-visible:outline-none placeholder:text-slate-400"
           type={visible ? "text" : "password"}
           {...inputProps}
         />

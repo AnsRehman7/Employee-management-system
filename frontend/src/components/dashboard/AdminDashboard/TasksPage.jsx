@@ -6,7 +6,9 @@ import {
   FiCheckSquare,
   FiChevronRight,
   FiClock,
+  FiColumns,
   FiFlag,
+  FiList,
   FiPlus,
   FiRefreshCw,
   FiSliders,
@@ -18,6 +20,8 @@ import {
 import { Link, useSearchParams } from "react-router-dom";
 import Alert from "../../Alert";
 import { TableSkeleton } from "../../Skeleton";
+import TaskBoard from "./TaskBoard";
+import { useToast } from "../../../context/ToastContext";
 import AppShell from "../../AppShell";
 import Pagination from "../../Pagination";
 import { usePagination } from "../../../hooks/usePagination";
@@ -49,7 +53,9 @@ const priorityOrder = { high: 0, normal: 1, low: 2 };
 
 const TasksPage = () => {
   const { user } = useUser();
+  const toast = useToast();
   const [searchParams, setSearchParams] = useSearchParams();
+  const [view, setView] = useState(() => window.localStorage.getItem("staffflow.tasks-view") || "list");
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -60,6 +66,7 @@ const TasksPage = () => {
   }));
 
   const canCreateTasks = Boolean(user?.permissions?.canCreateTasks);
+  const canEditTasks = Boolean(user?.permissions?.canEditTasks);
   const canViewOrganizationWork = Boolean(user?.permissions?.canViewOrganizationWork);
 
   const loadTasks = useCallback(async ({ showLoading = false } = {}) => {
@@ -78,6 +85,33 @@ const TasksPage = () => {
   useEffect(() => {
     loadTasks({ showLoading: true });
   }, [loadTasks]);
+
+  useEffect(() => {
+    window.localStorage.setItem("staffflow.tasks-view", view);
+  }, [view]);
+
+  /**
+   * Applies the move immediately so the board feels direct, then reconciles with the
+   * server. A rejected change is rolled back rather than left looking successful.
+   */
+  const changeTaskStatus = useCallback(
+    async (task, status) => {
+      const previousStatus = task.status;
+      setTasks((current) => current.map((item) => (item.id === task.id ? { ...item, status } : item)));
+
+      try {
+        const { task: updated } = await api.updateTaskStatus(task.id, status, task.version);
+        setTasks((current) => current.map((item) => (item.id === task.id ? { ...item, ...updated } : item)));
+        toast.success("Task moved", `${task.title} is now ${status.replace(/_/g, " ")}.`);
+      } catch (requestError) {
+        setTasks((current) =>
+          current.map((item) => (item.id === task.id ? { ...item, status: previousStatus } : item)),
+        );
+        toast.error("Could not move task", formatApiError(requestError));
+      }
+    },
+    [toast],
+  );
 
   useEffect(() => {
     const query = searchParams.get("search") || "";
@@ -214,6 +248,27 @@ const TasksPage = () => {
               <p className="mt-0.5 text-xs text-slate-500">{filteredTasks.length} of {tasks.length} tasks in this view</p>
             </div>
             <div className="flex flex-wrap items-center gap-2">
+              <div className="flex rounded-lg border border-slate-200 bg-slate-50 p-0.5" role="group" aria-label="Task view">
+                {[
+                  ["list", "List", FiList],
+                  ["board", "Board", FiColumns],
+                ].map(([value, label, Icon]) => (
+                  <button
+                    aria-pressed={view === value}
+                    className={`inline-flex h-8 items-center gap-1.5 rounded-md px-2.5 text-xs font-bold transition ${
+                      view === value
+                        ? "bg-white text-emerald-800 shadow-sm"
+                        : "text-slate-500 hover:text-slate-800"
+                    }`}
+                    key={value}
+                    onClick={() => setView(value)}
+                    type="button"
+                  >
+                    {createElement(Icon, { className: "h-3.5 w-3.5" })}
+                    {label}
+                  </button>
+                ))}
+              </div>
               {filters.search && (
                 <span className="inline-flex h-9 max-w-full items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-3 text-xs font-bold text-emerald-800">
                   <span className="max-w-56 truncate">Search: {filters.search}</span>
@@ -272,6 +327,8 @@ const TasksPage = () => {
 
           {loading ? (
             <TableSkeleton label="Loading tasks" rows={6} />
+          ) : view === "board" ? (
+            <TaskBoard canEdit={canEditTasks} onStatusChange={changeTaskStatus} tasks={filteredTasks} />
           ) : filteredTasks.length === 0 ? (
             <div className="py-20 text-center">
               <FiSliders className="mx-auto h-8 w-8 text-slate-400" />
@@ -342,7 +399,7 @@ const TasksPage = () => {
             </>
           )}
 
-          {!loading && (
+          {!loading && view === "list" && (
             <Pagination
               firstItem={firstItem}
               itemLabel="tasks"

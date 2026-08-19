@@ -113,8 +113,8 @@ const AttendanceCorrections = ({ canManage }) => {
       <div className="grid items-start xl:grid-cols-[360px_minmax(0,1fr)]">
         <form className="space-y-4 border-b border-slate-200 p-4 xl:border-b-0 xl:border-r" onSubmit={submitRequest}>
           <Alert message={notice.message} type={notice.type} />
-          <div className="grid grid-cols-[1fr_130px] gap-3">
-            <label>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-[minmax(0,1fr)_minmax(120px,150px)]">
+            <label className="block min-w-0">
               <span className="text-xs font-bold text-slate-600">Date and time</span>
               <input
                 className={fieldClass}
@@ -125,7 +125,7 @@ const AttendanceCorrections = ({ canManage }) => {
                 value={form.requestedAt}
               />
             </label>
-            <label>
+            <label className="block min-w-0">
               <span className="text-xs font-bold text-slate-600">Event</span>
               <select
                 className={fieldClass}

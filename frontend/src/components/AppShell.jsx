@@ -207,8 +207,8 @@ const AppShell = ({ children, subtitle = "", title = "Workspace" }) => {
   return (
     <div className="min-h-screen bg-canvas text-slate-950">
       <aside className={`fixed inset-y-0 left-0 z-40 hidden flex-col border-r border-slate-200 bg-surface transition-[width] duration-200 lg:flex ${sidebarCollapsed ? "w-20" : "w-72"}`}>
-        <div className={`border-b border-slate-200 ${sidebarCollapsed ? "p-2" : "p-4"}`}>
-          <div className="flex items-center justify-between">
+        <div className={`flex h-16 shrink-0 items-center border-b border-slate-200 ${sidebarCollapsed ? "px-2" : "px-4"}`}>
+          <div className="flex w-full items-center justify-between">
             <NavLink className={`flex min-w-0 items-center ${sidebarCollapsed ? "" : "gap-3"}`} title={sidebarCollapsed ? "StaffFlow" : undefined} to={homePath}>
               <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-emerald-700 text-sm font-bold text-white shadow-sm shadow-emerald-200">
                 SF
@@ -274,19 +274,15 @@ const AppShell = ({ children, subtitle = "", title = "Workspace" }) => {
 
       <div className={`transition-[padding] duration-200 ${sidebarCollapsed ? "lg:pl-20" : "lg:pl-72"}`}>
         <header className="sticky top-0 z-30 border-b border-slate-200 bg-surface/95 backdrop-blur-xl">
-          <div className="mx-auto max-w-[1540px] px-4 py-4 sm:px-6 lg:px-8">
-            <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
-              <div className="min-w-0">
-                <div className="mb-2 flex items-center gap-2 lg:hidden">
-                  <span className="flex h-8 w-8 items-center justify-center rounded-md bg-emerald-700 text-xs font-bold text-white">
-                    SF
-                  </span>
-                  <span className="text-sm font-bold text-slate-950">StaffFlow</span>
-                </div>
-                <p className="text-xs font-bold uppercase text-emerald-700">{workspaceName}</p>
-                <h1 className="mt-1 text-xl font-bold text-slate-950 sm:text-2xl">{title}</h1>
-                {subtitle && <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-500">{subtitle}</p>}
-              </div>
+          <div className="mx-auto flex h-16 max-w-[1540px] items-center gap-3 px-4 sm:px-6 lg:px-8">
+            <div className="flex min-w-0 flex-1 items-center gap-2">
+              <span className="flex h-8 w-8 items-center justify-center rounded-md bg-emerald-700 text-xs font-bold text-white lg:hidden">
+                SF
+              </span>
+              <p className="truncate text-sm font-bold text-slate-950 lg:text-xs lg:font-bold lg:uppercase lg:tracking-wide lg:text-emerald-700">
+                {workspaceName}
+              </p>
+            </div>
 
               <div className="flex min-w-0 items-center gap-3">
                 <form className="hidden h-10 w-[280px] items-center gap-3 rounded-md border border-slate-200 bg-canvas px-3 text-sm text-slate-500 focus-within:border-emerald-300 focus-within:bg-white focus-within:ring-4 focus-within:ring-emerald-100 xl:flex" onSubmit={handleGlobalSearch}>
@@ -341,23 +337,27 @@ const AppShell = ({ children, subtitle = "", title = "Workspace" }) => {
                   {initialsFor(userName)}
                 </NavLink>
               </div>
-            </div>
+          </div>
 
-            {navItems.length > 0 && (
-              <nav className="mt-4 flex gap-2 overflow-x-auto pb-1 lg:hidden">
-                {navItems.map((item) => renderNavLink(item))}
-              </nav>
-            )}
+          {navItems.length > 0 && (
+            <nav className="mx-auto flex max-w-[1540px] gap-2 overflow-x-auto px-4 pb-2 sm:px-6 lg:hidden">
+              {navItems.map((item) => renderNavLink(item))}
+            </nav>
+          )}
+        </header>
 
+        <main className="mx-auto max-w-[1540px] px-4 py-6 sm:px-6 lg:px-8">
+          <div className="mb-5">
+            <h1 className="text-xl font-bold text-slate-950 sm:text-2xl">{title}</h1>
+            {subtitle && <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-500">{subtitle}</p>}
             {error && (
               <div className="mt-4">
                 <Alert message={error} type="error" />
               </div>
             )}
           </div>
-        </header>
-
-        <main className="mx-auto max-w-[1540px] px-4 py-6 sm:px-6 lg:px-8">{children}</main>
+          {children}
+        </main>
       </div>
 
       <CommandPalette customModules={customModules} onClose={() => setPaletteOpen(false)} open={paletteOpen} />

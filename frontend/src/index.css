@@ -58,7 +58,6 @@
 
   --color-canvas: #0b1220;
   --color-surface: #131b2c;
-  --color-white: #151e30;
 
   --color-slate-50: #1b2436;
   --color-slate-100: #212b40;
@@ -131,6 +130,24 @@
   --color-violet-800: #c4b5fd;
   --color-violet-900: #ddd6fe;
   --color-violet-950: #ede9fe;
+}
+
+/*
+ * `bg-white` is the card surface across the app, so it is remapped on its own rather
+ * than through `--color-white`. That keeps `text-white`, `border-white`, `ring-white`
+ * and the translucent `bg-white/N` overlays genuinely white, which is what they mean
+ * when they sit on a coloured or always-dark background.
+ *
+ * The interaction variants are listed explicitly: Tailwind compiles `focus:bg-white`
+ * to its own class, so remapping `.bg-white` alone left inputs flashing pure white on
+ * focus and nav items flashing a white block on hover.
+ */
+:root[data-theme="dark"] .bg-white,
+:root[data-theme="dark"] .hover\:bg-white:hover,
+:root[data-theme="dark"] .focus\:bg-white:focus,
+:root[data-theme="dark"] .focus-within\:bg-white:focus-within,
+:root[data-theme="dark"] .group:hover .group-hover\:bg-white {
+  background-color: #151e30;
 }
 
 html {

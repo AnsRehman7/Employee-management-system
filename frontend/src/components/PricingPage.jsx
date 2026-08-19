@@ -47,7 +47,7 @@ const PricingPage = () => {
         <div className="flex items-center gap-3">
           <ThemeToggle />
           <button
-            className="rounded-lg px-4 py-2 text-sm font-bold text-slate-600 transition hover:bg-white hover:text-emerald-800"
+            className="rounded-lg px-4 py-2 text-sm font-bold text-slate-600 transition hover:text-emerald-800"
             onClick={() => navigate("/login")}
             type="button"
           >
