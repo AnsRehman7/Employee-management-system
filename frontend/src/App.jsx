@@ -23,6 +23,7 @@ const ProjectDetailPage = lazy(() => import("./components/dashboard/AdminDashboa
 const ProjectPlannerPage = lazy(() => import("./components/dashboard/AdminDashboard/ProjectPlannerPage"));
 const ProjectsIndexPage = lazy(() => import("./components/dashboard/AdminDashboard/ProjectsIndexPage"));
 const ReportsPage = lazy(() => import("./components/dashboard/AdminDashboard/ReportsPage"));
+const CalendarPage = lazy(() => import("./components/CalendarPage"));
 const RolesPage = lazy(() => import("./components/RolesPage"));
 const TaskCreatePage = lazy(() => import("./components/dashboard/AdminDashboard/TaskCreatePage"));
 const TaskDetailPage = lazy(() => import("./components/dashboard/AdminDashboard/TaskDetailPage"));
@@ -235,6 +236,14 @@ function App() {
           element={
             <RequireAuth allowedRoles={authenticatedRoles}>
               <WorkspaceSettingsPage />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/calendar"
+          element={
+            <RequireAuth>
+              <CalendarPage />
             </RequireAuth>
           }
         />

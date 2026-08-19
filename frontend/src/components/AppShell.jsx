@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import {
   FiBriefcase,
   FiBarChart2,
+  FiCalendar,
   FiCheckSquare,
   FiChevronsLeft,
   FiChevronsRight,
@@ -139,6 +140,12 @@ const AppShell = ({ children, subtitle = "", title = "Workspace" }) => {
           label: "Attendance",
           section: "People and time",
           to: "/attendance",
+        },
+        user && {
+          icon: <FiCalendar className="h-4 w-4" />,
+          label: "Calendar",
+          section: "People and time",
+          to: "/calendar",
         },
         ...customModules.map((module) => ({
           icon: <FiDatabase className="h-4 w-4" />,

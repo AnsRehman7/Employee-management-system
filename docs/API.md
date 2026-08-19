@@ -39,6 +39,7 @@ The same identifier is returned as `X-Request-Id`. Include it in support reports
 | `/tasks` | Filter/list/stats, create, detail, update, status transition, soft-delete |
 | `/tasks/:id` | Time logs, comments/mentions, attachments, watchers, activity timeline |
 | `/attendance` | Issue challenge, list offices/scans, daily summary register, submit verified scan, corrections/review |
+| `/meetings` | Schedule, update, cancel, respond, and the attendance-overlaid calendar |
 | `/users` | Directory, detail, create, profile/status/permission administration |
 | `/roles` | Workspace role catalogue: list, create, update, delete custom roles |
 | `/workspace` | Workspace settings and office geofence administration |
@@ -57,6 +58,16 @@ Codes are persisted only as an HMAC-SHA256 digest keyed by `OTP_SECRET`, never i
 Sessions last `SESSION_MAX_DAYS` (default 3). Because Firebase ID tokens expire hourly and refresh silently, the limit is enforced against the token's `auth_time` — the original sign-in, which refreshing does not advance — so a client cannot extend a session by refreshing. Past the limit the API returns `401` and the client must sign in with a new code.
 
 Sign-in method is enforced server-side on every authenticated request: `custom` (email code) is the normal path, `password` is accepted **only** for a super admin as break-glass access when email delivery is unavailable, and every other provider is rejected. Existing password or Google sessions therefore stop working for regular members as soon as this is deployed.
+
+## Meetings Contract
+
+Any member may organize a meeting and answer their own invitations. Editing or cancelling **someone else's** meeting requires `meetings.manage`, held by default by super admin, admin, manager, and HR. Members without it see only meetings they organize or are invited to; holders see the whole workspace calendar.
+
+`POST /meetings` returns `{ meeting, conflicts }`. Conflicts list attendees who already have a `SCHEDULED` meeting overlapping the slot, using a half-open comparison (`endsAt > start AND startsAt < end`) so back-to-back meetings do not collide. **A conflict is reported, never blocking** — double-booking is sometimes deliberate and only the organizer knows.
+
+Rescheduling resets every other attendee's response to `INVITED`, since an answer to the old time says nothing about the new one. The organizer is always an attendee and is auto-accepted.
+
+`GET /meetings/calendar` returns the day grid: meetings plus `isWorkingDay`, `isHoliday`, and `presentCount` drawn from accepted attendance scans, all resolved in the workspace timezone through the same helpers the attendance register uses. Members without `attendance.view_all` see only their own presence reflected there.
 
 ## Roles Contract
 

@@ -2,6 +2,7 @@ import { createElement, useCallback, useEffect, useMemo, useRef, useState } from
 import {
   FiBarChart2,
   FiBriefcase,
+  FiCalendar,
   FiCheckSquare,
   FiClock,
   FiCornerDownLeft,
@@ -55,6 +56,7 @@ const CommandPalette = ({ customModules = [], onClose, open }) => {
       { group: "Go to", icon: FiCheckSquare, label: "Tasks", to: "/tasks", when: true },
       { group: "Go to", icon: FiBriefcase, label: "Projects", to: "/projects", when: true },
       { group: "Go to", icon: FiClock, label: "Attendance", to: "/attendance", when: true },
+      { group: "Go to", icon: FiCalendar, label: "Calendar", to: "/calendar", when: true },
       { group: "Go to", icon: FiUsers, label: "Team members", to: "/users", when: permissions.canViewUsers },
       { group: "Go to", icon: FiFileText, label: "Audit log", to: "/audit", when: permissions.canViewAudit },
       ...customModules.map((module) => ({
@@ -68,6 +70,7 @@ const CommandPalette = ({ customModules = [], onClose, open }) => {
       { group: "Create", icon: FiPlus, label: "New task", to: "/tasks/new", when: permissions.canCreateTasks },
       { group: "Create", icon: FiPlus, label: "New project", to: "/projects/new", when: permissions.canCreateProjects },
       { group: "Create", icon: FiPlus, label: "New team member", to: "/users/new", when: permissions.canManageUsers },
+      { group: "Create", icon: FiCalendar, label: "New meeting", to: "/calendar", when: true },
 
       { group: "Settings", icon: FiUser, label: "Profile", to: "/profile", when: true },
       { group: "Settings", icon: FiSettings, label: "Workspace settings", to: "/settings", when: true },

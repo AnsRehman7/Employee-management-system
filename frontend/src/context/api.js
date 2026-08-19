@@ -143,6 +143,13 @@ export const api = {
   getOverviewReport: (days = 30) => request(withQuery("/reports/overview", { days })),
   getPermissionCatalog: () => request("/users/permissions/catalog"),
   getRoles: () => request("/roles"),
+  getCalendar: (filters = {}) => request(withQuery("/meetings/calendar", filters)),
+  getMeetings: (filters = {}) => request(withQuery("/meetings", filters)),
+  createMeeting: (payload) => request("/meetings", { body: payload, method: "POST" }),
+  updateMeeting: (meetingId, payload) => request(`/meetings/${meetingId}`, { body: payload, method: "PATCH" }),
+  cancelMeeting: (meetingId) => request(`/meetings/${meetingId}`, { method: "DELETE" }),
+  respondToMeeting: (meetingId, response) =>
+    request(`/meetings/${meetingId}/respond`, { body: { response }, method: "POST" }),
   createRole: (payload) => request("/roles", { body: payload, method: "POST" }),
   updateRole: (roleId, payload) => request(`/roles/${roleId}`, { body: payload, method: "PATCH" }),
   deleteRole: (roleId) => request(`/roles/${roleId}`, { method: "DELETE" }),
