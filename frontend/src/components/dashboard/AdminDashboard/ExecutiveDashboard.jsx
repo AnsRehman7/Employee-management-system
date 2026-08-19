@@ -16,6 +16,15 @@ import Alert from "../../Alert";
 import { api, formatApiError } from "../../../context/api";
 import { useUser } from "../../../context/UserContext";
 import { labelForValue } from "./workUtils";
+import {
+  areaPath,
+  CHART_HEIGHT,
+  CHART_PADDING,
+  CHART_WIDTH,
+  gridLines,
+  smoothPath,
+  toCoordinates,
+} from "./chartUtils";
 
 const monthFormatter = new Intl.DateTimeFormat("en", { month: "short" });
 const dayFormatter = new Intl.DateTimeFormat("en", {
@@ -109,52 +118,14 @@ const DonutChart = ({ centerLabel, centerValue, segments }) => {
   );
 };
 
-/**
- * Converts points into a smooth cubic path (Catmull-Rom to Bezier) so the series
- * reads as a trend rather than a set of hard corners.
- */
-const smoothPath = (coordinates) => {
-  if (coordinates.length < 2) return "";
-
-  return coordinates.reduce((path, point, index) => {
-    if (index === 0) return `M ${point.x} ${point.y}`;
-
-    const previous = coordinates[index - 1];
-    const beforePrevious = coordinates[index - 2] || previous;
-    const next = coordinates[index + 1] || point;
-
-    const controlOneX = previous.x + (point.x - beforePrevious.x) / 6;
-    const controlOneY = previous.y + (point.y - beforePrevious.y) / 6;
-    const controlTwoX = point.x - (next.x - previous.x) / 6;
-    const controlTwoY = point.y - (next.y - previous.y) / 6;
-
-    return `${path} C ${controlOneX} ${controlOneY}, ${controlTwoX} ${controlTwoY}, ${point.x} ${point.y}`;
-  }, "");
-};
-
 const TrendChart = ({ points }) => {
-  // A real aspect ratio in user units. The previous square viewBox was stretched with
-  // preserveAspectRatio="none", which distorted the stroke and flattened the markers
-  // into ovals.
-  const width = 760;
-  const height = 260;
-  const padding = { bottom: 28, left: 12, right: 12, top: 18 };
   const maxValue = Math.max(...points.map((point) => point.value), 1);
-  const plotHeight = height - padding.top - padding.bottom;
-  const plotWidth = width - padding.left - padding.right;
-
-  const coordinates = points.map((point, index) => ({
+  const coordinates = toCoordinates(points.map((point) => point.value), maxValue).map((point, index) => ({
     ...point,
-    x: points.length === 1 ? padding.left + plotWidth / 2 : padding.left + (index / (points.length - 1)) * plotWidth,
-    y: padding.top + plotHeight - (point.value / maxValue) * plotHeight,
+    label: points[index].label,
   }));
-
   const line = smoothPath(coordinates);
-  const baseline = padding.top + plotHeight;
-  const area = line
-    ? `${line} L ${coordinates[coordinates.length - 1].x} ${baseline} L ${coordinates[0].x} ${baseline} Z`
-    : "";
-  const last = coordinates[coordinates.length - 1];
+  const last = coordinates.at(-1);
 
   return (
     <div className="text-emerald-600">
@@ -162,7 +133,7 @@ const TrendChart = ({ points }) => {
         aria-label={`Completed task trend across ${points.length} months`}
         className="h-56 w-full sm:h-64"
         role="img"
-        viewBox={`0 0 ${width} ${height}`}
+        viewBox={`0 0 ${CHART_WIDTH} ${CHART_HEIGHT}`}
       >
         <defs>
           <linearGradient id="trendFill" x1="0" x2="0" y1="0" y2="1">
@@ -171,55 +142,42 @@ const TrendChart = ({ points }) => {
           </linearGradient>
         </defs>
 
-        {/* Reference lines give the curve a sense of scale without adding chrome. */}
-        {[0, 0.25, 0.5, 0.75, 1].map((step) => {
-          const y = padding.top + plotHeight * step;
-          return (
-            <line
-              className="text-slate-200"
-              key={step}
-              stroke="currentColor"
-              strokeDasharray={step === 1 ? undefined : "4 6"}
-              strokeWidth="1"
-              x1={padding.left}
-              x2={width - padding.right}
-              y1={y}
-              y2={y}
-            />
-          );
-        })}
-
-        {area && <path d={area} fill="url(#trendFill)" />}
-        {line && (
-          <path
-            d={line}
-            fill="none"
+        {gridLines.map(({ key, y }) => (
+          <line
+            className="text-slate-200"
+            key={key}
             stroke="currentColor"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2.5"
+            strokeDasharray={key === 1 ? undefined : "4 6"}
+            strokeWidth="1"
+            x1={CHART_PADDING.left}
+            x2={CHART_WIDTH - CHART_PADDING.right}
+            y1={y}
+            y2={y}
           />
-        )}
+        ))}
 
-        {/* Only the latest point is marked, so the series stays readable. */}
+        <path d={areaPath(line, coordinates)} fill="url(#trendFill)" />
+        <path
+          d={line}
+          fill="none"
+          stroke="currentColor"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="2.5"
+        />
+
         {last && (
           <>
             <circle cx={last.x} cy={last.y} fill="currentColor" opacity="0.18" r="9" />
-            <circle
-              className="text-white"
-              cx={last.x}
-              cy={last.y}
-              fill="currentColor"
-              r="4"
-              stroke="currentColor"
-              strokeWidth="0"
-            />
-            <circle cx={last.x} cy={last.y} fill="none" r="4" stroke="currentColor" strokeWidth="2.5" />
+            <circle cx={last.x} cy={last.y} fill="currentColor" r="4" />
           </>
         )}
       </svg>
 
-      <div className="grid gap-2 text-center text-xs font-bold text-slate-400" style={{ gridTemplateColumns: `repeat(${Math.max(points.length, 1)}, minmax(0, 1fr))` }}>
+      <div
+        className="grid gap-2 text-center text-xs font-bold text-slate-400"
+        style={{ gridTemplateColumns: `repeat(${Math.max(points.length, 1)}, minmax(0, 1fr))` }}
+      >
         {points.map((point) => (
           <span key={point.label}>{point.label}</span>
         ))}

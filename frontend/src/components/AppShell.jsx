@@ -229,7 +229,7 @@ const AppShell = ({ children, subtitle = "", title = "Workspace" }) => {
             </NavLink>
             <button
               aria-label={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-slate-500 transition hover:bg-emerald-50 hover:text-emerald-800"
+              className="-mr-1.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-slate-400 transition"
               onClick={() => setSidebarCollapsed((current) => !current)}
               title={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
               type="button"

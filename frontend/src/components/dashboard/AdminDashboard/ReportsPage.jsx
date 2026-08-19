@@ -19,6 +19,15 @@ import AppShell from "../../AppShell";
 import { CardSkeleton } from "../../Skeleton";
 import { api, formatApiError } from "../../../context/api";
 import { labelForValue } from "./workUtils";
+import {
+  areaPath,
+  CHART_HEIGHT,
+  CHART_PADDING,
+  CHART_WIDTH,
+  gridLines,
+  smoothPath,
+  toCoordinates,
+} from "./chartUtils";
 
 const PERIODS = [7, 30, 90];
 const STATUS_COLORS = {
@@ -91,34 +100,88 @@ const Metric = ({ helper, icon, label, tone, value }) => (
 
 const TrendChart = ({ points }) => {
   const chartPoints = points || [];
-  const maxValue = Math.max(...chartPoints.flatMap((point) => [point.created, point.completed]), 1);
-  const xFor = (index) => (chartPoints.length <= 1 ? 50 : 5 + (index / (chartPoints.length - 1)) * 90);
-  const yFor = (value) => 84 - (value / maxValue) * 66;
-  const pathFor = (key) =>
-    chartPoints
-      .map((point, index) => `${index ? "L" : "M"} ${xFor(index)} ${yFor(point[key])}`)
-      .join(" ");
-  const labelStep = Math.max(1, Math.ceil(chartPoints.length / 7));
-
   if (!chartPoints.length) return <p className="py-20 text-center text-sm text-slate-500">No trend data yet.</p>;
+
+  const maxValue = Math.max(...chartPoints.flatMap((point) => [point.created, point.completed]), 1);
+  const created = toCoordinates(chartPoints.map((point) => point.created), maxValue);
+  const completed = toCoordinates(chartPoints.map((point) => point.completed), maxValue);
+  const createdLine = smoothPath(created);
+  const completedLine = smoothPath(completed);
+  const labelStep = Math.max(1, Math.ceil(chartPoints.length / 7));
 
   return (
     <div>
       <div className="mb-4 flex flex-wrap gap-4 text-xs font-bold text-slate-600">
-        <span className="flex items-center gap-2"><span className="h-2.5 w-2.5 rounded-full bg-emerald-700" />Created</span>
-        <span className="flex items-center gap-2"><span className="h-2.5 w-2.5 rounded-full bg-teal-700" />Completed</span>
+        <span className="flex items-center gap-2"><span className="h-2.5 w-2.5 rounded-full bg-emerald-600" />Created</span>
+        <span className="flex items-center gap-2"><span className="h-2.5 w-2.5 rounded-full bg-teal-500" />Completed</span>
       </div>
-      <svg aria-label="Tasks created and completed over time" className="h-64 w-full" preserveAspectRatio="none" role="img" viewBox="0 0 100 100">
-        {[18, 40, 62, 84].map((y) => <line key={y} stroke="#e2e8f0" strokeWidth="0.5" x1="5" x2="95" y1={y} y2={y} />)}
-        <path d={pathFor("created")} fill="none" stroke="#047857" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.2" />
-        <path d={pathFor("completed")} fill="none" stroke="#0f766e" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.2" />
-      </svg>
-      <div className="flex justify-between gap-2 text-[11px] font-semibold text-slate-400">
-        {chartPoints.map((point, index) => (
-          index % labelStep === 0 || index === chartPoints.length - 1
-            ? <span key={point.date}>{point.label}</span>
-            : null
+
+      <svg
+        aria-label="Tasks created and completed over time"
+        className="h-56 w-full sm:h-64"
+        role="img"
+        viewBox={`0 0 ${CHART_WIDTH} ${CHART_HEIGHT}`}
+      >
+        <defs>
+          <linearGradient id="reportsCompletedFill" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0%" stopColor="currentColor" stopOpacity="0.24" />
+            <stop offset="100%" stopColor="currentColor" stopOpacity="0" />
+          </linearGradient>
+        </defs>
+
+        {gridLines.map(({ key, y }) => (
+          <line
+            className="text-slate-200"
+            key={key}
+            stroke="currentColor"
+            strokeDasharray={key === 1 ? undefined : "4 6"}
+            strokeWidth="1"
+            x1={CHART_PADDING.left}
+            x2={CHART_WIDTH - CHART_PADDING.right}
+            y1={y}
+            y2={y}
+          />
         ))}
+
+        {/* Completed carries the area fill, so the eye lands on delivered work first. */}
+        <g className="text-teal-500">
+          <path d={areaPath(completedLine, completed)} fill="url(#reportsCompletedFill)" />
+          <path
+            d={completedLine}
+            fill="none"
+            stroke="currentColor"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="2.5"
+          />
+        </g>
+
+        <path
+          className="text-emerald-600"
+          d={createdLine}
+          fill="none"
+          stroke="currentColor"
+          strokeDasharray="6 5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="2.5"
+        />
+
+        {/* Only the latest reading is marked, so the series stays readable. */}
+        {completed.length > 0 && (
+          <g className="text-teal-500">
+            <circle cx={completed.at(-1).x} cy={completed.at(-1).y} fill="currentColor" opacity="0.2" r="9" />
+            <circle cx={completed.at(-1).x} cy={completed.at(-1).y} fill="currentColor" r="4" />
+          </g>
+        )}
+      </svg>
+
+      <div className="flex justify-between gap-2 text-[11px] font-semibold text-slate-400">
+        {chartPoints.map((point, index) =>
+          index % labelStep === 0 || index === chartPoints.length - 1 ? (
+            <span key={point.date}>{point.label}</span>
+          ) : null,
+        )}
       </div>
     </div>
   );
@@ -132,7 +195,7 @@ const Donut = ({ items, label }) => {
     <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
       <div className="relative mx-auto h-36 w-36 shrink-0 sm:mx-0">
         <svg className="h-full w-full -rotate-90" viewBox="0 0 100 100">
-          <circle cx="50" cy="50" fill="none" r="38" stroke="#e2e8f0" strokeWidth="12" />
+          <circle cx="50" cy="50" fill="none" r="38" className="text-slate-200" stroke="currentColor" strokeWidth="12" />
           {items.map((item) => {
             const size = total ? (item.value / total) * 100 : 0;
             const dashOffset = -offset;

@@ -40,7 +40,7 @@ const AuthLayout = ({
             </span>
             <div className="min-w-0">
               <p className="truncate text-base font-bold tracking-tight">StaffFlow</p>
-              <p className="mt-0.5 text-xs font-medium text-slate-400">Work intelligence</p>
+              <p className="mt-0.5 text-xs font-medium text-white/55">Work intelligence</p>
             </div>
           </div>
 
@@ -50,24 +50,24 @@ const AuthLayout = ({
           <h1 className="mt-3.5 max-w-md text-4xl font-bold leading-[1.15] text-white">
             {panelTitle}
           </h1>
-          <p className="mt-3.5 max-w-sm text-sm leading-6 text-slate-400">{panelText}</p>
+          <p className="mt-3.5 max-w-sm text-sm leading-6 text-white/65">{panelText}</p>
 
           <div className="mt-7 max-w-sm rounded-xl border border-white/10 bg-white/[0.04] p-4">
-            <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-slate-400">
+            <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-white/50">
               {featuresTitle}
             </p>
             <ul className="mt-3.5 space-y-3">
               {features.map((feature) => (
                 <li className="flex items-start gap-3" key={feature}>
                   <FiCheckCircle className="mt-0.5 h-[18px] w-[18px] shrink-0 text-emerald-400" />
-                  <span className="text-sm font-medium leading-5 text-slate-200">{feature}</span>
+                  <span className="text-sm font-medium leading-5 text-white/85">{feature}</span>
                 </li>
               ))}
             </ul>
           </div>
         </div>
 
-        <div className="relative mt-8 flex items-center gap-2 text-xs font-medium text-slate-500">
+        <div className="relative mt-8 flex items-center gap-2 text-xs font-medium text-white/45">
           <FiClock className="h-4 w-4" />
           Built for everyday operations
         </div>
