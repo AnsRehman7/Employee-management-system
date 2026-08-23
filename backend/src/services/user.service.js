@@ -590,14 +590,44 @@ const updateOrganizationUser = async (currentUser, userId, payload) => {
       ...(payload.weeklyCapacityHours !== undefined ? { weeklyCapacityHours: payload.weeklyCapacityHours } : {}),
     },
   });
+  // Suspension released this account's login, so reactivating means issuing a new one.
+  const wasReleased = existingUser.firebaseUid.startsWith("released:");
+  const isReactivating = wasReleased && nextStatus === "ACTIVE";
+  let reissuedFirebaseUid = null;
+
+  if (isReactivating) {
+    if (!payload.email) {
+      throw new ApiError(
+        400,
+        "This account's email was released when it was suspended. Provide an email address to reactivate it.",
+      );
+    }
+
+    try {
+      const recreated = await firebaseAuth.createUser({
+        disabled: false,
+        displayName: payload.fullName || existingUser.fullName,
+        email: nextEmail,
+        emailVerified: false,
+        password: payload.password || randomBytes(32).toString("base64url"),
+      });
+      reissuedFirebaseUid = recreated.uid;
+    } catch (error) {
+      if (error instanceof ApiError) throw error;
+      throw new ApiError(400, mapFirebaseAdminError(error), error.code);
+    }
+  }
+
   const firebaseUpdates = {};
 
-  if (nextEmail !== existingUser.email) firebaseUpdates.email = nextEmail;
-  if (payload.fullName && payload.fullName !== existingUser.fullName) firebaseUpdates.displayName = payload.fullName;
-  if (payload.password) firebaseUpdates.password = payload.password;
-  if (nextStatus !== existingUser.status) firebaseUpdates.disabled = nextStatus === "SUSPENDED";
+  if (!isReactivating) {
+    if (nextEmail !== existingUser.email) firebaseUpdates.email = nextEmail;
+    if (payload.fullName && payload.fullName !== existingUser.fullName) firebaseUpdates.displayName = payload.fullName;
+    if (payload.password) firebaseUpdates.password = payload.password;
+    if (nextStatus !== existingUser.status) firebaseUpdates.disabled = nextStatus === "SUSPENDED";
+  }
 
-  if (Object.keys(firebaseUpdates).length) {
+  if (Object.keys(firebaseUpdates).length && !wasReleased) {
     try {
       await firebaseAuth.updateUser(existingUser.firebaseUid, firebaseUpdates);
     } catch (error) {
@@ -614,6 +644,7 @@ const updateOrganizationUser = async (currentUser, userId, payload) => {
       department: payload.department ?? existingUser.department,
       designation: payload.designation ?? existingUser.designation,
       email: nextEmail,
+      ...(reissuedFirebaseUid ? { firebaseUid: reissuedFirebaseUid } : {}),
       fullName: payload.fullName || existingUser.fullName,
       role: nextRole,
       roleId: nextRoleId,
@@ -767,12 +798,20 @@ const deleteOrganizationUser = async (currentUser, userId) => {
 
   await ensureActiveSuperAdminRemains(existingUser, roleKeyOf(existingUser), "SUSPENDED");
 
-  await firebaseAuth.updateUser(existingUser.firebaseUid, { disabled: true }).catch((error) => {
-    console.warn("Unable to disable Firebase user:", error.message);
+  // Suspending releases the person's identity: the Firebase login is deleted and the
+  // email is replaced with a tombstone, so they are free to sign up their own
+  // workspace with that address. The row itself stays, because attendance, audit, and
+  // authored work must survive the person leaving.
+  await firebaseAuth.deleteUser(existingUser.firebaseUid).catch((error) => {
+    console.warn("Unable to delete the Firebase login while suspending:", error.message);
   });
 
   const updatedUser = await prisma.user.update({
-    data: { status: "SUSPENDED" },
+    data: {
+      email: `released+${existingUser.id}@removed.invalid`,
+      firebaseUid: `released:${existingUser.id}`,
+      status: "SUSPENDED",
+    },
     include: {
       organization: true,
       roleRef: true,
@@ -785,15 +824,87 @@ const deleteOrganizationUser = async (currentUser, userId) => {
     actor: currentUser,
     entityId: updatedUser.id,
     entityType: "USER",
-    metadata: { previousStatus: String(existingUser.status).toLowerCase() },
-    summary: `Suspended account for ${updatedUser.fullName}`,
+    metadata: {
+      previousStatus: String(existingUser.status).toLowerCase(),
+      releasedEmail: existingUser.email,
+    },
+    summary: `Suspended ${updatedUser.fullName} and released ${existingUser.email}`,
   });
 
   return serializeUserWithCustomData(currentUser, updatedUser);
 };
 
+/**
+ * Permanently removes a suspended member and everything personal to them.
+ *
+ * Authored work is transferred to the acting administrator first. `Task.createdBy` and
+ * `Project.createdBy` cascade from User, so deleting the row directly would take every
+ * task and project that person ever created with it; requirements and plans are
+ * `Restrict` and would block the delete outright. Reassigning keeps the workspace's
+ * work intact while the person's own records (attendance, time logs, notifications,
+ * comments) cascade away as intended.
+ */
+const purgeOrganizationUser = async (currentUser, userId) => {
+  const existingUser = await getManagedUser(currentUser, userId);
+
+  if (existingUser.status !== "SUSPENDED") {
+    throw new ApiError(409, "Suspend this account before deleting it permanently.");
+  }
+  if (currentUser.id === existingUser.id) {
+    throw new ApiError(400, "You cannot delete your own account.");
+  }
+  if (roleKeyOf(existingUser) === "super_admin" && roleKeyOf(currentUser) !== "super_admin") {
+    throw new ApiError(403, "Only a super admin can delete another super admin.");
+  }
+
+  assertCanManageUser(currentUser, existingUser.roleRef || roleKeyOf(existingUser));
+  await ensureActiveSuperAdminRemains(existingUser, roleKeyOf(existingUser), "SUSPENDED");
+
+  const { email: releasedEmail, firebaseUid, fullName } = existingUser;
+  const reassignTo = currentUser.id;
+
+  const transferred = await prisma.$transaction(async (transaction) => {
+    const [tasks, projects, requirements, plans, meetings] = await Promise.all([
+      transaction.task.updateMany({ data: { createdById: reassignTo }, where: { createdById: userId } }),
+      transaction.project.updateMany({ data: { createdById: reassignTo }, where: { createdById: userId } }),
+      transaction.projectRequirement.updateMany({ data: { createdById: reassignTo }, where: { createdById: userId } }),
+      transaction.projectPlan.updateMany({ data: { createdById: reassignTo }, where: { createdById: userId } }),
+      transaction.meeting.updateMany({ data: { organizerId: reassignTo }, where: { organizerId: userId } }),
+    ]);
+
+    await transaction.user.delete({ where: { id: userId } });
+
+    return {
+      meetings: meetings.count,
+      plans: plans.count,
+      projects: projects.count,
+      requirements: requirements.count,
+      tasks: tasks.count,
+    };
+  });
+
+  // A released account has no Firebase login left; anything else still does.
+  if (!firebaseUid.startsWith("released:")) {
+    await firebaseAuth.deleteUser(firebaseUid).catch((error) => {
+      console.warn("Unable to delete the Firebase login during purge:", error.message);
+    });
+  }
+
+  await safelyRecordAudit({
+    action: "DELETED",
+    actor: currentUser,
+    entityId: userId,
+    entityType: "USER",
+    metadata: { releasedEmail, transferred },
+    summary: `Permanently deleted ${fullName} and reassigned their authored work`,
+  });
+
+  return { name: fullName, transferred };
+};
+
 module.exports = {
   createOrganizationUser,
+  purgeOrganizationUser,
   deleteOrganizationUser,
   getCurrentUser,
   getWorkspacePermissionCatalog,
