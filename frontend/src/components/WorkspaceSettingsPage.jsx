@@ -19,6 +19,7 @@ import { useToast } from "../context/ToastContext";
 import AppShell from "./AppShell";
 import { CardSkeleton } from "./Skeleton";
 import BrowserNotificationSettings from "./BrowserNotificationSettings";
+import DangerZone from "./DangerZone";
 import SettingsNavigation from "./SettingsNavigation";
 import WorkspaceOfficesSettings from "./WorkspaceOfficesSettings";
 import { api, formatApiError } from "../context/api";
@@ -69,6 +70,7 @@ const WorkspaceSettingsPage = () => {
   const { setUser, user } = useUser();
   const toast = useToast();
   const canManageWorkspace = Boolean(user?.permissions?.canManageSettings);
+  const isSuperAdmin = user?.role === "super_admin";
   const [form, setForm] = useState(initialForm);
   const [organization, setOrganization] = useState(null);
   const [usage, setUsage] = useState(null);
@@ -276,7 +278,7 @@ const WorkspaceSettingsPage = () => {
 
             <aside className="space-y-5 xl:sticky xl:top-28">
               <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm"><p className="text-xs font-bold uppercase text-slate-400">Workspace usage</p><div className="mt-4 divide-y divide-slate-100"><div className="flex items-center justify-between py-3"><span className="flex items-center gap-2 text-sm font-semibold text-slate-600"><FiUsers className="h-4 w-4" />Active members</span><span className="font-bold text-slate-950">{usage?.activeMembers || 0}</span></div><div className="flex items-center justify-between py-3"><span className="flex items-center gap-2 text-sm font-semibold text-slate-600"><FiBriefcase className="h-4 w-4" />Active projects</span><span className="font-bold text-slate-950">{usage?.activeProjects || 0}</span></div><div className="flex items-center justify-between py-3"><span className="flex items-center gap-2 text-sm font-semibold text-slate-600"><FiCheckCircle className="h-4 w-4" />Open tasks</span><span className="font-bold text-slate-950">{usage?.openTasks || 0}</span></div></div></section>
-              <section className="rounded-lg border border-emerald-200 bg-emerald-50 p-5"><p className="text-xs font-bold uppercase text-emerald-700">{organization.plan.replaceAll("_", " ")}</p><h2 className="mt-2 text-lg font-bold text-emerald-950">{organization.status === "trial" ? "Trial workspace" : "Active workspace"}</h2><p className="mt-2 text-sm leading-6 text-emerald-900">{organization.trialEndsAt ? `Trial period ends ${new Date(organization.trialEndsAt).toLocaleDateString()}.` : "Workspace billing is managed by the super admin."}</p></section>
+              {isSuperAdmin && <section className="rounded-lg border border-emerald-200 bg-emerald-50 p-5"><p className="text-xs font-bold uppercase text-emerald-700">{organization.plan.replaceAll("_", " ")}</p><h2 className="mt-2 text-lg font-bold text-emerald-950">{organization.status === "trial" ? "Trial workspace" : "Active workspace"}</h2><p className="mt-2 text-sm leading-6 text-emerald-900">{organization.trialEndsAt ? `Trial period ends ${new Date(organization.trialEndsAt).toLocaleDateString()}.` : "Workspace billing is managed by the super admin."}</p></section>}
             </aside>
           </div>
         ) : null}
@@ -284,6 +286,7 @@ const WorkspaceSettingsPage = () => {
           )}
           {canManageWorkspace && <WorkspaceOfficesSettings initialOffices={offices} />}
           <BrowserNotificationSettings />
+          <DangerZone organization={organization} />
         </div>
       </div>
     </AppShell>

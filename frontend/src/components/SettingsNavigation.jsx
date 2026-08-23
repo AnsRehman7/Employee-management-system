@@ -1,5 +1,6 @@
 import { createElement } from "react";
 import {
+  FiAlertTriangle,
   FiBell,
   FiClock,
   FiFileText,
@@ -63,8 +64,15 @@ const SettingsNavigation = () => {
       ].filter(Boolean),
       label: "People and access",
     },
-    user?.permissions?.canViewAudit && {
-      items: [{ icon: FiFileText, label: "Audit log", to: "/audit" }],
+    (user?.permissions?.canViewAudit || user?.role === "super_admin") && {
+      items: [
+        user?.permissions?.canViewAudit && { icon: FiFileText, label: "Audit log", to: "/audit" },
+        user?.role === "super_admin" && {
+          icon: FiAlertTriangle,
+          label: "Danger zone",
+          to: "/settings#danger-zone",
+        },
+      ].filter(Boolean),
       label: "Governance",
     },
   ].filter(Boolean);

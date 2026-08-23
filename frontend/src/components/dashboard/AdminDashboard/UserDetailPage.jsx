@@ -12,9 +12,10 @@ import {
   FiSave,
   FiShield,
   FiSlash,
+  FiTrash2,
   FiUser,
 } from "react-icons/fi";
-import { Link, useLocation, useParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import Alert from "../../Alert";
 import AppShell from "../../AppShell";
 import { CardSkeleton } from "../../Skeleton";
@@ -48,6 +49,7 @@ const formFromUser = (member) => ({
 const UserDetailPage = () => {
   const { userId } = useParams();
   const location = useLocation();
+  const navigate = useNavigate();
   const { user: currentUser } = useUser();
   const { assignableRoles, labelFor } = useRoles();
   const [member, setMember] = useState(null);
@@ -125,10 +127,36 @@ const UserDetailPage = () => {
     }
   };
 
+  const handlePurge = async () => {
+    if (!canEdit || isSelf || member.status !== "suspended") return;
+    if (
+      !window.confirm(
+        `Permanently delete ${member.name}? Their attendance, time logs, and notifications are erased. Tasks, projects, and meetings they created are transferred to you. This cannot be undone.`,
+      )
+    )
+      return;
+
+    setStatusBusy(true);
+    setError("");
+    try {
+      await api.purgeUser(userId);
+      navigate("/users", { replace: true, state: { notice: `${member.name} was permanently deleted.` } });
+    } catch (requestError) {
+      setError(formatApiError(requestError));
+      setStatusBusy(false);
+    }
+  };
+
   const handleStatusToggle = async () => {
     if (!canEdit || isSelf) return;
     const nextStatus = member.status === "active" ? "suspended" : "active";
-    if (nextStatus === "suspended" && !window.confirm("Suspend this account and block future sign-in?")) return;
+    if (
+      nextStatus === "suspended" &&
+      !window.confirm(
+        "Suspend this account? Their sign-in is removed and their email address is released, so they can use it elsewhere.",
+      )
+    )
+      return;
 
     setStatusBusy(true);
     setError("");
@@ -207,6 +235,17 @@ const UserDetailPage = () => {
             <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
               <div className="flex items-start gap-3"><span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${member.status === "active" ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-600"}`}>{member.status === "active" ? <FiCheckCircle className="h-4 w-4" /> : <FiSlash className="h-4 w-4" />}</span><div><h2 className="text-sm font-bold text-slate-950">Account status</h2><p className="mt-1 text-xs leading-5 text-slate-500">{member.status === "active" ? "The member can sign in and access permitted workspace modules." : "Sign-in is blocked until this account is reactivated."}</p></div></div>
               {canEdit && !isSelf && <button className={`mt-4 inline-flex h-10 w-full items-center justify-center gap-2 rounded-lg border px-3 text-sm font-bold transition disabled:opacity-60 ${member.status === "active" ? "border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-100" : "border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100"}`} disabled={statusBusy} onClick={handleStatusToggle} type="button">{member.status === "active" ? <FiSlash className="h-4 w-4" /> : <FiCheckCircle className="h-4 w-4" />}{statusBusy ? "Updating..." : member.status === "active" ? "Suspend account" : "Reactivate account"}</button>}
+              {canEdit && !isSelf && member.status === "suspended" && (
+                <button
+                  className="mt-2 inline-flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-rose-600 px-3 text-sm font-bold text-white transition hover:bg-rose-700 disabled:opacity-60"
+                  disabled={statusBusy}
+                  onClick={handlePurge}
+                  type="button"
+                >
+                  <FiTrash2 className="h-4 w-4" />
+                  Delete permanently
+                </button>
+              )}
             </section>
           </aside>
         </div>

@@ -13,10 +13,7 @@ const AdminDashboard = () => {
     }[user?.role] || "Operations dashboard";
 
   return (
-    <AppShell
-      title={roleLabel}
-      subtitle="Monitor delivery, attendance, capacity, and risk before assigning more work."
-    >
+    <AppShell hideTitle title={roleLabel}>
       <ExecutiveDashboard />
     </AppShell>
   );

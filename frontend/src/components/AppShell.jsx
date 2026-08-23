@@ -49,7 +49,7 @@ const initialsFor = (name = "") =>
     .map((part) => part[0]?.toUpperCase())
     .join("") || "SF";
 
-const AppShell = ({ children, subtitle = "", title = "Workspace" }) => {
+const AppShell = ({ children, hideTitle = false, subtitle = "", title = "Workspace" }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useUser();
@@ -184,6 +184,7 @@ const AppShell = ({ children, subtitle = "", title = "Workspace" }) => {
   };
 
   const workspaceName = user?.organization?.name || "DayMark";
+  const isSuperAdmin = user?.role === "super_admin";
   const userName = user?.name || "Team member";
   const homePath = dashboardForUser(user);
   const settingsAreaActive =
@@ -258,9 +259,11 @@ const AppShell = ({ children, subtitle = "", title = "Workspace" }) => {
               </span>
               <div className="min-w-0">
                 <p className="truncate text-sm font-bold text-slate-950">{workspaceName}</p>
-                <p className="mt-1 text-xs font-semibold uppercase text-slate-500">
-                  {user?.organization?.plan || "Trial"} workspace
-                </p>
+                {isSuperAdmin && (
+                  <p className="mt-1 text-xs font-semibold uppercase text-slate-500">
+                    {(user?.organization?.plan || "trial").replaceAll("_", " ")} workspace
+                  </p>
+                )}
               </div>
             </div>
           </div>}
@@ -287,7 +290,7 @@ const AppShell = ({ children, subtitle = "", title = "Workspace" }) => {
                 SF
               </span>
               <p className="truncate text-sm font-bold text-slate-950 lg:text-xs lg:font-bold lg:uppercase lg:tracking-wide lg:text-emerald-700">
-                {workspaceName}
+                {title}
               </p>
             </div>
 
@@ -354,9 +357,9 @@ const AppShell = ({ children, subtitle = "", title = "Workspace" }) => {
         </header>
 
         <main className="mx-auto max-w-[1540px] px-4 py-6 sm:px-6 lg:px-8">
-          <div className="mb-5">
-            <h1 className="text-xl font-bold text-slate-950 sm:text-2xl">{title}</h1>
-            {subtitle && <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-500">{subtitle}</p>}
+          <div className={hideTitle && !error ? "" : "mb-5"}>
+            {!hideTitle && <h1 className="text-xl font-bold text-slate-950 sm:text-2xl">{title}</h1>}
+            {!hideTitle && subtitle && <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-500">{subtitle}</p>}
             {error && (
               <div className="mt-4">
                 <Alert message={error} type="error" />

@@ -118,6 +118,7 @@ export const api = {
     request(`/modules/${moduleKey}/records/${recordId}`, { method: "DELETE" }),
   deleteTask: (taskId) => request(`/tasks/${taskId}`, { method: "DELETE" }),
   deleteUser: (userId) => request(`/users/${userId}`, { method: "DELETE" }),
+  purgeUser: (userId) => request(`/users/${userId}/purge`, { method: "DELETE" }),
   deleteWorkspaceOffice: (officeId) => request(`/workspace/offices/${officeId}`, { method: "DELETE" }),
   evaluateProjectPlan: (projectId, planId, payload = {}) =>
     request(`/projects/${projectId}/plans/${planId}/evaluate`, { body: payload, method: "POST" }),
@@ -162,6 +163,7 @@ export const api = {
   getUser: (userId) => request(`/users/${userId}`),
   getUsers: () => request("/users"),
   getWorkspaceSettings: () => request("/workspace/settings"),
+  deleteWorkspace: (confirmation) => request("/workspace/delete", { body: { confirmation }, method: "POST" }),
   syncProfile: (payload = {}) => request("/auth/sync", { body: payload, method: "POST" }),
   markAllNotificationsRead: () => request("/notifications/read-all", { method: "PATCH" }),
   markNotificationRead: (notificationId) => request(`/notifications/${notificationId}/read`, { method: "PATCH" }),

@@ -1,5 +1,11 @@
-import { useState } from "react";
-import { FiAlertCircle, FiCalendar, FiMoreHorizontal } from "react-icons/fi";
+import { useEffect, useState } from "react";
+import {
+  FiAlertCircle,
+  FiCalendar,
+  FiChevronLeft,
+  FiChevronRight,
+  FiMoreHorizontal,
+} from "react-icons/fi";
 import { Link } from "react-router-dom";
 import { formatDate, initialsFor, isOverdue, labelForValue, TASK_STATUS_OPTIONS } from "./workUtils";
 
@@ -25,9 +31,31 @@ const PRIORITY_STYLES = {
  * applied optimistically and rolled back if the server rejects it, which keeps the
  * board responsive without letting it drift from the source of truth.
  */
+const COLLAPSED_KEY = "daymark.board-collapsed";
+
 const TaskBoard = ({ canEdit, onStatusChange, tasks }) => {
   const [draggingId, setDraggingId] = useState("");
   const [activeColumn, setActiveColumn] = useState("");
+  const [collapsed, setCollapsed] = useState(() => {
+    try {
+      return new Set(JSON.parse(window.localStorage.getItem(COLLAPSED_KEY) || "[]"));
+    } catch {
+      return new Set();
+    }
+  });
+
+  useEffect(() => {
+    window.localStorage.setItem(COLLAPSED_KEY, JSON.stringify([...collapsed]));
+  }, [collapsed]);
+
+  const toggleColumn = (value) => {
+    setCollapsed((current) => {
+      const next = new Set(current);
+      if (next.has(value)) next.delete(value);
+      else next.add(value);
+      return next;
+    });
+  };
 
   const columns = TASK_STATUS_OPTIONS.map((option) => ({
     ...option,
@@ -44,11 +72,67 @@ const TaskBoard = ({ canEdit, onStatusChange, tasks }) => {
 
   return (
     <div className="overflow-x-auto p-4">
-      <div className="flex min-w-max gap-4">
-        {columns.map((column) => (
+      <div className="flex min-w-max items-start gap-4">
+        {columns.map((column) => {
+          const isCollapsed = collapsed.has(column.value);
+
+          // A collapsed column becomes a narrow vertical rail, the way Zoho does it, so
+          // the board stays scannable while a column is parked. Drop targets still work,
+          // which lets a card be dragged into a collapsed column.
+          if (isCollapsed) {
+            return (
+              <section
+                aria-label={`${column.label} column, collapsed`}
+                className={`flex max-h-[calc(100dvh-22rem)] min-h-64 w-12 shrink-0 flex-col items-center rounded-xl border bg-canvas py-3 transition ${
+                  activeColumn === column.value && canEdit
+                    ? "border-emerald-400 ring-2 ring-emerald-100"
+                    : "border-slate-200"
+                }`}
+                key={column.value}
+                onDragLeave={() => setActiveColumn((current) => (current === column.value ? "" : current))}
+                onDragOver={(event) => {
+                  if (!canEdit || !draggingId) return;
+                  event.preventDefault();
+                  setActiveColumn(column.value);
+                }}
+                onDrop={(event) => {
+                  if (!canEdit) return;
+                  event.preventDefault();
+                  handleDrop(column.value);
+                }}
+              >
+                <button
+                  aria-expanded="false"
+                  aria-label={`Expand ${column.label} column`}
+                  className="flex h-7 w-7 items-center justify-center rounded-md text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
+                  onClick={() => toggleColumn(column.value)}
+                  title={`Expand ${column.label}`}
+                  type="button"
+                >
+                  <FiChevronRight className="h-4 w-4" />
+                </button>
+
+                <span
+                  className={`mt-2 h-2 w-2 shrink-0 rounded-full ${COLUMN_ACCENTS[column.value] || "bg-slate-400"}`}
+                />
+                <span className="mt-2 rounded-full bg-slate-100 px-1.5 py-0.5 text-[11px] font-bold text-slate-600">
+                  {column.tasks.length}
+                </span>
+
+                <h3
+                  className="mt-3 whitespace-nowrap text-sm font-bold text-slate-700"
+                  style={{ writingMode: "vertical-rl" }}
+                >
+                  {column.label}
+                </h3>
+              </section>
+            );
+          }
+
+          return (
           <section
             aria-label={`${column.label} column`}
-            className={`flex w-72 shrink-0 flex-col rounded-xl border bg-canvas transition ${
+            className={`flex max-h-[calc(100dvh-22rem)] min-h-64 w-72 shrink-0 flex-col rounded-xl border bg-canvas transition ${
               activeColumn === column.value && canEdit
                 ? "border-emerald-400 ring-2 ring-emerald-100"
                 : "border-slate-200"
@@ -66,15 +150,25 @@ const TaskBoard = ({ canEdit, onStatusChange, tasks }) => {
               handleDrop(column.value);
             }}
           >
-            <header className="flex items-center gap-2 border-b border-slate-200 px-3.5 py-3">
+            <header className="flex shrink-0 items-center gap-2 border-b border-slate-200 px-3.5 py-3">
               <span className={`h-2 w-2 shrink-0 rounded-full ${COLUMN_ACCENTS[column.value] || "bg-slate-400"}`} />
               <h3 className="text-sm font-bold text-slate-900">{column.label}</h3>
               <span className="ml-auto rounded-full bg-slate-100 px-2 py-0.5 text-xs font-bold text-slate-600">
                 {column.tasks.length}
               </span>
+              <button
+                aria-expanded="true"
+                aria-label={`Collapse ${column.label} column`}
+                className="-mr-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
+                onClick={() => toggleColumn(column.value)}
+                title={`Collapse ${column.label}`}
+                type="button"
+              >
+                <FiChevronLeft className="h-4 w-4" />
+              </button>
             </header>
 
-            <div className="flex-1 space-y-2.5 p-2.5">
+            <div className="min-h-0 flex-1 space-y-2.5 overflow-y-auto p-2.5">
               {column.tasks.length === 0 ? (
                 <p className="rounded-lg border border-dashed border-slate-200 py-8 text-center text-xs font-semibold text-slate-400">
                   Nothing here
@@ -152,7 +246,8 @@ const TaskBoard = ({ canEdit, onStatusChange, tasks }) => {
               )}
             </div>
           </section>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
