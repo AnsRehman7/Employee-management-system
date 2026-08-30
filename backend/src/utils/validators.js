@@ -500,21 +500,23 @@ const updateWorkspaceSettingsSchema = z
     workdayStart: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/, "Use HH:mm for the workday start.").optional(),
   })
   .superRefine((settings, context) => {
-    if (settings.workdayStart && settings.workdayEnd && settings.workdayStart >= settings.workdayEnd) {
+    // An end earlier than the start means an overnight shift (23:00 to 06:00), which
+    // is valid. Only an identical pair is rejected, since that is a zero-length day.
+    if (settings.workdayStart && settings.workdayEnd && settings.workdayStart === settings.workdayEnd) {
       context.addIssue({
         code: "custom",
-        message: "Workday end must be later than workday start.",
+        message: "Workday start and end cannot be the same time.",
         path: ["workdayEnd"],
       });
     }
     if (
       settings.checkoutWindowStart &&
       settings.checkoutWindowEnd &&
-      settings.checkoutWindowStart >= settings.checkoutWindowEnd
+      settings.checkoutWindowStart === settings.checkoutWindowEnd
     ) {
       context.addIssue({
         code: "custom",
-        message: "The checkout window must end later than it starts.",
+        message: "The checkout window cannot start and end at the same time.",
         path: ["checkoutWindowEnd"],
       });
     }
@@ -584,10 +586,20 @@ const customRecordSchema = z.object({
   values: customValuesSchema.default({}),
 });
 
+const assistantMessageSchema = z.object({
+  message: z.string().trim().min(1, "Type what you want to do.").max(1000),
+});
+
+const assistantExecuteSchema = z.object({
+  planToken: z.string().trim().min(1, "That plan is no longer valid.").max(20000),
+});
+
 const parseBody = (schema, body) => schema.parse(body || {});
 
 module.exports = {
   approveProjectPlanSchema,
+  assistantExecuteSchema,
+  assistantMessageSchema,
   createAttendanceCorrectionSchema,
   createAttendanceScanSchema,
   createModuleSchema,

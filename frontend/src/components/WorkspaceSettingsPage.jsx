@@ -168,12 +168,13 @@ const WorkspaceSettingsPage = () => {
       setNotice({ message: "Choose at least one working day.", type: "error" });
       return;
     }
-    if (form.workdayStart >= form.workdayEnd) {
-      setNotice({ message: "Workday end must be later than workday start.", type: "error" });
+    // An end before the start is a night shift, which is supported.
+    if (form.workdayStart === form.workdayEnd) {
+      setNotice({ message: "Workday start and end cannot be the same time.", type: "error" });
       return;
     }
-    if (form.checkoutWindowStart >= form.checkoutWindowEnd) {
-      setNotice({ message: "The checkout window must end later than it starts.", type: "error" });
+    if (form.checkoutWindowStart === form.checkoutWindowEnd) {
+      setNotice({ message: "The checkout window cannot start and end at the same time.", type: "error" });
       return;
     }
 

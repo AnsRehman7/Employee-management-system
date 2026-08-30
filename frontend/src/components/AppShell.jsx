@@ -20,6 +20,7 @@ import {
 } from "react-icons/fi";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import Alert from "./Alert";
+import ChatAssistant from "./ChatAssistant";
 import CommandPalette from "./CommandPalette";
 import ThemeToggle from "./ThemeToggle";
 import NotificationCenter from "./NotificationCenter";
@@ -371,6 +372,7 @@ const AppShell = ({ children, hideTitle = false, subtitle = "", title = "Workspa
       </div>
 
       <CommandPalette customModules={customModules} onClose={() => setPaletteOpen(false)} open={paletteOpen} />
+      <ChatAssistant />
     </div>
   );
 };

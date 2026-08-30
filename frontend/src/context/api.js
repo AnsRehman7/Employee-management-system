@@ -92,6 +92,8 @@ export const formatApiError = (error) => {
 export const api = {
   approveProjectPlan: (projectId, planId, payload) =>
     request(`/projects/${projectId}/plans/${planId}/approve`, { body: payload, method: "POST" }),
+  assistantExecute: (planToken) => request("/assistant/execute", { body: { planToken }, method: "POST" }),
+  assistantInterpret: (message) => request("/assistant/interpret", { body: { message }, method: "POST" }),
   createAttendanceChallenge: () => request("/attendance/challenge", { method: "POST" }),
   createAttendanceCorrection: (payload) => request("/attendance/corrections", { body: payload, method: "POST" }),
   createAttendanceScan: (payload) => request("/attendance/scans", { body: payload, method: "POST" }),
