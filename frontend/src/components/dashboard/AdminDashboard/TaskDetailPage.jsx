@@ -543,6 +543,25 @@ const TaskDetailPage = () => {
                         </div>
                       </dd>
                     </div>
+                    <div className="py-3">
+                      <dt className="text-xs font-bold text-slate-400">Project weight</dt>
+                      <dd className="mt-2">
+                        <div className="flex justify-between text-xs font-bold text-slate-600">
+                          <span>{Number(task.projectWeight || 0).toFixed(1)}% of this project</span>
+                          <span className="text-slate-400">predicted</span>
+                        </div>
+                        <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-slate-100">
+                          <div
+                            className="h-full rounded-full bg-indigo-600"
+                            style={{ width: `${Math.min(100, Number(task.projectWeight || 0))}%` }}
+                          />
+                        </div>
+                        <p className="mt-2 text-[11px] leading-4 text-slate-400">
+                          Estimated by the in-house effort model, and used to weight this task&apos;s
+                          contribution to project progress.
+                        </p>
+                      </dd>
+                    </div>
                     {task.completedAt && (
                       <div className="py-3">
                         <dt className="text-xs font-bold text-slate-400">Completed</dt>

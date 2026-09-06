@@ -107,13 +107,13 @@ const ProjectCreatePage = () => {
       const { project } = await api.createProject(payload);
       const notice = formData.generateTasksWithAi
         ? project.planningPlan
-          ? `Project created with draft plan v${project.planningPlan.version}. Review and approve it before tasks are created.`
+          ? `Project created with draft plan v${project.planningPlan.version}. Open Planning studio to review and approve it — tasks are created, and their weights predicted, on approval.`
           : project.planningWarning || "Project created. Generate its draft from Planning studio."
         : "Project created successfully.";
-      navigate(formData.generateTasksWithAi ? `/projects/${project.id}/planner` : `/projects/${project.id}`, {
-        replace: true,
-        state: { notice },
-      });
+      // Always land on the project itself so the brief, dates, and progress are visible
+      // first. The draft plan still needs approving, which the notice says and the
+      // Planning studio button on that page links to.
+      navigate(`/projects/${project.id}`, { replace: true, state: { notice } });
     } catch (requestError) {
       setError(formatApiError(requestError));
     } finally {

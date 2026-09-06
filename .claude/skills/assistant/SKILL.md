@@ -62,17 +62,26 @@ not in one transaction because the project and task services own their own. Reus
 is worth more than batch atomicity — but a partial batch is possible, so the result list
 must always be shown to the user.
 
-## Models
+## Providers
 
-`GROQ_MODEL`, default `openai/gpt-oss-120b` (open weight, Apache-2.0, free tier).
-Verified alternatives on this account: `qwen/qwen3.8-27b` (fastest, best relative-date
-handling), `openai/gpt-oss-20b` (weakest — returned a Thursday for "next Friday").
+All AI JSON generation goes through `llm.service.js`, which tries **Gemini first and Groq
+as a fallback**. Both providers expose the same `generateJson` signature and the same
+ApiError status codes, so no caller knows which one answered. Only a 5xx-class failure
+falls through to the next provider — a 4xx means the request itself was refused, and
+retrying it elsewhere would fail the same way more slowly.
 
-**`llama-3.3-70b-versatile` was retired and now 404s.** If the assistant or the project
-planner starts failing, check the model list first:
+`GEMINI_MODEL` defaults to `gemini-flash-lite-latest`. **Do not use `gemini-flash-latest`**
+— it measured 33 seconds on this account, which exceeds the serverless function limit.
+`gemini-2.5-flash` and `gemini-2.5-pro` return 404 for newer keys.
+
+`GROQ_MODEL` defaults to `openai/gpt-oss-120b` (open weight, Apache-2.0, free tier).
+`llama-3.3-70b-versatile` was retired and now 404s.
+
+If the assistant or the planner starts failing, check what each key can actually serve:
 
 ```bash
 curl -s https://api.groq.com/openai/v1/models -H "Authorization: Bearer $GROQ_API_KEY"
+curl -s "https://generativelanguage.googleapis.com/v1beta/models?key=$GEMINI_API_KEY"
 ```
 
 Relative dates are the weakest part of any of these models. The preview step is what makes
