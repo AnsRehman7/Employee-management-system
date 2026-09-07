@@ -30,7 +30,8 @@ records belonging to someone else.
 work to the wrong person.
 
 **The action allowlist is the security boundary, not the prompt.** `ACTION_TYPES` holds
-three entries. `normalizePlan` discards anything else, so a jailbreak that convinces the
+five entries — create project/task, assign, and update task/project. Deleting and archiving
+are deliberately absent: they hide or destroy work, so they stay manual. `normalizePlan` discards anything else, so a jailbreak that convinces the
 model to emit `delete_everything` still produces zero actions. Prompt instructions are
 advisory; the allowlist is enforcement. Tested in `backend/test/assistant.test.js`.
 

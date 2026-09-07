@@ -59,6 +59,9 @@ import {
   formatDistance,
 } from './utils/geofence';
 
+/** Hard cap on start-up session restore, so the app can never hang on its spinner. */
+const RESTORE_TIMEOUT_MS = 20000;
+
 const TOKEN_REFRESH_BUFFER_MS = 5 * 60 * 1000;
 const NOTIFICATION_POLL_MS = 30000;
 const LOCATION_TIMEOUT_MS = 60000;
@@ -371,6 +374,16 @@ const StaffFlowApp = () => {
 
   useEffect(() => {
     let active = true;
+
+    // Nothing on this path may leave the app on its loading screen. Restoring a session
+    // touches the keychain and two network services, and if any of them stalls the user
+    // is stranded on a spinner with no way forward - previously only reinstalling, which
+    // cleared the stored session, got them past it. This watchdog always releases the
+    // loading state; a stale session simply falls back to the sign-in screen.
+    const watchdog = setTimeout(() => {
+      if (active) setInitializing(false);
+    }, RESTORE_TIMEOUT_MS);
+
     const restore = async () => {
       try {
         let restored = await loadSecureSession();
@@ -390,6 +403,7 @@ const StaffFlowApp = () => {
         await clearSecureSession();
         if (active) showNotice(getErrorMessage(error), 'error');
       } finally {
+        clearTimeout(watchdog);
         if (active) setInitializing(false);
       }
     };
@@ -397,6 +411,7 @@ const StaffFlowApp = () => {
     restore();
     return () => {
       active = false;
+      clearTimeout(watchdog);
     };
   }, [loadWorkspace, saveSession, showNotice]);
 

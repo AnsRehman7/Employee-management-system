@@ -1,0 +1,39 @@
+# Secrets. The example files are the documented template and stay tracked; the real
+# ones never are. A missing rule here is what let backend/.env reach a commit once.
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+# Service-account and key material
+*.pem
+*.key
+*-firebase-adminsdk-*.json
+secrets/
+
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+build/
+coverage/
+.vercel/
+.netlify/
+
+# Android / React Native
+*.apk
+*.aab
+*.keystore
+!debug.keystore
+AttendenceApp/android/.gradle/
+AttendenceApp/android/app/build/
+AttendenceApp/android/build/
+AttendenceApp/android/local.properties
+
+# Logs and OS noise
+*.log
+npm-debug.log*
+yarn-error.log*
+.DS_Store
+Thumbs.db

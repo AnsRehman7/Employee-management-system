@@ -16,6 +16,29 @@ const firebaseError = payload =>
   'Unable to sign in. Please try again.';
 
 /**
+ * Google's identity endpoints are called during app start-up, before any screen is shown.
+ * A request that never settles - a captive portal, a stalled DNS lookup, a network that
+ * drops mid-flight - would leave the caller awaiting forever and the app stuck on its
+ * loading state, so every call is bounded by an explicit timeout.
+ */
+const FIREBASE_TIMEOUT_MS = 15000;
+
+const fetchWithTimeout = async (url, options, timeoutMessage) => {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), FIREBASE_TIMEOUT_MS);
+
+  try {
+    return await fetch(url, { ...options, signal: controller.signal });
+  } catch (error) {
+    if (error.name === 'AbortError') throw new Error(timeoutMessage);
+    // A DNS or connectivity failure surfaces as a bare TypeError from fetch.
+    throw new Error(timeoutMessage);
+  } finally {
+    clearTimeout(timer);
+  }
+};
+
+/**
  * Exchanges the custom token minted by the DayMark API after a verified email
  * code for a normal Firebase session. Attendance scans keep using the resulting
  * ID token exactly as before.
@@ -25,13 +48,14 @@ export const signInWithCustomToken = async ({ customToken, email }) => {
     throw new Error('Firebase authentication is not configured for this app.');
   }
 
-  const response = await fetch(
+  const response = await fetchWithTimeout(
     `https://identitytoolkit.googleapis.com/v1/accounts:signInWithCustomToken?key=${environment.firebaseWebApiKey}`,
     {
       body: JSON.stringify({ returnSecureToken: true, token: customToken }),
       headers: { 'Content-Type': 'application/json' },
       method: 'POST',
     },
+    'Sign-in timed out. Check your connection and try again.',
   );
   const payload = await response.json();
 
@@ -51,7 +75,7 @@ export const refreshFirebaseSession = async session => {
     throw new Error('Your session expired. Please sign in again.');
   }
 
-  const response = await fetch(
+  const response = await fetchWithTimeout(
     `https://securetoken.googleapis.com/v1/token?key=${environment.firebaseWebApiKey}`,
     {
       body: `grant_type=refresh_token&refresh_token=${encodeURIComponent(
@@ -60,6 +84,7 @@ export const refreshFirebaseSession = async session => {
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       method: 'POST',
     },
+    'Could not refresh your session. Check your connection and try again.',
   );
   const payload = await response.json();
 

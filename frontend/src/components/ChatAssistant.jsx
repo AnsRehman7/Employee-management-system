@@ -18,6 +18,9 @@ import { api, formatApiError } from "../context/api";
  * is what makes it safe to let a language model drive real project and task creation.
  */
 
+/** Matches max-h-28 (7rem). Beyond this the composer scrolls instead of growing. */
+const COMPOSER_MAX_HEIGHT = 112;
+
 const SUGGESTIONS = [
   "Create a project called Attendance Revamp due 30 September",
   "Add 3 QA tasks to Attendance Revamp due next Friday",
@@ -94,6 +97,19 @@ const ChatAssistant = () => {
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [open]);
+
+  // Grow the composer to fit what has been typed, up to a few lines, then let it scroll.
+  // Height is reset to auto first so the box shrinks again when text is deleted —
+  // scrollHeight never reports less than the element's current height.
+  useEffect(() => {
+    const field = inputRef.current;
+    if (!field) return;
+    field.style.height = "auto";
+    // jsdom reports a scrollHeight of 0, which would collapse the field to nothing.
+    if (field.scrollHeight > 0) {
+      field.style.height = `${Math.min(field.scrollHeight, COMPOSER_MAX_HEIGHT)}px`;
+    }
+  }, [draft, open]);
 
   const send = useCallback(
     async (text) => {
@@ -304,7 +320,7 @@ const ChatAssistant = () => {
         >
           <textarea
             aria-label="Message the assistant"
-            className="max-h-28 min-h-10 flex-1 resize-none rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-950 outline-none transition focus:border-emerald-400 placeholder:text-slate-400"
+            className="block h-10 flex-1 resize-none overflow-y-auto rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm leading-6 text-slate-950 outline-none transition focus:border-emerald-400 placeholder:text-slate-400"
             onChange={(event) => setDraft(event.target.value)}
             onKeyDown={(event) => {
               if (event.key === "Enter" && !event.shiftKey) {
